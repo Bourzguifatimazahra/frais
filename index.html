@@ -439,6 +439,7 @@
   <div class="topbar-sep"></div>
   <span class="topbar-title">Notes de Frais</span>
   <div class="topbar-right">
+    <input type="text" class="form-input" id="globalSearch" placeholder="🔍 Rechercher..." style="height:36px;width:220px;font-size:13px;" oninput="handleGlobalSearch(this.value)"/>
     <div class="db-status db-local" id="dbStatus">
       <span>⏳</span> <span id="dbStatusText">Connexion…</span>
     </div>
@@ -1291,6 +1292,22 @@ function confirmClear(){
     renderAll(); renderMonthly(); renderYearly();
     toast('Toutes les dépenses ont été supprimées.');
   });
+}
+
+// ════════════════════════════════════════════
+// GLOBAL SEARCH
+// ════════════════════════════════════════════
+function handleGlobalSearch(query) {
+  const q = (query || '').toLowerCase().trim();
+  if (!q) {
+    if (activeTab !== 'all') switchTab('all');
+    resetFilters();
+    return;
+  }
+  // Switch to "all" tab and apply search
+  if (activeTab !== 'all') switchTab('all');
+  document.getElementById('filterSearch').value = q;
+  renderAll();
 }
 
 // ════════════════════════════════════════════
