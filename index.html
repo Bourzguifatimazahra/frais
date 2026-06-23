@@ -5,29 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Notes de Frais — Eqnovia</title>
   <meta name="description" content="Application de gestion des notes de frais Eqnovia. Saisie, OCR, historique, export PDF/Excel/CSV. Base de données Firebase."/>
-  
-  <!-- CSP permettant Tesseract.js -->
-  <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; worker-src * blob: data:; style-src * 'unsafe-inline'; connect-src * data: blob:; img-src * data: blob:; media-src * data: blob:;"/>
+  <!-- Security Headers -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.gstatic.com https://firestore.googleapis.com; frame-src 'self' https:;"/>
   <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
   <meta http-equiv="X-Frame-Options" content="DENY"/>
   <meta http-equiv="X-XSS-Protection" content="1; mode=block"/>
   <meta name="referrer" content="strict-origin-when-cross-origin"/>
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 
-  <!-- Tesseract.js -->
+  <!-- Libs -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp, updateDoc }
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+    // ── Firebase config (remplacez par votre config si vous avez votre propre projet) ──
+    // Note : la clé API Firebase est publique par conception (elle identifie le projet).
+    // La sécurité est ensured par les règles Firestore configurées dans la console Firebase.
     const firebaseConfig = {
       apiKey: "AIzaSyCCWjweceYZqbHBhdyHZCwVTdbjXgAZ-TI",
       authDomain: "eqnovia-expenses.firebaseapp.com",
@@ -42,11 +44,10 @@
       const app = initializeApp(firebaseConfig);
       db = getFirestore(app);
       window.__db = db;
-      window.__fs = { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp, updateDoc };
+      window.__fs = { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp };
       window.__fbReady = true;
-      console.log('✅ Firebase connecté');
     } catch(e) {
-      console.warn('⚠️ Firebase non configuré, mode local actif.', e);
+      console.warn('Firebase non configuré, mode local actif.', e);
       window.__fbReady = false;
     }
   </script>
@@ -88,6 +89,7 @@
     html{scroll-behavior:smooth;}
     body{font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-900);font-size:14px;line-height:1.5;min-height:100vh;}
 
+    /* ══ TOPBAR ══ */
     .topbar{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--white);border-bottom:2px solid var(--eq-blue);display:flex;align-items:center;padding:0 28px;gap:16px;z-index:100;box-shadow:var(--shadow-md);}
     .logo-wrap{display:flex;align-items:center;gap:2px;text-decoration:none;}
     .logo-eq{font-size:26px;font-weight:800;color:var(--eq-blue);letter-spacing:-1px;}
@@ -101,7 +103,10 @@
     .db-local {background:var(--amber-pale);color:var(--amber);border:1px solid #fde68a;}
     .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--eq-blue),var(--eq-blue-light));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;}
 
+    /* ══ LAYOUT ══ */
     .layout{display:flex;padding-top:var(--header-h);min-height:100vh;}
+
+    /* ══ SIDEBAR ══ */
     .sidebar{width:var(--sidebar-w);background:var(--white);border-right:1px solid var(--gray-200);position:fixed;top:var(--header-h);bottom:0;left:0;display:flex;flex-direction:column;padding:16px 0;overflow-y:auto;}
     .nav-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);padding:12px 20px 5px;}
     .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--gray-500);font-size:13px;font-weight:500;cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none;}
@@ -111,13 +116,16 @@
     .sidebar-footer{margin-top:auto;padding:14px 20px;border-top:1px solid var(--gray-100);}
     .sidebar-footer p{font-size:11px;color:var(--gray-400);margin-bottom:2px;}
 
+    /* ══ CONTENT ══ */
     .content{margin-left:var(--sidebar-w);flex:1;padding:28px 32px 80px;max-width:calc(100vw - var(--sidebar-w));}
 
-    .page-tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-200);margin-bottom:24px;flex-wrap:wrap;}
+    /* ══ PAGE TABS ══ */
+    .page-tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-200);margin-bottom:24px;}
     .tab-btn{padding:12px 22px;font-size:13px;font-weight:600;color:var(--gray-400);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;font-family:'Inter',sans-serif;}
     .tab-btn:hover{color:var(--eq-blue);}
     .tab-btn.active{color:var(--eq-blue);border-bottom-color:var(--eq-blue);}
 
+    /* ══ STATS ══ */
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
     .stat-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
     .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
@@ -135,6 +143,7 @@
     .stat-value{font-size:22px;font-weight:800;color:var(--gray-900);line-height:1;margin-bottom:4px;font-variant-numeric:tabular-nums;}
     .stat-sub{font-size:12px;color:var(--gray-400);}
 
+    /* ══ PANEL ══ */
     .panel{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-bottom:20px;overflow:hidden;}
     .panel-header{padding:16px 22px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
     .panel-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--gray-900);}
@@ -144,6 +153,7 @@
     .panel-icon.green{background:var(--green-pale);}
     .panel-body{padding:22px;}
 
+    /* ══ FORM ══ */
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
     .form-group{display:flex;flex-direction:column;gap:6px;}
     .form-group.span-2{grid-column:span 2;}
@@ -153,6 +163,7 @@
     .form-input:focus,.form-select:focus{border-color:var(--eq-blue);box-shadow:0 0 0 3px rgba(11,79,158,.12);}
     .form-select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10L6 8z' fill='%23636E82'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
 
+    /* ══ BUTTONS ══ */
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 18px;border-radius:var(--radius-md);font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;text-decoration:none;}
     .btn:active{transform:scale(.97);}
     .btn-primary{background:var(--eq-blue);color:white;box-shadow:0 2px 8px rgba(11,79,158,.25);}
@@ -175,8 +186,11 @@
     .btn-excel:hover{background:#155332;}
     .btn-csv{background:#5C6BC0;color:white;}
     .btn-csv:hover{background:#3949AB;}
-    .btn:disabled{opacity:0.6;cursor:not-allowed;}
 
+    /* ══ EXPORT GROUP ══ */
+    .export-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
+    /* ══ OCR ZONE ══ */
     .upload-zone{border:2px dashed var(--gray-300);border-radius:var(--radius-md);padding:26px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--gray-50);}
     .upload-zone:hover,.upload-zone.drag-over{border-color:var(--eq-blue);background:var(--eq-blue-pale);}
     .upload-zone input{display:none;}
@@ -187,6 +201,12 @@
     .ocr-progress-bar{height:100%;background:linear-gradient(90deg,var(--eq-blue),var(--eq-orange));border-radius:4px;width:0%;transition:width .3s;}
     .ocr-output{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px;font-size:12px;font-family:'Courier New',monospace;color:var(--gray-500);max-height:130px;overflow-y:auto;margin-top:12px;white-space:pre-wrap;line-height:1.6;}
 
+    /* ══ FILTERS ══ */
+    .filters-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 22px;background:var(--gray-50);border-bottom:1px solid var(--gray-100);}
+    .filters-bar .form-input,.filters-bar .form-select{height:36px;font-size:13px;width:auto;min-width:140px;}
+    .filter-sep{width:1px;height:24px;background:var(--gray-200);margin:0 4px;}
+
+    /* ══ TABLE ══ */
     .table-wrap{overflow-x:auto;}
     table{width:100%;border-collapse:collapse;font-size:13.5px;}
     thead tr{background:var(--gray-50);border-bottom:2px solid var(--gray-200);}
@@ -206,15 +226,18 @@
     .badge-no{background:var(--red-pale);color:var(--red);}
     .badge-cat{background:var(--eq-blue-pale);color:var(--eq-blue);}
 
+    /* ══ TABLE FOOTER ══ */
     .table-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:var(--gray-50);border-top:2px solid var(--gray-200);flex-wrap:wrap;gap:12px;}
     .total-info{font-size:13px;color:var(--gray-400);}
     .total-amount{display:flex;align-items:center;gap:10px;background:var(--eq-blue-pale);border:1px solid var(--eq-blue-mid);padding:10px 20px;border-radius:var(--radius-md);font-size:16px;font-weight:800;color:var(--eq-blue);font-variant-numeric:tabular-nums;}
 
+    /* ══ EMPTY ══ */
     .empty-state{text-align:center;padding:52px 32px;}
     .empty-state .empty-icon{font-size:46px;margin-bottom:12px;}
     .empty-state h3{font-size:16px;font-weight:700;color:var(--gray-700);margin-bottom:6px;}
     .empty-state p{font-size:13px;color:var(--gray-400);}
 
+    /* ══ HISTORY GROUPS ══ */
     .history-group{margin-bottom:16px;border:1px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
     .history-group-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--white);cursor:pointer;user-select:none;transition:background .15s;}
     .history-group-header:hover{background:var(--eq-blue-pale);}
@@ -227,20 +250,21 @@
     .history-group-body{display:none;}
     .history-group-body.open{display:block;}
 
-    .filters-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 22px;background:var(--gray-50);border-bottom:1px solid var(--gray-100);}
-    .filters-bar .form-input,.filters-bar .form-select{height:36px;font-size:13px;width:auto;min-width:140px;}
-    .filter-sep{width:1px;height:24px;background:var(--gray-200);margin:0 4px;}
+    /* ══ YEAR CHART ══ */
+    .year-chart{padding:20px 22px 8px;border-bottom:1px solid var(--gray-100);}
+    .year-chart h4{font-size:12px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
+    .bar-chart{display:flex;align-items:flex-end;gap:8px;height:80px;}
+    .bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+    .bar-fill{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--eq-blue),var(--eq-blue-light));min-height:4px;transition:height .4s;}
+    .bar-label{font-size:10px;color:var(--gray-400);font-weight:600;white-space:nowrap;}
+    .bar-value{font-size:10px;color:var(--eq-blue);font-weight:700;white-space:nowrap;}
 
-    .employee-panel{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-bottom:20px;overflow:hidden;}
-    .employee-header{padding:14px 22px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .15s;}
-    .employee-header:hover{background:var(--eq-blue-pale);}
-    .employee-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--gray-900);}
-    .employee-body{padding:18px 22px;display:block;}
-    .employee-body.collapsed{display:none;}
-    .employee-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
+    /* ══ LOADING ══ */
+    .spinner{display:inline-block;width:18px;height:18px;border:2.5px solid var(--eq-blue-pale);border-top-color:var(--eq-blue);border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .loading-row td{text-align:center;padding:40px 16px;}
 
-    .export-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-
+    /* ══ TOAST ══ */
     #toast{position:fixed;bottom:28px;right:28px;min-width:280px;max-width:360px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:14px 18px;display:none;align-items:center;gap:12px;z-index:9999;box-shadow:var(--shadow-lg);animation:slideUp .25s ease;font-size:13.5px;font-weight:500;color:var(--gray-700);}
     #toast.show{display:flex;}
     .toast-icon{width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
@@ -252,6 +276,7 @@
     @keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
     @keyframes shrink{from{width:100%;}to{width:0%;}}
 
+    /* ══ MODAL ══ */
     .modal-overlay{position:fixed;inset:0;background:rgba(26,33,48,.55);backdrop-filter:blur(3px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
     .modal-overlay.open{opacity:1;pointer-events:all;}
     .modal{background:var(--white);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:scale(.95);transition:transform .2s;}
@@ -263,12 +288,44 @@
     .modal-body{padding:20px 24px;}
     .modal-footer{padding:14px 24px 20px;display:flex;gap:10px;justify-content:flex-end;}
 
+    /* ══ EDIT MODAL ══ */
+    #editModal .modal{max-width:560px;}
+    .action-btns{display:flex;align-items:center;gap:6px;}
+
+    /* ══ EMPLOYEE INFO ══ */
+    .employee-panel{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-bottom:20px;overflow:hidden;}
+    .employee-header{padding:14px 22px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .15s;}
+    .employee-header:hover{background:var(--eq-blue-pale);}
+    .employee-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--gray-900);}
+    .employee-body{padding:18px 22px;display:block;}
+    .employee-body.collapsed{display:none;}
+    .employee-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
+
+    /* ══ POLICY ══ */
+    .policy-section h3{font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .policy-section p{font-size:13.5px;color:var(--gray-700);line-height:1.7;margin-bottom:10px;}
+    .policy-section ul{padding-left:20px;margin-bottom:10px;}
+    .policy-section li{font-size:13.5px;color:var(--gray-700);line-height:1.7;margin-bottom:6px;}
+    .policy-section a{color:var(--eq-blue);text-decoration:none;}
+    .policy-section a:hover{text-decoration:underline;}
+
+    /* ══ SCROLLBAR ══ */
+    ::-webkit-scrollbar{width:6px;height:6px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:4px;}
+    ::-webkit-scrollbar-thumb:hover{background:var(--gray-300);}
+
+    /* ══ RESPONSIVE ══ */
     @media(max-width:900px){
       .sidebar{display:none;}
       .content{margin-left:0;max-width:100%;padding:20px 16px 60px;}
       .form-grid{grid-template-columns:1fr;}
       .form-group.span-2{grid-column:span 1;}
       .input-form-grid{grid-template-columns:1fr;}
+    }
+    @media(max-width:600px){
+      .topbar-title{display:none;}
+      .export-group .btn span{display:none;}
     }
   </style>
 </head>
@@ -281,7 +338,7 @@
   <div class="toast-bar" id="toastBar"></div>
 </div>
 
-<!-- MODAL -->
+<!-- MODAL (confirm) -->
 <div class="modal-overlay" id="modal" role="dialog" aria-modal="true">
   <div class="modal">
     <div class="modal-header">
@@ -296,15 +353,93 @@
   </div>
 </div>
 
+<!-- MODAL (edit expense) -->
+<div class="modal-overlay" id="editModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✏️ Modifier la dépense</h3>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="editDate">Date *</label>
+          <input type="date" class="form-input" id="editDate"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editCat">Type de dépenses</label>
+          <select class="form-select" id="editCat">
+            <option value="Transport">🚗 Transport</option>
+            <option value="Repas">🍽️ Repas</option>
+            <option value="Hébergement">🏨 Hébergement</option>
+            <option value="Matériel">📦 Matériel</option>
+            <option value="Communication">📞 Communication</option>
+            <option value="Formation">🎓 Formation</option>
+            <option value="Autre">📌 Autre</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editTotalHT">Total HT (DH)</label>
+          <input type="number" class="form-input" id="editTotalHT" step="0.01" min="0" placeholder="0,00"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editAmount">Total TTC (DH) *</label>
+          <input type="number" class="form-input" id="editAmount" step="0.01" min="0.01" placeholder="0,00"/>
+        </div>
+        <div class="form-group span-2">
+          <label class="form-label" for="editDesc">Description *</label>
+          <input type="text" class="form-input" id="editDesc" placeholder="Description de la dépense" autocomplete="off"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Justificatif (Image/PDF, < 800Ko)</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-ghost" type="button" onclick="document.getElementById('editJustifFileInput').click()" style="height:40px;flex:1;">
+              📎 Changer fichier
+            </button>
+            <input type="file" id="editJustifFileInput" accept="image/*,application/pdf" style="display:none;" onchange="handleJustifFileSelect(this, 'edit')"/>
+            <span id="editJustifFileStatus" style="font-size:12px;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">Aucun</span>
+            <button class="btn btn-icon" type="button" id="btnDelEditJustif" onclick="clearJustifFile('edit')" style="display:none;height:40px;width:40px;color:var(--red);" title="Supprimer le justificatif">✕</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editComment">Commentaires</label>
+          <input type="text" class="form-input" id="editComment" placeholder="Remarques éventuelles..." autocomplete="off"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeEditModal()">Annuler</button>
+      <button class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">💾 Enregistrer les modifications</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL (justificatif preview) -->
+<div class="modal-overlay" id="justifModal" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-header">
+      <h3 id="justifModalTitle">Visualisation du justificatif</h3>
+      <button class="modal-close" onclick="closeJustifModal()">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center; overflow: auto; max-height: 70vh;">
+      <div id="justifModalContent"></div>
+    </div>
+    <div class="modal-footer">
+      <a class="btn btn-primary" id="justifDownloadBtn" download href="#">💾 Télécharger</a>
+      <button class="btn btn-ghost" onclick="closeJustifModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOP BAR -->
 <header class="topbar">
   <a href="#" class="logo-wrap" aria-label="Eqnovia">
-    <span class="logo-eq">eqnovia</span>
-    <span class="logo-dot"></span>
+    <img src="image.png" alt="Eqnovia Logo" style="height:38px;width:auto;border-radius:6px;"/>
   </a>
   <div class="topbar-sep"></div>
   <span class="topbar-title">Notes de Frais</span>
   <div class="topbar-right">
+    <input type="text" class="form-input" id="globalSearch" placeholder="🔍 Rechercher..." style="height:36px;width:220px;font-size:13px;" oninput="handleGlobalSearch(this.value)"/>
     <div class="db-status db-local" id="dbStatus">
       <span>⏳</span> <span id="dbStatusText">Connexion…</span>
     </div>
@@ -323,6 +458,12 @@
   <a class="nav-item" onclick="switchTab('all')" id="nav-all">
     <span class="nav-icon">📋</span> Toutes les dépenses
   </a>
+  <a class="nav-item" onclick="switchTab('monthly')" id="nav-monthly">
+    <span class="nav-icon">📅</span> Par mois
+  </a>
+  <a class="nav-item" onclick="switchTab('yearly')" id="nav-yearly">
+    <span class="nav-icon">📆</span> Par année
+  </a>
 
   <span class="nav-label">Exports</span>
   <a class="nav-item" onclick="exportPDF()">
@@ -340,9 +481,14 @@
     <span class="nav-icon">🗑️</span> Tout effacer
   </a>
 
+  <span class="nav-label">Informations</span>
+  <a class="nav-item" onclick="switchTab('policy')" id="nav-policy">
+    <span class="nav-icon">📜</span> Conditions & Politique
+  </a>
+
   <div class="sidebar-footer">
     <p>Eqnovia © 2025</p>
-    <p>v3.1 · OCR + Firebase</p>
+    <p>v3.0 · Firebase + Local</p>
   </div>
 </aside>
 
@@ -409,6 +555,9 @@
   <div class="page-tabs">
     <button class="tab-btn active" id="tab-saisie"   onclick="switchTab('saisie')">✏️ Saisie & OCR</button>
     <button class="tab-btn"        id="tab-all"      onclick="switchTab('all')">📋 Toutes</button>
+    <button class="tab-btn"        id="tab-monthly"  onclick="switchTab('monthly')">📅 Par mois</button>
+    <button class="tab-btn"        id="tab-yearly"   onclick="switchTab('yearly')">📆 Par année</button>
+    <button class="tab-btn"        id="tab-policy"   onclick="switchTab('policy')">📜 Conditions & Politique</button>
   </div>
 
   <!-- ══ TAB: SAISIE & OCR ══ -->
@@ -435,7 +584,6 @@
                 <option value="Matériel">📦 Matériel</option>
                 <option value="Communication">📞 Communication</option>
                 <option value="Formation">🎓 Formation</option>
-                <option value="Achat">🛒 Achat</option>
                 <option value="Autre">📌 Autre</option>
               </select>
             </div>
@@ -450,6 +598,17 @@
             <div class="form-group span-2">
               <label class="form-label" for="descInput">Description *</label>
               <input type="text" class="form-input" id="descInput" placeholder="Ex : Taxi aéroport, Repas client, Hôtel Casablanca…" autocomplete="off"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Justificatif (Image/PDF, < 800Ko)</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn btn-ghost" type="button" onclick="document.getElementById('justifFileInput').click()" style="height:40px;flex:1;">
+                  📎 Choisir fichier
+                </button>
+                <input type="file" id="justifFileInput" accept="image/*,application/pdf" style="display:none;" onchange="handleJustifFileSelect(this, 'add')"/>
+                <span id="justifFileStatus" style="font-size:12px;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">Aucun</span>
+                <button class="btn btn-icon" type="button" id="btnDelJustif" onclick="clearJustifFile('add')" style="display:none;height:40px;width:40px;color:var(--red);" title="Supprimer le justificatif">✕</button>
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label" for="commentInput">Commentaires</label>
@@ -520,8 +679,12 @@
           <option value="Matériel">📦 Matériel</option>
           <option value="Communication">📞 Communication</option>
           <option value="Formation">🎓 Formation</option>
-          <option value="Achat">🛒 Achat</option>
           <option value="Autre">📌 Autre</option>
+        </select>
+        <select class="form-select" id="filterJustif" onchange="renderAll()">
+          <option value="all">📎 Tous</option>
+          <option value="Oui">✅ Avec justif.</option>
+          <option value="Non">❌ Sans justif.</option>
         </select>
         <div class="filter-sep"></div>
         <input type="text" class="form-input" id="filterSearch" placeholder="🔍 Recherche…" oninput="renderAll()" style="min-width:160px;"/>
@@ -538,6 +701,7 @@
               <th class="sortable" onclick="sortBy('totalHT')">Total HT ⇅</th>
               <th class="sortable" onclick="sortBy('amount')">Total TTC ⇅</th>
               <th>Commentaires</th>
+              <th>Justificatif</th>
               <th></th>
             </tr>
           </thead>
@@ -547,6 +711,98 @@
       <div class="table-footer">
         <span class="total-info" id="rowCount">0 ligne(s)</span>
         <div class="total-amount" id="grandTotal">💰 Total : <strong>0,00 DH</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: PAR MOIS ══ -->
+  <div id="tab-content-monthly" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;gap:8px;">
+        <select class="form-select" id="filterYearMonth" onchange="renderMonthly()" style="height:36px;width:auto;">
+          <option value="all">Toutes années</option>
+        </select>
+      </div>
+      <div class="export-group">
+        <button class="btn btn-pdf"   onclick="exportPDF()">📄 PDF</button>
+        <button class="btn btn-excel" onclick="exportExcel()">📊 Excel</button>
+        <button class="btn btn-csv"   onclick="exportCSV()">📑 CSV</button>
+      </div>
+    </div>
+    <div id="monthlyGroups"></div>
+  </div>
+
+  <!-- ══ TAB: PAR ANNÉE ══ -->
+  <div id="tab-content-yearly" style="display:none;">
+    <div style="margin-bottom:16px;display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn btn-pdf"   onclick="exportPDF()">📄 PDF</button>
+      <button class="btn btn-excel" onclick="exportExcel()">📊 Excel</button>
+      <button class="btn btn-csv"   onclick="exportCSV()">📑 CSV</button>
+    </div>
+    <div id="yearlyGroups"></div>
+  </div>
+
+  <!-- ══ TAB: CONDITIONS & POLITIQUE ══ -->
+  <div id="tab-content-policy" style="display:none;">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><div class="panel-icon blue">📜</div> Conditions Générales & Politique de Confidentialité</div>
+      </div>
+      <div class="panel-body" style="max-width:900px;">
+        <div style="display:grid;gap:24px;">
+
+          <!-- Conditions d'utilisation -->
+          <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--white);">
+            <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;">📋</span> Conditions d'utilisation
+            </h3>
+            <div style="font-size:13.5px;color:var(--gray-700);line-height:1.7;">
+              <p style="margin-bottom:10px;">En utilisant l'application <strong>Eqnovia Notes de Frais</strong>, vous acceptez les présentes conditions d'utilisation :</p>
+              <ul style="padding-left:20px;margin-bottom:10px;">
+                <li style="margin-bottom:6px;">L'application est destinée exclusivement aux employés d'Eqnovia pour la gestion de leurs notes de frais professionnels.</li>
+                <li style="margin-bottom:6px;">Toute dépense enregistrée doit être justifiée par un justificatif valide (facture, ticket de caisse, etc.).</li>
+                <li style="margin-bottom:6px;">Les montants saisis doivent être exacts et correspondre aux documents justificatifs.</li>
+                <li style="margin-bottom:6px;">L'utilisateur est responsable de l'exactitude des informations qu'il saisit.</li>
+                <li style="margin-bottom:6px;">Toute tentative de fraude ou de falsification de données pourra entraîner des sanctions disciplinaires.</li>
+                <li style="margin-bottom:6px;">L'administration se réserve le droit de vérifier et de contrôler les notes de frais soumises.</li>
+              </ul>
+              <p>Les présentes conditions peuvent être modifiées à tout moment. Il est conseillé de les consulter régulièrement.</p>
+            </div>
+          </div>
+
+          <!-- Politique de confidentialité -->
+          <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--white);">
+            <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;">🔒</span> Politique de confidentialité
+            </h3>
+            <div style="font-size:13.5px;color:var(--gray-700);line-height:1.7;">
+              <p style="margin-bottom:10px;">Eqnovia s'engage à protéger la confidentialité des données personnelles de ses employés :</p>
+              <ul style="padding-left:20px;margin-bottom:10px;">
+                <li style="margin-bottom:6px;"><strong>Données collectées :</strong> nom, prénom, département, dates de dépenses, montants, descriptions, catégories, justificatifs.</li>
+                <li style="margin-bottom:6px;"><strong>Finalité :</strong> gestion comptable des notes de frais et remboursement des employés.</li>
+                <li style="margin-bottom:6px;"><strong>Conservation :</strong> les données sont conservées pendant la durée légale de conservation comptable (10 ans).</li>
+                <li style="margin-bottom:6px;"><strong>Partage :</strong> les données ne sont partagées qu'avec les services habilités (comptabilité, RH, direction).</li>
+                <li style="margin-bottom:6px;"><strong>Sécurité :</strong> les données sont stockées de manière sécurisée (Firebase / localStorage) et protégées contre tout accès non autorisé.</li>
+                <li style="margin-bottom:6px;"><strong>Droits :</strong> vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Contactez le service RH pour exercer ces droits.</li>
+              </ul>
+              <p>Pour toute question relative à la protection des données, contactez le délégué à la protection des données (DPO) d'Eqnovia.</p>
+            </div>
+          </div>
+
+          <!-- Contact -->
+          <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--eq-blue-pale);">
+            <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:20px;">📞</span> Contact & Support
+            </h3>
+            <div style="font-size:13.5px;color:var(--gray-700);line-height:1.7;">
+              <p style="margin-bottom:8px;">Pour toute question concernant l'utilisation de l'application ou les notes de frais :</p>
+              <p style="margin-bottom:4px;"><strong>Email :</strong> <a href="mailto:support@eqnovia.ma" style="color:var(--eq-blue);text-decoration:none;">support@eqnovia.ma</a></p>
+              <p style="margin-bottom:4px;"><strong>Téléphone :</strong> +212 5XX-XXXXXX</p>
+              <p><strong>Adresse :</strong> Eqnovia, Casablanca, Maroc</p>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   </div>
@@ -566,13 +822,14 @@ const MONTHS_SHORT= ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oc
 
 let sortCol = 'date', sortDir = -1;
 let activeTab = 'saisie';
-let cache = [];
+let cache = [];       // in-memory cache
 let useFirebase = false;
+let addJustifData = { fileData: '', fileName: '' };
+let editJustifData = { fileData: '', fileName: '' };
 let employeeInfo = { nom: '', prenom: '', dept: '' };
-let ocrText = '';
 
 // ════════════════════════════════════════════
-// FIREBASE FUNCTIONS
+// FIREBASE BRIDGE (async, module-loaded)
 // ════════════════════════════════════════════
 async function fbAdd(expense) {
   if (!useFirebase) return;
@@ -588,14 +845,11 @@ async function fbAdd(expense) {
 async function fbDelete(id) {
   if (!useFirebase) return;
   try {
-    const { collection, getDocs, deleteDoc, doc } = window.__fs;
+    const { collection, getDocs, deleteDoc, doc, query } = window.__fs;
     const snap = await getDocs(collection(window.__db, 'expenses'));
-    for (const d of snap.docs) {
-      if (d.data().id === id) {
-        await deleteDoc(doc(window.__db, 'expenses', d.id));
-        break;
-      }
-    }
+    snap.forEach(async d => {
+      if (d.data().id === id) await deleteDoc(doc(window.__db, 'expenses', d.id));
+    });
   } catch(e) { console.warn('FB delete failed', e); }
 }
 
@@ -603,26 +857,12 @@ async function fbLoad() {
   if (!useFirebase) return null;
   try {
     const { collection, getDocs, query, orderBy } = window.__fs;
-    const q = query(collection(window.__db, 'expenses'), orderBy('createdAt', 'asc'));
+    const q    = query(collection(window.__db,'expenses'), orderBy('createdAt','asc'));
     const snap = await getDocs(q);
-    const arr = [];
+    const arr  = [];
     snap.forEach(d => arr.push({ ...d.data() }));
     return arr;
   } catch(e) { console.warn('FB load failed', e); return null; }
-}
-
-async function fbUpdate(id, data) {
-  if (!useFirebase) return;
-  try {
-    const { collection, getDocs, updateDoc, doc } = window.__fs;
-    const snap = await getDocs(collection(window.__db, 'expenses'));
-    for (const d of snap.docs) {
-      if (d.data().id === id) {
-        await updateDoc(doc(window.__db, 'expenses', d.id), data);
-        break;
-      }
-    }
-  } catch(e) { console.warn('FB update failed', e); }
 }
 
 // ════════════════════════════════════════════
@@ -639,7 +879,7 @@ async function dataLoad() {
     const fb = await fbLoad();
     if (fb !== null) {
       cache = fb;
-      lsSave(cache);
+      lsSave(cache); // sync local
       return;
     }
   }
@@ -658,19 +898,10 @@ async function dataDelete(id) {
   await fbDelete(id);
 }
 
-async function dataUpdate(id, newData) {
-  const idx = cache.findIndex(e => e.id === id);
-  if (idx !== -1) {
-    cache[idx] = { ...cache[idx], ...newData };
-    lsSave(cache);
-    await fbUpdate(id, newData);
-  }
-}
-
 function dataAll() { return [...cache]; }
 
 // ════════════════════════════════════════════
-// EMPLOYEE HELPERS
+// COLLABORATEUR / EMPLOYE HELPERS
 // ════════════════════════════════════════════
 function saveEmployeeInfo() {
   employeeInfo.nom = document.getElementById('empNom').value.trim();
@@ -689,7 +920,9 @@ function loadEmployeeInfo() {
       document.getElementById('empPrenom').value = employeeInfo.prenom || '';
       document.getElementById('empDept').value = employeeInfo.dept || '';
     }
-  } catch (e) { console.error("Error loading employee info", e); }
+  } catch (e) {
+    console.error("Error loading employee info", e);
+  }
   updateAvatar();
 }
 
@@ -704,13 +937,111 @@ function updateAvatar() {
       avatar.textContent = 'EQ';
     }
   }
+  
+  const statusEl = document.getElementById('dbStatus');
+  let empTag = document.getElementById('empHeaderTag');
+  if (!empTag && statusEl) {
+    empTag = document.createElement('span');
+    empTag.id = 'empHeaderTag';
+    empTag.style.fontSize = '13px';
+    empTag.style.fontWeight = '600';
+    empTag.style.color = 'var(--gray-700)';
+    empTag.style.marginRight = '8px';
+    statusEl.parentNode.insertBefore(empTag, statusEl);
+  }
+  if (empTag) {
+    if (employeeInfo.nom || employeeInfo.prenom) {
+      empTag.textContent = `${employeeInfo.prenom} ${employeeInfo.nom}`;
+      empTag.style.display = 'inline';
+    } else {
+      empTag.style.display = 'none';
+    }
+  }
 }
 
 function toggleEmployeePanel() {
   const body = document.getElementById('employeeBody');
   const icon = document.getElementById('employeeToggleIcon');
   body.classList.toggle('collapsed');
-  icon.textContent = body.classList.contains('collapsed') ? '▼' : '▲';
+  if (body.classList.contains('collapsed')) {
+    icon.textContent = '▼';
+  } else {
+    icon.textContent = '▲';
+  }
+}
+
+// ════════════════════════════════════════════
+// JUSTIFICATIF UPLOAD & PREVIEW HELPERS
+// ════════════════════════════════════════════
+function handleJustifFileSelect(input, mode) {
+  const file = input.files[0];
+  if (!file) return;
+
+  if (file.size > 800 * 1024) {
+    toast("Fichier trop volumineux (max 800 Ko).", "err");
+    input.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    if (mode === 'add') {
+      addJustifData = { fileData: e.target.result, fileName: file.name };
+      document.getElementById('justifFileStatus').textContent = file.name;
+      document.getElementById('justifFileStatus').style.color = 'var(--eq-blue)';
+      document.getElementById('btnDelJustif').style.display = 'inline-flex';
+    } else {
+      editJustifData = { fileData: e.target.result, fileName: file.name };
+      document.getElementById('editJustifFileStatus').textContent = file.name;
+      document.getElementById('editJustifFileStatus').style.color = 'var(--eq-blue)';
+      document.getElementById('btnDelEditJustif').style.display = 'inline-flex';
+    }
+    toast("Justificatif chargé !");
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearJustifFile(mode) {
+  if (mode === 'add') {
+    addJustifData = { fileData: '', fileName: '' };
+    document.getElementById('justifFileInput').value = "";
+    document.getElementById('justifFileStatus').textContent = "Aucun";
+    document.getElementById('justifFileStatus').style.color = 'var(--gray-400)';
+    document.getElementById('btnDelJustif').style.display = 'none';
+  } else {
+    editJustifData = { fileData: '', fileName: '' };
+    document.getElementById('editJustifFileInput').value = "";
+    document.getElementById('editJustifFileStatus').textContent = "Aucun";
+    document.getElementById('editJustifFileStatus').style.color = 'var(--gray-400)';
+    document.getElementById('btnDelEditJustif').style.display = 'none';
+  }
+}
+
+function openJustifPreview(id) {
+  const exp = cache.find(e => e.id === id);
+  if (!exp || !exp.justifFile) return toast('Aucun justificatif disponible.', 'err');
+  
+  const content = document.getElementById('justifModalContent');
+  const downloadBtn = document.getElementById('justifDownloadBtn');
+  document.getElementById('justifModalTitle').textContent = `Justificatif - ${exp.desc}`;
+  
+  downloadBtn.href = exp.justifFile;
+  downloadBtn.download = exp.justifName || `justificatif_${exp.id}`;
+  
+  if (exp.justifFile.startsWith('data:image/')) {
+    content.innerHTML = `<img src="${exp.justifFile}" style="max-width:100%; border-radius:var(--radius-md); box-shadow:var(--shadow-sm);" alt="Receipt"/>`;
+  } else if (exp.justifFile.startsWith('data:application/pdf')) {
+    content.innerHTML = `<iframe src="${exp.justifFile}" style="width:100%; height:400px; border:none;" title="PDF Preview"></iframe>`;
+  } else {
+    content.innerHTML = `<p style="padding:20px; color:var(--gray-500);">Aperçu indisponible. Utilisez le bouton ci-dessous pour télécharger le fichier.</p>`;
+  }
+  
+  document.getElementById('justifModal').classList.add('open');
+}
+
+function closeJustifModal() {
+  document.getElementById('justifModal').classList.remove('open');
+  document.getElementById('justifModalContent').innerHTML = '';
 }
 
 // ════════════════════════════════════════════
@@ -728,9 +1059,25 @@ function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 function today() { return new Date().toISOString().split('T')[0]; }
+
+// ════════════════════════════════════════════
+// SECURITY HELPERS
+// ════════════════════════════════════════════
+function sanitizeInput(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[<>\"']/g, '').trim();
+}
+
 function validateAmount(val) {
   const n = parseFloat(val);
   return !isNaN(n) && n >= 0 && n <= 10000000;
+}
+
+function validateDate(dateStr) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const tenYearsAgo = new Date(now.getFullYear() - 10, now.getMonth(), now.getDate());
+  return !isNaN(d.getTime()) && d <= now && d >= tenYearsAgo;
 }
 
 // ════════════════════════════════════════════
@@ -767,48 +1114,147 @@ document.getElementById('modal').addEventListener('click',e=>{
 // ════════════════════════════════════════════
 // TAB SWITCHING
 // ════════════════════════════════════════════
+const TABS = ['saisie','all','monthly','yearly','policy'];
 function switchTab(t) {
   activeTab = t;
-  ['saisie','all'].forEach(id=>{
+  TABS.forEach(id=>{
     document.getElementById(`tab-content-${id}`).style.display = id===t?'block':'none';
     document.getElementById(`tab-${id}`)?.classList.toggle('active', id===t);
     document.getElementById(`nav-${id}`)?.classList.toggle('active', id===t);
   });
-  if (t==='all') renderAll();
+  if (t==='all')     { renderAll(); }
+  if (t==='monthly') { renderMonthly(); }
+  if (t==='yearly')  { renderYearly(); }
 }
 
 // ════════════════════════════════════════════
 // ADD EXPENSE
 // ════════════════════════════════════════════
+// ════════════════════════════════════════════
+// ADD EXPENSE
+// ════════════════════════════════════════════
 async function addExpense() {
   const date    = document.getElementById('dateInput').value;
-  const desc    = document.getElementById('descInput').value.trim();
+  const desc    = sanitizeInput(document.getElementById('descInput').value);
   const amount  = parseFloat(document.getElementById('amountInput').value);
-  const totalHT = parseFloat(document.getElementById('totalHTInput').value) || 0;
+  const totalHT = parseFloat(document.getElementById('totalHTInput').value);
   const cat     = document.getElementById('catInput').value;
-  const comment = document.getElementById('commentInput').value.trim();
+  const comment = sanitizeInput(document.getElementById('commentInput').value);
 
   if (!date)                    return toast('Veuillez saisir une date.','err');
   if (!desc)                    return toast('Veuillez saisir une description.','err');
-  if (!validateAmount(amount))  return toast('Montant TTC invalide.','err');
-  if (!validateAmount(totalHT)) return toast('Montant HT invalide.','err');
+  if (!validateDate(date))      return toast('Date invalide (doit être dans le passé et <= 10 ans).','err');
+  if (!validateAmount(amount))  return toast('Montant TTC invalide (0 < montant <= 10 000 000).','err');
+  if (!validateAmount(totalHT)) return toast('Montant HT invalide (0 <= montant <= 10 000 000).','err');
 
   const btn = document.getElementById('addBtn');
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Enregistrement…';
 
-  const exp = { id: Date.now(), date, desc, amount, totalHT, cat, comment };
+  const justifFile = addJustifData.fileData || '';
+  const justifName = addJustifData.fileName || '';
+  const justif     = justifFile ? 'Oui' : 'Non';
+
+  const exp = { id: Date.now(), date, desc, amount, totalHT, cat, comment, justif, justifFile, justifName };
   await dataAdd(exp);
 
   btn.disabled=false; btn.innerHTML='➕ Ajouter la dépense';
   
+  // Reset inputs
   document.getElementById('descInput').value='';
   document.getElementById('amountInput').value='';
   document.getElementById('totalHTInput').value='';
   document.getElementById('commentInput').value='';
+  clearJustifFile('add');
   
   updateKPIs();
   if (activeTab!=='saisie') switchTab(activeTab); else renderAll();
-  toast('✅ Dépense enregistrée dans Firebase !', 'ok');
+  toast('Dépense enregistrée dans la base de données ✔');
+}
+
+// ════════════════════════════════════════════
+// EDIT
+// ════════════════════════════════════════════
+let editingId = null;
+
+function editRow(id) {
+  const exp = cache.find(e => e.id === id);
+  if (!exp) return toast('Dépense introuvable.', 'err');
+  editingId = id;
+  document.getElementById('editDate').value    = exp.date;
+  document.getElementById('editAmount').value  = exp.amount;
+  document.getElementById('editTotalHT').value = exp.totalHT || '';
+  document.getElementById('editDesc').value    = exp.desc;
+  document.getElementById('editCat').value     = exp.cat || 'Autre';
+  document.getElementById('editComment').value = exp.comment || '';
+  
+  if (exp.justifFile) {
+    editJustifData = { fileData: exp.justifFile, fileName: exp.justifName || 'justificatif' };
+    document.getElementById('editJustifFileStatus').textContent = exp.justifName || 'justificatif';
+    document.getElementById('editJustifFileStatus').style.color = 'var(--eq-blue)';
+    document.getElementById('btnDelEditJustif').style.display = 'inline-flex';
+  } else {
+    clearJustifFile('edit');
+  }
+  
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+  editingId = null;
+}
+
+document.getElementById('editModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('editModal')) closeEditModal();
+});
+
+async function saveEdit() {
+  if (editingId === null) return;
+  const date    = document.getElementById('editDate').value;
+  const desc    = sanitizeInput(document.getElementById('editDesc').value);
+  const amount  = parseFloat(document.getElementById('editAmount').value);
+  const totalHT = parseFloat(document.getElementById('editTotalHT').value);
+  const cat     = document.getElementById('editCat').value;
+  const comment = sanitizeInput(document.getElementById('editComment').value);
+
+  if (!date)                    return toast('Veuillez saisir une date.', 'err');
+  if (!desc)                    return toast('Veuillez saisir une description.', 'err');
+  if (!validateDate(date))      return toast('Date invalide (doit être dans le passé et <= 10 ans).', 'err');
+  if (!validateAmount(amount))  return toast('Montant TTC invalide (0 < montant <= 10 000 000).', 'err');
+  if (!validateAmount(totalHT)) return toast('Montant HT invalide (0 <= montant <= 10 000 000).', 'err');
+
+  const btn = document.getElementById('editSaveBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enregistrement…';
+
+  const justifFile = editJustifData.fileData || '';
+  const justifName = editJustifData.fileName || '';
+  const justif     = justifFile ? 'Oui' : 'Non';
+
+  // Update in cache
+  const idx = cache.findIndex(e => e.id === editingId);
+  if (idx !== -1) {
+    cache[idx] = { ...cache[idx], date, desc, amount, totalHT, cat, comment, justif, justifFile, justifName };
+    lsSave(cache);
+    // Firebase: delete old + re-add updated
+    if (useFirebase) {
+      try {
+        const { collection, getDocs, deleteDoc, doc, addDoc, serverTimestamp } = window.__fs;
+        const snap = await getDocs(collection(window.__db, 'expenses'));
+        for (const d of snap.docs) {
+          if (d.data().id === editingId) { await deleteDoc(doc(window.__db, 'expenses', d.id)); break; }
+        }
+        await addDoc(collection(window.__db, 'expenses'), { ...cache[idx], createdAt: serverTimestamp() });
+      } catch(e) { console.warn('FB edit failed', e); }
+    }
+  }
+
+  btn.disabled = false; btn.innerHTML = '💾 Enregistrer les modifications';
+  closeEditModal();
+  updateKPIs();
+  if (activeTab === 'monthly') renderMonthly();
+  else if (activeTab === 'yearly') renderYearly();
+  else renderAll();
+  toast('Dépense modifiée avec succès ✔');
 }
 
 // ════════════════════════════════════════════
@@ -818,8 +1264,10 @@ function deleteRow(id) {
   showModal('Supprimer la dépense','Cette action est irréversible. Continuer ?', async()=>{
     await dataDelete(id);
     updateKPIs();
-    renderAll();
-    toast('🗑️ Dépense supprimée.', 'info');
+    if (activeTab==='monthly') renderMonthly();
+    else if (activeTab==='yearly') renderYearly();
+    else renderAll();
+    toast('Dépense supprimée.');
   });
 }
 
@@ -828,15 +1276,38 @@ function deleteRow(id) {
 // ════════════════════════════════════════════
 function confirmClear(){
   showModal('⚠️ Supprimer tout','Toutes les dépenses seront effacées de la base de données. Continuer ?', async()=>{
-    for (const e of cache) {
-      await dataDelete(e.id);
+    // Delete from firebase
+    if (useFirebase) {
+      try {
+        const { collection, getDocs, deleteDoc, doc } = window.__fs;
+        const snap = await getDocs(collection(window.__db,'expenses'));
+        const promises = [];
+        snap.forEach(d => promises.push(deleteDoc(doc(window.__db,'expenses',d.id))));
+        await Promise.all(promises);
+      } catch(e){ console.warn(e); }
     }
-    cache = [];
+    cache=[];
     lsSave([]);
     updateKPIs();
-    renderAll();
-    toast('🗑️ Toutes les dépenses ont été supprimées.', 'info');
+    renderAll(); renderMonthly(); renderYearly();
+    toast('Toutes les dépenses ont été supprimées.');
   });
+}
+
+// ════════════════════════════════════════════
+// GLOBAL SEARCH
+// ════════════════════════════════════════════
+function handleGlobalSearch(query) {
+  const q = (query || '').toLowerCase().trim();
+  if (!q) {
+    if (activeTab !== 'all') switchTab('all');
+    resetFilters();
+    return;
+  }
+  // Switch to "all" tab and apply search
+  if (activeTab !== 'all') switchTab('all');
+  document.getElementById('filterSearch').value = q;
+  renderAll();
 }
 
 // ════════════════════════════════════════════
@@ -870,11 +1341,15 @@ function sortBy(col){
 // ════════════════════════════════════════════
 // TAB: TOUTES (renderAll)
 // ════════════════════════════════════════════
+// ════════════════════════════════════════════
+// TAB: TOUTES (renderAll)
+// ════════════════════════════════════════════
 function renderAll() {
   const data    = dataAll();
   const yearF   = document.getElementById('filterYear').value;
   const monthF  = document.getElementById('filterMonth').value;
   const catF    = document.getElementById('filterCat').value;
+  const justifF = document.getElementById('filterJustif').value;
   const search  = (document.getElementById('filterSearch').value||'').toLowerCase();
 
   // Rebuild year dropdown
@@ -890,6 +1365,7 @@ function renderAll() {
     return (yearF==='all'||y===yearF)
         && (monthF==='all'||m===monthF)
         && (catF==='all'||(e.cat||'Autre')===catF)
+        && (justifF==='all'||e.justif===justifF)
         && (!search||e.desc.toLowerCase().includes(search)||(e.cat||'').toLowerCase().includes(search));
   }).sort((a,b)=>{
     if(sortCol==='amount') return (a.amount-b.amount)*sortDir;
@@ -900,7 +1376,7 @@ function renderAll() {
   const tbody=document.getElementById('tbody');
 
   if(!rows.length){
-    tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🗂️</div><h3>Aucune dépense trouvée</h3><p>Ajustez vos filtres ou saisissez une nouvelle dépense.</p></div></td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🗂️</div><h3>Aucune dépense trouvée</h3><p>Ajustez vos filtres ou saisissez une nouvelle dépense.</p></div></td></tr>`;
     document.getElementById('grandTotal').innerHTML='💰 Total : <strong>0,00 DH</strong>';
     document.getElementById('rowCount').textContent='0 ligne(s)';
     return;
@@ -910,6 +1386,14 @@ function renderAll() {
   rows.forEach((e,i)=>{
     total+=e.amount;
     totalHTSum+= (e.totalHT || 0);
+
+    let justifBadge = '';
+    if (e.justifFile) {
+      justifBadge = `<span class="badge badge-yes" style="cursor:pointer;" onclick="openJustifPreview(${e.id})" title="Voir le justificatif : ${esc(e.justifName)}">📎 ${esc(e.justifName)}</span>`;
+    } else {
+      justifBadge = `<span class="badge badge-no">❌ Non</span>`;
+    }
+
     html+=`<tr>
       <td style="color:var(--gray-400);font-size:12px;">${i+1}</td>
       <td class="td-date">${fmtDate(e.date)}</td>
@@ -918,7 +1402,8 @@ function renderAll() {
       <td class="td-amount" style="color:var(--gray-500);font-weight:normal;">${fmtDH(e.totalHT || 0)}</td>
       <td class="td-amount">${fmtDH(e.amount)}</td>
       <td class="td-desc"><span title="${esc(e.comment || '')}">${esc(e.comment || '—')}</span></td>
-      <td><div class="action-btns"><button class="btn-icon" onclick="deleteRow(${e.id})" title="Supprimer">✕</button></div></td>
+      <td>${justifBadge}</td>
+      <td><div class="action-btns"><button class="btn-icon edit" onclick="editRow(${e.id})" title="Modifier">✏️</button><button class="btn-icon" onclick="deleteRow(${e.id})" title="Supprimer">✕</button></div></td>
     </tr>`;
   });
   tbody.innerHTML=html;
@@ -927,206 +1412,290 @@ function renderAll() {
 }
 
 function resetFilters(){
-  ['filterYear','filterMonth','filterCat'].forEach(id=>document.getElementById(id).value='all');
+  ['filterYear','filterMonth','filterCat','filterJustif'].forEach(id=>document.getElementById(id).value='all');
   document.getElementById('filterSearch').value='';
   renderAll();
 }
 
 // ════════════════════════════════════════════
-// OCR AVEC TESSERACT.JS
+// TAB: PAR MOIS
 // ════════════════════════════════════════════
-function onFileChosen(e) {
-  const f = e.target.files[0];
-  document.getElementById('fileName').textContent = f ? '📎 ' + f.name : 'Aucun fichier';
-}
+function renderMonthly() {
+  const data   = dataAll();
+  const yearF  = document.getElementById('filterYearMonth').value;
 
-function handleDragOver(e) {
-  e.preventDefault();
-  document.getElementById('uploadZone').classList.add('drag-over');
-}
+  // Rebuild year filter
+  const years=[...new Set(data.map(e=>e.date.substring(0,4)))].sort().reverse();
+  const ySel=document.getElementById('filterYearMonth');
+  const yVal=ySel.value;
+  ySel.innerHTML='<option value="all">Toutes années</option>';
+  years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;ySel.appendChild(o);});
+  if(years.includes(yVal)) ySel.value=yVal;
 
-function handleDragLeave() {
-  document.getElementById('uploadZone').classList.remove('drag-over');
-}
+  const filtered = data.filter(e=> yearF==='all'||e.date.substring(0,4)===yearF);
 
-function handleDrop(e) {
-  e.preventDefault();
-  document.getElementById('uploadZone').classList.remove('drag-over');
-  const f = e.dataTransfer.files[0];
-  if (f && f.type.startsWith('image/')) {
-    const dt = new DataTransfer();
-    dt.items.add(f);
-    document.getElementById('fileInput').files = dt.files;
-    document.getElementById('fileName').textContent = '📎 ' + f.name;
-  } else {
-    toast('Veuillez déposer un fichier image.', 'err');
+  // Group by YYYY-MM
+  const groups={};
+  filtered.forEach(e=>{
+    const key=e.date.substring(0,7);
+    if(!groups[key]) groups[key]=[];
+    groups[key].push(e);
+  });
+
+  const keys=Object.keys(groups).sort().reverse();
+  const container=document.getElementById('monthlyGroups');
+
+  if(!keys.length){
+    container.innerHTML=`<div class="panel"><div class="empty-state"><div class="empty-icon">📭</div><h3>Aucune dépense</h3><p>Aucune dépense enregistrée pour cette période.</p></div></div>`;
+    return;
   }
-}
 
-async function runOCR() {
-  const fi = document.getElementById('fileInput');
-  const out = document.getElementById('ocrOutput');
-  const bar = document.getElementById('ocrBar');
-  const prog = document.getElementById('ocrProgress');
-  const btn = document.getElementById('ocrBtn');
-  
-  if (!fi.files || !fi.files.length) {
-    return toast('Choisissez d\'abord une image.', 'err');
-  }
-  
-  btn.disabled = true;
-  btn.textContent = '⏳ Lecture…';
-  prog.style.display = 'block';
-  bar.style.width = '0%';
-  out.textContent = '⏳ Initialisation Tesseract…';
-  
-  try {
-    const { data: { text } } = await Tesseract.recognize(
-      fi.files[0],
-      'fra',
-      {
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            bar.style.width = Math.round(m.progress * 100) + '%';
-          }
-        }
+  container.innerHTML = keys.map(key=>{
+    const [y,m]=key.split('-');
+    const label=`${MONTHS_FR[parseInt(m,10)-1]} ${y}`;
+    const items=groups[key].sort((a,b)=>b.date.localeCompare(a.date));
+    const total=items.reduce((s,e)=>s+e.amount,0);
+    const totalHT = items.reduce((s,e)=>s+(e.totalHT||0),0);
+    
+    const rows=items.map((e,i)=>{
+      let justifBadge = '';
+      if (e.justifFile) {
+        justifBadge = `<span class="badge badge-yes" style="cursor:pointer;" onclick="openJustifPreview(${e.id})" title="Voir le justificatif : ${esc(e.justifName)}">📎 ${esc(e.justifName)}</span>`;
+      } else {
+        justifBadge = `<span class="badge badge-no">❌ Non</span>`;
       }
-    );
-    
-    ocrText = text;
-    bar.style.width = '100%';
-    out.textContent = text || '(Aucun texte détecté)';
-    toast('✅ Texte extrait avec succès !', 'ok');
-    
-  } catch(e) {
-    out.textContent = '❌ Erreur : ' + e.message;
-    toast('Erreur OCR: ' + e.message, 'err');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '🔍 Lire et extraire';
-    setTimeout(() => prog.style.display = 'none', 1000);
-  }
+      return `<tr>
+        <td style="color:var(--gray-400);font-size:12px;padding:10px 16px;">${i+1}</td>
+        <td class="td-date" style="padding:10px 16px;">${fmtDate(e.date)}</td>
+        <td class="td-desc" style="padding:10px 16px;"><span title="${esc(e.desc)}">${esc(e.desc)}</span></td>
+        <td style="padding:10px 16px;"><span class="badge badge-cat">${esc(e.cat||'Autre')}</span></td>
+        <td class="td-amount" style="padding:10px 16px;color:var(--gray-500);font-weight:normal;">${fmtDH(e.totalHT || 0)}</td>
+        <td class="td-amount" style="padding:10px 16px;">${fmtDH(e.amount)}</td>
+        <td class="td-desc" style="padding:10px 16px;"><span title="${esc(e.comment || '')}">${esc(e.comment || '—')}</span></td>
+        <td style="padding:10px 16px;">${justifBadge}</td>
+        <td style="padding:10px 16px;"><div class="action-btns"><button class="btn-icon edit" onclick="editRow(${e.id})" title="Modifier">✏️</button><button class="btn-icon" onclick="deleteRow(${e.id})" title="Supprimer">✕</button></div></td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="history-group">
+      <div class="history-group-header" onclick="toggleGroup('${key}')">
+        <div class="history-group-title">
+          <span style="font-size:20px;">📅</span>
+          <span>${label}</span>
+          <span style="font-size:12px;color:var(--gray-400);font-weight:500;">${items.length} dépense(s)</span>
+        </div>
+        <div class="history-group-badge">
+          <span class="group-total">${fmtDH(total)}</span>
+          <span class="group-toggle" id="toggle-${key}">▼</span>
+        </div>
+      </div>
+      <div class="history-group-body open" id="body-${key}">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Date</th><th>Description</th><th>Type de dépenses</th>
+              <th>Total HT</th><th>Total TTC</th><th>Commentaires</th><th>Justificatif</th><th></th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:flex-end;padding:12px 22px;background:var(--gray-50);border-top:1px solid var(--gray-100);gap:15px;">
+          <div class="total-amount" style="background:var(--gray-100); border-color:var(--gray-200); color:var(--gray-700);">Total HT : <strong>${fmtDH(totalHT)}</strong></div>
+          <div class="total-amount">💰 Total TTC : <strong>${fmtDH(total)}</strong></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleGroup(key){
+  const body=document.getElementById(`body-${key}`);
+  const tog=document.getElementById(`toggle-${key}`);
+  body.classList.toggle('open');
+  tog.classList.toggle('open');
 }
 
 // ════════════════════════════════════════════
-// FILL FORM FROM OCR
+// TAB: PAR ANNÉE
 // ════════════════════════════════════════════
-function fillFormFromOCR() {
-  if (!ocrText || ocrText.length < 2) {
-    return toast('Lancez d\'abord l\'OCR.', 'err');
+function renderYearly() {
+  const data=dataAll();
+  // Group by year
+  const groups={};
+  data.forEach(e=>{
+    const y=e.date.substring(0,4);
+    if(!groups[y]) groups[y]={total:0, count:0, byMonth:{}, byCat:{}};
+    groups[y].total+=e.amount;
+    groups[y].count++;
+    const m=parseInt(e.date.substring(5,7),10)-1;
+    groups[y].byMonth[m]=(groups[y].byMonth[m]||0)+e.amount;
+    const c=e.cat||'Autre';
+    groups[y].byCat[c]=(groups[y].byCat[c]||0)+e.amount;
+  });
+
+  const years=Object.keys(groups).sort().reverse();
+  const container=document.getElementById('yearlyGroups');
+
+  if(!years.length){
+    container.innerHTML=`<div class="panel"><div class="empty-state"><div class="empty-icon">📭</div><h3>Aucune dépense</h3><p>Aucune dépense enregistrée.</p></div></div>`;
+    return;
   }
-  
-  const lines = ocrText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  
-  // Date regex: dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy, yyyy-mm-dd
-  const dateRx = /(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})/;
-  // Amount regex: with or without currency
-  const amtRx = /(\d[\d\s]*[.,]\d{2})\s*(?:MAD|DH|€|\$|DH\s*TTC)?/i;
-  
-  let foundDate = '';
-  let foundAmt = '';
-  let foundDesc = '';
-  let foundCategory = '';
-  
+
+  container.innerHTML=years.map(y=>{
+    const g=groups[y];
+    // Bar chart: monthly
+    const vals=Object.values(g.byMonth);
+    const maxVal=Math.max(...vals,1);
+    const bars=Array.from({length:12},(_,i)=>{
+      const v=g.byMonth[i]||0;
+      const h=Math.max(Math.round((v/maxVal)*72),v>0?4:0);
+      return `<div class="bar-wrap">
+        <div class="bar-value">${v>0?Math.round(v/1000)+'k':''}</div>
+        <div class="bar-fill" style="height:${h}px;opacity:${v>0?1:.2};"></div>
+        <div class="bar-label">${MONTHS_SHORT[i]}</div>
+      </div>`;
+    }).join('');
+
+    // Category breakdown
+    const catRows=Object.entries(g.byCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--gray-100);">
+        <span class="badge badge-cat">${esc(cat)}</span>
+        <span style="font-weight:700;color:var(--eq-blue);font-size:13px;">${fmtDH(amt)}</span>
+      </div>`).join('');
+
+    return `<div class="history-group">
+      <div class="history-group-header" onclick="toggleGroup('y${y}')">
+        <div class="history-group-title">
+          <span style="font-size:22px;">📆</span>
+          <span>Année ${y}</span>
+          <span style="font-size:12px;color:var(--gray-400);font-weight:500;">${g.count} dépense(s)</span>
+        </div>
+        <div class="history-group-badge">
+          <span class="group-total">${fmtDH(g.total)}</span>
+          <span class="group-toggle open" id="toggle-y${y}">▼</span>
+        </div>
+      </div>
+      <div class="history-group-body open" id="body-y${y}">
+        <div class="year-chart">
+          <h4>Répartition mensuelle (DH)</h4>
+          <div class="bar-chart">${bars}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+          <div style="padding:18px 22px;border-right:1px solid var(--gray-100);">
+            <h4 style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Répartition par catégorie</h4>
+            ${catRows}
+          </div>
+          <div style="padding:18px 22px;">
+            <h4 style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Résumé ${y}</h4>
+            <div style="font-size:28px;font-weight:800;color:var(--eq-blue);margin-bottom:4px;">${fmtDH(g.total)}</div>
+            <div style="font-size:13px;color:var(--gray-400);">${g.count} dépenses · Moy. ${fmtDH(g.total/g.count)}/dépense</div>
+            <div style="margin-top:16px;">
+              <button class="btn btn-primary" style="height:36px;font-size:12px;" onclick="switchTab('monthly');document.getElementById('filterYearMonth').value='${y}';renderMonthly();">
+                📅 Voir mois par mois
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+// OCR
+// ════════════════════════════════════════════
+let ocrText='';
+function onFileChosen(e){const f=e.target.files[0];document.getElementById('fileName').textContent=f?'📎 '+f.name:'Aucun fichier';}
+function handleDragOver(e){e.preventDefault();document.getElementById('uploadZone').classList.add('drag-over');}
+function handleDragLeave(){document.getElementById('uploadZone').classList.remove('drag-over');}
+function handleDrop(e){
+  e.preventDefault();document.getElementById('uploadZone').classList.remove('drag-over');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('image/')){
+    const dt=new DataTransfer();dt.items.add(f);
+    document.getElementById('fileInput').files=dt.files;
+    document.getElementById('fileName').textContent='📎 '+f.name;
+  } else toast('Veuillez déposer un fichier image.','err');
+}
+
+async function runOCR(){
+  const fi=document.getElementById('fileInput');
+  const out=document.getElementById('ocrOutput');
+  const bar=document.getElementById('ocrBar');
+  const prog=document.getElementById('ocrProgress');
+  const btn=document.getElementById('ocrBtn');
+  if(!fi.files||!fi.files.length) return toast('Choisissez d\'abord une image.','err');
+  btn.disabled=true;btn.textContent='⏳ Lecture…';prog.style.display='block';bar.style.width='0%';
+  out.textContent='⏳ Initialisation Tesseract…';
+  try{
+    const{data:{text}}=await Tesseract.recognize(fi.files[0],'fra',{
+      logger:m=>{if(m.status==='recognizing text')bar.style.width=Math.round(m.progress*100)+'%';}
+    });
+    ocrText=text;bar.style.width='100%';
+    out.textContent=text||'(Aucun texte détecté)';
+    toast('Texte extrait !');
+  }catch(e){out.textContent='❌ Erreur : '+e.message;toast('Erreur OCR.','err');}
+  finally{btn.disabled=false;btn.textContent='🔍 Lire et extraire';setTimeout(()=>prog.style.display='none',1000);}
+}
+
+function fillFormFromOCR(){
+  if(!ocrText) return toast('Lancez d\'abord l\'OCR.','err');
+  const lines=ocrText.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+  // Date regex: supports dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy, yyyy-mm-dd, yyyy/mm/dd, and 2-digit years
+  const dateRx=/(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})/;
+  // Amount regex: supports 123,45 / 123.45 / 1 234,56 / 1 234.56 with optional currency suffix
+  const amtRx=/(\d[\d\s]*[.,]\d{2})/;
+  let foundDate='',foundAmt='',foundDesc='';
   // First pass: find date and amount
-  for (const line of lines) {
-    if (!foundDate) {
-      const m = line.match(dateRx);
-      if (m) {
-        let raw = m[1].replace(/\./g, '-').replace(/\//g, '-').replace(/\s/g, '');
-        const p = raw.split('-');
-        if (p.length === 3) {
-          if (p[0].length <= 2 && p[2].length === 4) {
-            foundDate = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
-          } else if (p[0].length === 4) {
-            foundDate = `${p[0]}-${p[1].padStart(2, '0')}-${p[2].padStart(2, '0')}`;
-          } else if (p[0].length <= 2 && p[2].length === 2) {
-            const yr = '20' + p[2];
-            foundDate = `${yr}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+  for(const line of lines){
+    if(!foundDate){
+      const m=line.match(dateRx);
+      if(m){
+        let raw=m[1].replace(/\./g,'-').replace(/\//g,'-').replace(/\s/g,'');
+        const p=raw.split('-');
+        if(p.length===3){
+          if(p[0].length<=2&&p[2].length===4) foundDate=`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+          else if(p[0].length===4) foundDate=`${p[0]}-${p[1].padStart(2,'0')}-${p[2].padStart(2,'0')}`;
+          else if(p[0].length<=2&&p[2].length===2){
+            // 2-digit year: assume 20xx
+            const yr='20'+p[2];
+            foundDate=`${yr}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
           }
         }
       }
     }
-    
-    if (!foundAmt) {
-      const m = line.match(amtRx);
-      if (m) {
-        let amt = m[1].replace(/\s/g, '').replace(',', '.');
-        const num = parseFloat(amt);
-        if (!isNaN(num) && num > 0 && num < 1000000) {
-          foundAmt = amt;
-        }
+    if(!foundAmt){
+      const m=line.match(amtRx);
+      if(m){
+        let amt=m[1].replace(/\s/g,'').replace(',','.');
+        // Validate it's a reasonable number
+        const num=parseFloat(amt);
+        if(!isNaN(num)&&num>0&&num<1000000) foundAmt=amt;
       }
     }
   }
-  
-  // Second pass: find best description
-  const skipRx = /^(facture|invoice|reçu|ticket|bon|devis|total|montant|date|client|fournisseur|tva|ht|ttc|ref|n°|no|numéro|moyen|paiement|cb|espece|cheque|virement|compte|transaction|autorisation|stan|ticket|client)/i;
-  
-  // Try to find a meaningful description
-  let bestLine = '';
-  let bestScore = 0;
-  
-  for (const line of lines) {
-    const score = line.length - (line.match(/\d/g) || []).length * 0.5;
-    if (line.length > 5 && 
-        !line.match(dateRx) && 
-        !line.match(amtRx) && 
-        !skipRx.test(line) &&
-        score > bestScore) {
-      bestScore = score;
-      bestLine = line;
+  // Second pass: find best description (skip header lines, look for meaningful text)
+  const skipRx=/^(facture|invoice|reçu|ticket|bon|devis|total|montant|date|client|fournisseur|tva|ht|ttc|ref|n°|no|numéro)/i;
+  for(const line of lines){
+    if(!foundDesc&&line.length>3&&!line.match(dateRx)&&!line.match(amtRx)&&!line.match(/^\d+$/)&&!skipRx.test(line)){
+      foundDesc=line.substring(0,60);
+      break;
     }
   }
-  
-  // Try to detect category
-  const textLower = ocrText.toLowerCase();
-  const categories = {
-    'Transport': ['taxi', 'transport', 'voyage', 'avion', 'train', 'bus', 'voiture', 'location', 'essence', 'carburant', 'parking', 'péage'],
-    'Repas': ['restaurant', 'repas', 'café', 'déjeuner', 'dîner', 'petit-déjeuner', 'snack', 'bar', 'brasserie'],
-    'Hébergement': ['hôtel', 'hotel', 'hébergement', 'auberge', 'gîte', 'appartement', 'résidence'],
-    'Achat': ['achat', 'magasin', 'boutique', 'commerce', 'marchandise', 'fournitures', 'matériel', 'équipement']
-  };
-  
-  for (const [cat, keywords] of Object.entries(categories)) {
-    for (const kw of keywords) {
-      if (textLower.includes(kw)) {
-        foundCategory = cat;
-        break;
+  // Fallback: if no good description found, use the longest non-date, non-amount line
+  if(!foundDesc){
+    let bestLen=0;
+    for(const line of lines){
+      if(line.length>3&&!line.match(dateRx)&&!line.match(amtRx)&&!line.match(/^\d+$/)){
+        if(line.length>bestLen){bestLen=line.length;foundDesc=line.substring(0,60);}
       }
     }
-    if (foundCategory) break;
   }
-  
-  // Apply found values
-  if (foundDate) {
-    document.getElementById('dateInput').value = foundDate;
-  }
-  
-  if (foundAmt) {
-    document.getElementById('amountInput').value = parseFloat(foundAmt).toFixed(2);
-  }
-  
-  if (bestLine) {
-    document.getElementById('descInput').value = bestLine.substring(0, 80);
-  }
-  
-  if (foundCategory) {
-    document.getElementById('catInput').value = foundCategory;
-  }
-  
-  // Show summary of what was found
-  const filled = [];
-  if (foundDate) filled.push('📅 Date');
-  if (foundAmt) filled.push('💰 Montant');
-  if (bestLine) filled.push('📝 Description');
-  if (foundCategory) filled.push('🏷️ Catégorie');
-  
-  if (filled.length > 0) {
-    toast(`✅ ${filled.join(', ')} extrait(s) — vérifiez avant d'ajouter.`, 'ok');
-  } else {
-    toast('⚠️ Aucune donnée détectée. Vérifiez que l\'image est lisible.', 'err');
-  }
+  let n=0;
+  if(foundDate){document.getElementById('dateInput').value=foundDate;n++;}
+  if(foundAmt){document.getElementById('amountInput').value=parseFloat(foundAmt);n++;}
+  if(foundDesc){document.getElementById('descInput').value=foundDesc;n++;}
+  toast(n>0?`${n} champ(s) rempli(s) — vérifiez avant d'ajouter.`:'Aucun champ détecté. Vérifiez que l\'image contient une facture lisible.', n>0?'ok':'err');
 }
 
 // ════════════════════════════════════════════
@@ -1140,19 +1709,19 @@ function exportCSV(){
   csv += `Département;${employeeInfo.dept}\n`;
   csv += `Date d'export;${new Date().toLocaleDateString('fr-FR')}\n\n`;
   
-  csv += 'N°;Date;Description;Type de dépenses;Total HT (DH);Total TTC (DH);Commentaires\n';
+  csv += 'N°;Date;Description;Type de dépenses;Total HT (DH);Total TTC (DH);Commentaires;Justificatif\n';
   
   [...data].sort((a,b)=>b.date.localeCompare(a.date)).forEach((e,i)=>{
     const amtTTC = e.amount.toFixed(2).replace('.',',');
     const amtHT = (e.totalHT || 0).toFixed(2).replace('.',',');
-    csv+=`"${i+1}";"${e.date}";"${String(e.desc).replace(/"/g,'""')}";"${e.cat||'Autre'}";"${amtHT}";"${amtTTC}";"${String(e.comment||'').replace(/"/g,'""')}"\n`;
+    csv+=`"${i+1}";"${e.date}";"${String(e.desc).replace(/"/g,'""')}";"${e.cat||'Autre'}";"${amtHT}";"${amtTTC}";"${String(e.comment||'').replace(/"/g,'""')}";"${e.justifFile ? 'Oui ('+e.justifName+')' : 'Non'}"\n`;
   });
   
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=Object.assign(document.createElement('a'),{href:url,download:`note-de-frais_${employeeInfo.nom || 'export'}_${today()}.csv`});
   a.click();URL.revokeObjectURL(url);
-  toast('📑 Export CSV téléchargé !', 'ok');
+  toast('Export CSV téléchargé !');
 }
 
 function exportExcel(){
@@ -1165,10 +1734,10 @@ function exportExcel(){
     ['Employé', `${employeeInfo.prenom} ${employeeInfo.nom}`],
     ['Département', employeeInfo.dept],
     ['Date d\'export', new Date().toLocaleDateString('fr-FR')],
-    [],
+    [], // empty separator
   ];
   
-  const headers = ['N°', 'Date', 'Description', 'Type de dépenses', 'Total HT (DH)', 'Total TTC (DH)', 'Commentaires'];
+  const headers = ['N°', 'Date', 'Description', 'Type de dépenses', 'Total HT (DH)', 'Total TTC (DH)', 'Commentaires', 'Justificatif'];
   
   const sorted = [...data].sort((a,b)=>b.date.localeCompare(a.date));
   const dataRows = sorted.map((e,i)=>[
@@ -1178,28 +1747,42 @@ function exportExcel(){
     e.cat || 'Autre',
     e.totalHT || 0,
     e.amount,
-    e.comment || ''
+    e.comment || '',
+    e.justifFile ? `Oui (${e.justifName})` : 'Non'
   ]);
   
   const totalHT = sorted.reduce((s,e)=>s+(e.totalHT||0),0);
   const totalTTC = sorted.reduce((s,e)=>s+e.amount,0);
   
   const footerRows = [
-    [],
-    ['', '', 'TOTAL', '', totalHT, totalTTC, '']
+    [], // empty
+    ['', '', 'TOTAL', '', totalHT, totalTTC, '', '']
   ];
   
-  const allRows = [...employeeRows, headers, ...dataRows, ...footerRows];
+  const allRows = [
+    ...employeeRows,
+    headers,
+    ...dataRows,
+    ...footerRows
+  ];
   
   const ws = XLSX.utils.aoa_to_sheet(allRows);
+  
   ws['!cols'] = [
-    {wch:5}, {wch:14}, {wch:35}, {wch:18}, {wch:15}, {wch:15}, {wch:30}
+    {wch:5}, // N°
+    {wch:14}, // Date
+    {wch:35}, // Description
+    {wch:18}, // Type de dépenses
+    {wch:15}, // Total HT
+    {wch:15}, // Total TTC
+    {wch:30}, // Commentaires
+    {wch:20}  // Justificatif
   ];
   
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Notes de Frais');
   XLSX.writeFile(wb, `note-de-frais_${employeeInfo.nom || 'export'}_${today()}.xlsx`);
-  toast('📊 Export Excel téléchargé !', 'ok');
+  toast('Export Excel téléchargé !');
 }
 
 function exportPDF(){
@@ -1209,7 +1792,7 @@ function exportPDF(){
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
   const W=297;
-  
+  // Header
   doc.setFillColor(11,79,158);doc.rect(0,0,W,22,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(255,255,255);
   doc.text('eqnovia',14,14);
@@ -1219,19 +1802,21 @@ function exportPDF(){
   const now=new Date();
   doc.setFontSize(9);
   doc.text(`Édité le ${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`,W-14,14,{align:'right'});
-  
+  // Title
   doc.setTextColor(11,79,158);doc.setFont('helvetica','bold');doc.setFontSize(13);
   doc.text('Récapitulatif des dépenses professionnelles',14,30);
   
+  // Employee details
   doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(53,61,79);
   doc.text(`Employé : ${employeeInfo.prenom} ${employeeInfo.nom}`, 14, 36);
   doc.text(`Département : ${employeeInfo.dept}`, 120, 36);
   
+  // Table
   const sorted=[...data].sort((a,b)=>b.date.localeCompare(a.date));
   const total=sorted.reduce((s,e)=>s+e.amount,0);
   const totalHT = sorted.reduce((s,e)=>s+(e.totalHT||0),0);
   
-  const head=[['#','Date','Description','Type de dépenses','Total HT','Total TTC','Commentaires']];
+  const head=[['#','Date','Description','Type de dépenses','Total HT','Total TTC','Commentaires','Justificatif']];
   const body=sorted.map((e,i)=>[
     i+1,
     fmtDate(e.date),
@@ -1239,7 +1824,8 @@ function exportPDF(){
     e.cat||'Autre',
     fmtDH(e.totalHT || 0),
     fmtDH(e.amount),
-    e.comment || '—'
+    e.comment || '—',
+    e.justifFile ? 'Oui' : 'Non'
   ]);
   
   doc.autoTable({
@@ -1254,12 +1840,17 @@ function exportPDF(){
       3:{cellWidth:26},
       4:{cellWidth:26,halign:'right',textColor:[100,110,130]},
       5:{cellWidth:26,halign:'right',fontStyle:'bold',textColor:[11,79,158]},
-      6:{cellWidth:45}
+      6:{cellWidth:45},
+      7:{cellWidth:20,halign:'center'}
+    },
+    didParseCell:d=>{
+      if(d.column.index===7&&d.section==='body')
+        d.cell.styles.textColor=d.cell.raw==='Oui'?[24,167,106]:[224,59,59];
     },
     foot:[['','','','TOTAL',
       {content:fmtDH(totalHT),styles:{fontStyle:'bold',halign:'right',textColor:[100,110,130],fontSize:9}},
       {content:fmtDH(total),styles:{fontStyle:'bold',halign:'right',textColor:[11,79,158],fontSize:9}},
-      ''
+      '',''
     ]],
     footStyles:{fillColor:[235,243,251],fontStyle:'bold'},
     margin:{left:14,right:14}
@@ -1269,7 +1860,7 @@ function exportPDF(){
   doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100,110,130);
   doc.text(`Eqnovia · ${sorted.length} dépense(s) · Total HT : ${fmtDH(totalHT)} · Total TTC : ${fmtDH(total)}`,24,fy+4);
   doc.save(`note-de-frais_${employeeInfo.nom || 'export'}_${today()}.pdf`);
-  toast('📄 Export PDF téléchargé !', 'ok');
+  toast('Export PDF téléchargé !');
 }
 
 // ════════════════════════════════════════════
@@ -1279,31 +1870,24 @@ async function init() {
   document.getElementById('dateInput').value = today();
   loadEmployeeInfo();
 
-  // Attendre que Firebase soit chargé
-  await new Promise(r => setTimeout(r, 1500));
+  // Wait for Firebase module to load
+  await new Promise(r => setTimeout(r, 1800));
 
   if (window.__fbReady) {
     useFirebase = true;
     document.getElementById('dbStatus').className = 'db-status db-online';
-    document.getElementById('dbStatusText').textContent = 'Firebase 🔥';
+    document.getElementById('dbStatusText').textContent = 'Firebase connecté';
     toast('🔥 Base de données Firebase connectée !', 'info');
   } else {
     useFirebase = false;
     document.getElementById('dbStatus').className = 'db-status db-local';
-    document.getElementById('dbStatusText').textContent = 'Stockage local 💾';
+    document.getElementById('dbStatusText').textContent = 'Stockage local';
     toast('💾 Mode local (localStorage)', 'info');
   }
 
   await dataLoad();
   updateKPIs();
   renderAll();
-  
-  // Vérifier que Tesseract est chargé
-  if (typeof Tesseract !== 'undefined') {
-    console.log('✅ Tesseract.js chargé');
-  } else {
-    console.warn('⚠️ Tesseract.js non chargé');
-  }
 }
 
 init();
