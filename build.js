@@ -19,7 +19,7 @@ envContent.split('\n').forEach(line => {
 const htmlPath = path.join(__dirname, 'index.html');
 let html = fs.readFileSync(htmlPath, 'utf8');
 
-// Replace Firebase config placeholders
+// Replace Firebase config placeholders (individual values)
 const replacements = {
   'VITE_FIREBASE_API_KEY': 'apiKey',
   'VITE_FIREBASE_AUTH_DOMAIN': 'authDomain',
@@ -36,6 +36,18 @@ Object.entries(replacements).forEach(([envKey, configKey]) => {
     html = html.replace(regex, `$1${value}$2`);
   }
 });
+
+// Replace entire firebaseConfig object if VITE_FIREBASE_CONFIG is provided
+if (envVars['VITE_FIREBASE_CONFIG']) {
+  try {
+    const configObj = JSON.parse(envVars['VITE_FIREBASE_CONFIG']);
+    const configStr = JSON.stringify(configObj, null, 6);
+    const configRegex = /const firebaseConfig = \{[^}]+\}/s;
+    html = html.replace(configRegex, `const firebaseConfig = ${configStr}`);
+  } catch (e) {
+    console.warn('⚠️  VITE_FIREBASE_CONFIG is not valid JSON, using individual values instead');
+  }
+}
 
 // Write to dist/
 const distPath = path.join(__dirname, 'dist');
