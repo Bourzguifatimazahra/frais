@@ -4,9 +4,10 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Notes de Frais — Eqnovia</title>
-  <meta name="description" content="Application de gestion des notes de frais Eqnovia. Saisie, OCR, historique, export PDF/Excel/CSV."/>
+  <meta name="description" content="Application de gestion des notes de frais Eqnovia. Saisie, OCR, historique, export PDF/Excel/CSV. Base de données Firebase."/>
   
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://www.gstatic.com https://firebase.googleapis.com; img-src 'self' data:; media-src 'self' data:"/>
+  <!-- CSP permettant Tesseract.js -->
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; worker-src * blob: data:; style-src * 'unsafe-inline'; connect-src * data: blob:; img-src * data: blob:; media-src * data: blob:;"/>
   <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
   <meta http-equiv="X-Frame-Options" content="DENY"/>
   <meta http-equiv="X-XSS-Protection" content="1; mode=block"/>
@@ -15,16 +16,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 
-  <!-- Tesseract.js - Simple version -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.3"></script>
-  
+  <!-- Tesseract.js -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp }
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp, updateDoc }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -41,38 +42,42 @@
       const app = initializeApp(firebaseConfig);
       db = getFirestore(app);
       window.__db = db;
-      window.__fs = { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp };
+      window.__fs = { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp, updateDoc };
       window.__fbReady = true;
+      console.log('✅ Firebase connecté');
     } catch(e) {
-      console.warn('Firebase non configuré, mode local actif.', e);
+      console.warn('⚠️ Firebase non configuré, mode local actif.', e);
       window.__fbReady = false;
     }
   </script>
 
   <style>
+    /* ══════════════════════════════════════════
+       TOKENS — CHARTE EQNOVIA
+    ══════════════════════════════════════════ */
     :root {
-      --eq-blue: #0B4F9E;
+      --eq-blue:       #0B4F9E;
       --eq-blue-light: #1a6bbf;
-      --eq-blue-pale: #EBF3FB;
-      --eq-blue-mid: #C8DFF5;
-      --eq-orange: #F7931E;
-      --eq-orange-pale: #FEF3E8;
-      --white: #FFFFFF;
+      --eq-blue-pale:  #EBF3FB;
+      --eq-blue-mid:   #C8DFF5;
+      --eq-orange:     #F7931E;
+      --eq-orange-pale:#FEF3E8;
+      --white:   #FFFFFF;
       --gray-50: #F7F8FA;
-      --gray-100: #EFF1F5;
-      --gray-200: #DDE1EA;
-      --gray-300: #BEC5D2;
-      --gray-400: #8E97A8;
-      --gray-500: #636E82;
-      --gray-700: #353D4F;
-      --gray-900: #1A2130;
-      --green: #18A76A;
+      --gray-100:#EFF1F5;
+      --gray-200:#DDE1EA;
+      --gray-300:#BEC5D2;
+      --gray-400:#8E97A8;
+      --gray-500:#636E82;
+      --gray-700:#353D4F;
+      --gray-900:#1A2130;
+      --green:      #18A76A;
       --green-pale: #E6F7F1;
-      --red: #E03B3B;
-      --red-pale: #FDEAEA;
-      --amber: #F59E0B;
+      --red:        #E03B3B;
+      --red-pale:   #FDEAEA;
+      --amber:      #F59E0B;
       --amber-pale: #FEF9E7;
-      --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px; --radius-xl: 20px;
+      --radius-sm: 6px; --radius-md:10px; --radius-lg:14px; --radius-xl:20px;
       --shadow-sm: 0 1px 4px rgba(11,79,158,.06);
       --shadow-md: 0 4px 16px rgba(11,79,158,.10);
       --shadow-lg: 0 8px 32px rgba(11,79,158,.14);
@@ -83,20 +88,21 @@
     html{scroll-behavior:smooth;}
     body{font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-900);font-size:14px;line-height:1.5;min-height:100vh;}
 
-    .topbar{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--white);border-bottom:2px solid var(--eq-blue);display:flex;align-items:center;padding:0 28px;gap:16px;z-index:1000;}
+    .topbar{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--white);border-bottom:2px solid var(--eq-blue);display:flex;align-items:center;padding:0 28px;gap:16px;z-index:100;box-shadow:var(--shadow-md);}
     .logo-wrap{display:flex;align-items:center;gap:2px;text-decoration:none;}
     .logo-eq{font-size:26px;font-weight:800;color:var(--eq-blue);letter-spacing:-1px;}
+    .logo-novia{font-size:26px;font-weight:800;color:var(--eq-blue);letter-spacing:-1px;position:relative;}
     .logo-dot{display:inline-block;width:9px;height:9px;background:var(--eq-orange);border-radius:50%;position:relative;top:-14px;margin-left:1px;}
     .topbar-sep{width:1px;height:30px;background:var(--gray-200);margin:0 6px;}
     .topbar-title{font-size:15px;font-weight:600;color:var(--gray-700);}
     .topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
     .db-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 12px;border-radius:30px;}
     .db-online{background:var(--green-pale);color:var(--green);border:1px solid #b3e8d3;}
-    .db-local{background:var(--amber-pale);color:var(--amber);border:1px solid #fde68a;}
-    .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--eq-blue),var(--eq-blue-light));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px;}
+    .db-local {background:var(--amber-pale);color:var(--amber);border:1px solid #fde68a;}
+    .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--eq-blue),var(--eq-blue-light));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;}
 
     .layout{display:flex;padding-top:var(--header-h);min-height:100vh;}
-    .sidebar{width:var(--sidebar-w);background:var(--white);border-right:1px solid var(--gray-200);position:fixed;top:var(--header-h);bottom:0;left:0;display:flex;flex-direction:column;padding:16px 0;overflow-y:auto;z-index:100;}
+    .sidebar{width:var(--sidebar-w);background:var(--white);border-right:1px solid var(--gray-200);position:fixed;top:var(--header-h);bottom:0;left:0;display:flex;flex-direction:column;padding:16px 0;overflow-y:auto;}
     .nav-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);padding:12px 20px 5px;}
     .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--gray-500);font-size:13px;font-weight:500;cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none;}
     .nav-item:hover{background:var(--gray-50);color:var(--eq-blue);}
@@ -108,12 +114,12 @@
     .content{margin-left:var(--sidebar-w);flex:1;padding:28px 32px 80px;max-width:calc(100vw - var(--sidebar-w));}
 
     .page-tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-200);margin-bottom:24px;flex-wrap:wrap;}
-    .tab-btn{padding:12px 22px;font-size:13px;font-weight:600;color:var(--gray-400);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+    .tab-btn{padding:12px 22px;font-size:13px;font-weight:600;color:var(--gray-400);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;font-family:'Inter',sans-serif;}
     .tab-btn:hover{color:var(--eq-blue);}
     .tab-btn.active{color:var(--eq-blue);border-bottom-color:var(--eq-blue);}
 
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
-    .stat-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:transform .2s;}
+    .stat-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
     .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
     .stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
     .stat-card.blue::after{background:var(--eq-blue);}
@@ -142,12 +148,12 @@
     .form-group{display:flex;flex-direction:column;gap:6px;}
     .form-group.span-2{grid-column:span 2;}
     .form-label{font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.04em;}
-    .form-input,.form-select{height:40px;padding:0 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);font-size:14px;font-family:'Inter',sans-serif;color:var(--gray-900);background:white;}
+    .form-input,.form-select{height:40px;padding:0 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);font-size:14px;font-family:'Inter',sans-serif;color:var(--gray-900);background:var(--white);transition:border-color .15s,box-shadow .15s;outline:none;width:100%;}
     .form-input:hover,.form-select:hover{border-color:var(--gray-300);}
     .form-input:focus,.form-select:focus{border-color:var(--eq-blue);box-shadow:0 0 0 3px rgba(11,79,158,.12);}
-    .form-select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 4h10z' fill='%236E82AA'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+    .form-select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10L6 8z' fill='%23636E82'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
 
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 18px;border-radius:var(--radius-md);font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:none;transition:all .15s;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 18px;border-radius:var(--radius-md);font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;text-decoration:none;}
     .btn:active{transform:scale(.97);}
     .btn-primary{background:var(--eq-blue);color:white;box-shadow:0 2px 8px rgba(11,79,158,.25);}
     .btn-primary:hover{background:var(--eq-blue-light);box-shadow:0 4px 16px rgba(11,79,158,.35);}
@@ -157,16 +163,19 @@
     .btn-ghost:hover{background:var(--gray-100);color:var(--gray-900);}
     .btn-danger{background:var(--red-pale);color:var(--red);border:1.5px solid #F5C6C6;}
     .btn-danger:hover{background:#FADADAAA;}
-    .btn-icon{width:32px;height:32px;padding:0;border-radius:var(--radius-sm);border:1.5px solid var(--gray-200);background:var(--white);color:var(--gray-400);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .btn-icon{width:32px;height:32px;padding:0;border-radius:var(--radius-sm);border:1.5px solid var(--gray-200);background:var(--white);color:var(--gray-400);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;}
     .btn-icon:hover{border-color:var(--red);color:var(--red);background:var(--red-pale);}
+    .btn-icon.edit{color:var(--gray-400);}
+    .btn-icon.edit:hover{border-color:var(--eq-blue);color:var(--eq-blue);background:var(--eq-blue-pale);}
     .btn-lg{height:44px;font-size:14px;padding:0 24px;}
     .btn-full{width:100%;}
-    .btn:disabled{opacity:0.6;cursor:not-allowed;}
     .btn-pdf{background:#E53935;color:white;}
+    .btn-pdf:hover{background:#C62828;}
     .btn-excel{background:#1D6F42;color:white;}
+    .btn-excel:hover{background:#155332;}
     .btn-csv{background:#5C6BC0;color:white;}
-
-    .export-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .btn-csv:hover{background:#3949AB;}
+    .btn:disabled{opacity:0.6;cursor:not-allowed;}
 
     .upload-zone{border:2px dashed var(--gray-300);border-radius:var(--radius-md);padding:26px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--gray-50);}
     .upload-zone:hover,.upload-zone.drag-over{border-color:var(--eq-blue);background:var(--eq-blue-pale);}
@@ -174,20 +183,53 @@
     .upload-zone .upload-icon{font-size:30px;margin-bottom:8px;}
     .upload-zone p{font-size:13px;color:var(--gray-400);}
     .upload-zone .file-selected{font-size:12px;color:var(--eq-blue);font-weight:600;margin-top:6px;}
-    .ocr-progress{height:6px;background:var(--gray-100);border-radius:4px;margin-top:12px;display:none;overflow:hidden;}
+    .ocr-progress{height:4px;background:var(--gray-100);border-radius:4px;margin-top:12px;display:none;overflow:hidden;}
     .ocr-progress-bar{height:100%;background:linear-gradient(90deg,var(--eq-blue),var(--eq-orange));border-radius:4px;width:0%;transition:width .3s;}
-    .ocr-progress-text{font-size:11px;color:var(--gray-400);margin-top:6px;text-align:center;display:none;}
-    .ocr-output{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px;font-size:12px;font-family:'Courier New',monospace;color:var(--gray-500);max-height:150px;overflow-y:auto;min-height:60px;}
+    .ocr-output{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px;font-size:12px;font-family:'Courier New',monospace;color:var(--gray-500);max-height:130px;overflow-y:auto;margin-top:12px;white-space:pre-wrap;line-height:1.6;}
 
-    #toast{position:fixed;bottom:28px;right:28px;min-width:280px;max-width:360px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:14px 18px;display:none;align-items:center;gap:12px;z-index:10000;box-shadow:var(--shadow-md);}
-    #toast.show{display:flex;}
-    .toast-icon{width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-    .toast-icon.ok{background:var(--green-pale);}
-    .toast-icon.err{background:var(--red-pale);}
-    .toast-icon.info{background:var(--eq-blue-pale);}
-    .toast-bar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 0 var(--radius-lg) var(--radius-lg);background:var(--green);animation:shrink 3.4s linear forwards;}
-    #toast.err .toast-bar{background:var(--red);}
-    @keyframes shrink{from{width:100%;}to{width:0%;}}
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:13.5px;}
+    thead tr{background:var(--gray-50);border-bottom:2px solid var(--gray-200);}
+    th{padding:11px 16px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-400);white-space:nowrap;}
+    th.sortable{cursor:pointer;user-select:none;}
+    th.sortable:hover{color:var(--eq-blue);}
+    tbody tr{border-bottom:1px solid var(--gray-100);transition:background .1s;}
+    tbody tr:hover{background:var(--eq-blue-pale);}
+    tbody tr:last-child{border-bottom:none;}
+    td{padding:12px 16px;color:var(--gray-700);vertical-align:middle;}
+    td.td-date{font-size:13px;color:var(--gray-400);font-variant-numeric:tabular-nums;white-space:nowrap;}
+    td.td-amount{font-weight:700;color:var(--eq-blue);font-variant-numeric:tabular-nums;white-space:nowrap;}
+    td.td-desc{max-width:250px;}
+    td.td-desc span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:30px;font-size:11px;font-weight:600;white-space:nowrap;}
+    .badge-yes{background:var(--green-pale);color:var(--green);}
+    .badge-no{background:var(--red-pale);color:var(--red);}
+    .badge-cat{background:var(--eq-blue-pale);color:var(--eq-blue);}
+
+    .table-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:var(--gray-50);border-top:2px solid var(--gray-200);flex-wrap:wrap;gap:12px;}
+    .total-info{font-size:13px;color:var(--gray-400);}
+    .total-amount{display:flex;align-items:center;gap:10px;background:var(--eq-blue-pale);border:1px solid var(--eq-blue-mid);padding:10px 20px;border-radius:var(--radius-md);font-size:16px;font-weight:800;color:var(--eq-blue);font-variant-numeric:tabular-nums;}
+
+    .empty-state{text-align:center;padding:52px 32px;}
+    .empty-state .empty-icon{font-size:46px;margin-bottom:12px;}
+    .empty-state h3{font-size:16px;font-weight:700;color:var(--gray-700);margin-bottom:6px;}
+    .empty-state p{font-size:13px;color:var(--gray-400);}
+
+    .history-group{margin-bottom:16px;border:1px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
+    .history-group-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--white);cursor:pointer;user-select:none;transition:background .15s;}
+    .history-group-header:hover{background:var(--eq-blue-pale);}
+    .history-group-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--gray-900);}
+    .history-group-badge{display:flex;align-items:center;gap:16px;}
+    .group-total{font-size:15px;font-weight:800;color:var(--eq-blue);}
+    .group-count{font-size:12px;color:var(--gray-400);}
+    .group-toggle{font-size:12px;color:var(--gray-400);transition:transform .2s;}
+    .group-toggle.open{transform:rotate(180deg);}
+    .history-group-body{display:none;}
+    .history-group-body.open{display:block;}
+
+    .filters-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 22px;background:var(--gray-50);border-bottom:1px solid var(--gray-100);}
+    .filters-bar .form-input,.filters-bar .form-select{height:36px;font-size:13px;width:auto;min-width:140px;}
+    .filter-sep{width:1px;height:24px;background:var(--gray-200);margin:0 4px;}
 
     .employee-panel{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-bottom:20px;overflow:hidden;}
     .employee-header{padding:14px 22px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .15s;}
@@ -195,23 +237,66 @@
     .employee-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--gray-900);}
     .employee-body{padding:18px 22px;display:block;}
     .employee-body.collapsed{display:none;}
+    .employee-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
+
+    .export-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
+    #toast{position:fixed;bottom:28px;right:28px;min-width:280px;max-width:360px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:14px 18px;display:none;align-items:center;gap:12px;z-index:9999;box-shadow:var(--shadow-lg);animation:slideUp .25s ease;font-size:13.5px;font-weight:500;color:var(--gray-700);}
+    #toast.show{display:flex;}
+    .toast-icon{width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+    .toast-icon.ok{background:var(--green-pale);}
+    .toast-icon.err{background:var(--red-pale);}
+    .toast-icon.info{background:var(--eq-blue-pale);}
+    .toast-bar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 0 var(--radius-lg) var(--radius-lg);background:var(--green);animation:shrink 3.4s linear forwards;}
+    #toast.err .toast-bar{background:var(--red);}
+    @keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+    @keyframes shrink{from{width:100%;}to{width:0%;}}
+
+    .modal-overlay{position:fixed;inset:0;background:rgba(26,33,48,.55);backdrop-filter:blur(3px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
+    .modal-overlay.open{opacity:1;pointer-events:all;}
+    .modal{background:var(--white);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:scale(.95);transition:transform .2s;}
+    .modal-overlay.open .modal{transform:scale(1);}
+    .modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;}
+    .modal-header h3{font-size:15px;font-weight:700;color:var(--gray-900);}
+    .modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--gray-400);line-height:1;padding:2px;}
+    .modal-close:hover{color:var(--gray-700);}
+    .modal-body{padding:20px 24px;}
+    .modal-footer{padding:14px 24px 20px;display:flex;gap:10px;justify-content:flex-end;}
 
     @media(max-width:900px){
       .sidebar{display:none;}
       .content{margin-left:0;max-width:100%;padding:20px 16px 60px;}
       .form-grid{grid-template-columns:1fr;}
       .form-group.span-2{grid-column:span 1;}
+      .input-form-grid{grid-template-columns:1fr;}
     }
   </style>
 </head>
 <body>
 
+<!-- TOAST -->
 <div id="toast" role="alert" aria-live="polite">
   <div class="toast-icon ok" id="toastIcon">✓</div>
   <span id="toastMsg"></span>
   <div class="toast-bar" id="toastBar"></div>
 </div>
 
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Confirmation</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body"><p id="modalMsg" style="color:var(--gray-700);"></p></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-danger" id="modalOk">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOP BAR -->
 <header class="topbar">
   <a href="#" class="logo-wrap" aria-label="Eqnovia">
     <span class="logo-eq">eqnovia</span>
@@ -221,55 +306,116 @@
   <span class="topbar-title">Notes de Frais</span>
   <div class="topbar-right">
     <div class="db-status db-local" id="dbStatus">
-      <span>✓</span> <span id="dbStatusText">Prêt</span>
+      <span>⏳</span> <span id="dbStatusText">Connexion…</span>
     </div>
     <div class="avatar">EQ</div>
   </div>
 </header>
 
+<!-- SIDEBAR -->
 <aside class="sidebar">
   <span class="nav-label">Tableau de bord</span>
-  <a class="nav-item active" onclick="switchTab('saisie')">
+  <a class="nav-item active" onclick="switchTab('saisie')" id="nav-saisie">
     <span class="nav-icon">✏️</span> Saisie & OCR
   </a>
+
+  <span class="nav-label">Historique</span>
+  <a class="nav-item" onclick="switchTab('all')" id="nav-all">
+    <span class="nav-icon">📋</span> Toutes les dépenses
+  </a>
+
+  <span class="nav-label">Exports</span>
+  <a class="nav-item" onclick="exportPDF()">
+    <span class="nav-icon">📄</span> Exporter PDF
+  </a>
+  <a class="nav-item" onclick="exportExcel()">
+    <span class="nav-icon">📊</span> Exporter Excel
+  </a>
+  <a class="nav-item" onclick="exportCSV()">
+    <span class="nav-icon">📑</span> Exporter CSV
+  </a>
+
+  <span class="nav-label">Gestion</span>
+  <a class="nav-item" onclick="confirmClear()" style="color:var(--red);">
+    <span class="nav-icon">🗑️</span> Tout effacer
+  </a>
+
   <div class="sidebar-footer">
     <p>Eqnovia © 2025</p>
-    <p>v3.2 · OCR Simplifié</p>
+    <p>v3.1 · OCR + Firebase</p>
   </div>
 </aside>
 
+<!-- CONTENT -->
 <main class="layout">
 <div class="content">
 
+  <!-- Informations Employé -->
   <div class="employee-panel">
     <div class="employee-header" onclick="toggleEmployeePanel()">
       <div class="employee-title">
         <span style="font-size:18px;">👨‍💼</span>
-        <span>Informations de l'employé</span>
+        <span>Informations de l'employé concerné</span>
       </div>
       <span style="font-size:12px;color:var(--gray-400);" id="employeeToggleIcon">▲</span>
     </div>
     <div class="employee-body" id="employeeBody">
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+      <div class="employee-grid">
         <div class="form-group">
-          <label class="form-label">Nom</label>
-          <input type="text" class="form-input" id="empNom" placeholder="Dupont" oninput="saveEmployeeInfo()"/>
+          <label class="form-label" for="empNom">Nom</label>
+          <input type="text" class="form-input" id="empNom" placeholder="Ex : Dupont" oninput="saveEmployeeInfo()"/>
         </div>
         <div class="form-group">
-          <label class="form-label">Prénom</label>
-          <input type="text" class="form-input" id="empPrenom" placeholder="Jean" oninput="saveEmployeeInfo()"/>
+          <label class="form-label" for="empPrenom">Prénom</label>
+          <input type="text" class="form-input" id="empPrenom" placeholder="Ex : Jean" oninput="saveEmployeeInfo()"/>
         </div>
         <div class="form-group">
-          <label class="form-label">Département</label>
-          <input type="text" class="form-input" id="empDept" placeholder="R&D" oninput="saveEmployeeInfo()"/>
+          <label class="form-label" for="empDept">Département</label>
+          <input type="text" class="form-input" id="empDept" placeholder="Ex : R&D, Commercial, Finance..." oninput="saveEmployeeInfo()"/>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="tab-content-saisie">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+  <!-- KPIs -->
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="stat-icon blue">💰</div>
+      <div class="stat-label">Total général</div>
+      <div class="stat-value" id="kpiTotal">0,00 DH</div>
+      <div class="stat-sub" id="kpiCount">0 dépense(s)</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon orange">📅</div>
+      <div class="stat-label">Ce mois-ci</div>
+      <div class="stat-value" id="kpiMonth">0,00 DH</div>
+      <div class="stat-sub" id="kpiMonthLabel">—</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon green">✅</div>
+      <div class="stat-label">Avec justificatif</div>
+      <div class="stat-value" id="kpiJustif">0</div>
+      <div class="stat-sub">pièce(s) jointe(s)</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-icon red">❌</div>
+      <div class="stat-label">Sans justificatif</div>
+      <div class="stat-value" id="kpiNoJustif">0</div>
+      <div class="stat-sub">à régulariser</div>
+    </div>
+  </div>
 
+  <!-- PAGE TABS -->
+  <div class="page-tabs">
+    <button class="tab-btn active" id="tab-saisie"   onclick="switchTab('saisie')">✏️ Saisie & OCR</button>
+    <button class="tab-btn"        id="tab-all"      onclick="switchTab('all')">📋 Toutes</button>
+  </div>
+
+  <!-- ══ TAB: SAISIE & OCR ══ -->
+  <div id="tab-content-saisie">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" class="input-form-grid">
+
+      <!-- Saisie -->
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title"><div class="panel-icon blue">✏️</div> Saisie manuelle</div>
@@ -277,66 +423,130 @@
         <div class="panel-body">
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label">Date *</label>
+              <label class="form-label" for="dateInput">Date *</label>
               <input type="date" class="form-input" id="dateInput"/>
             </div>
             <div class="form-group">
-              <label class="form-label">Type</label>
+              <label class="form-label" for="catInput">Type de dépenses</label>
               <select class="form-select" id="catInput">
                 <option value="Transport">🚗 Transport</option>
                 <option value="Repas">🍽️ Repas</option>
                 <option value="Hébergement">🏨 Hébergement</option>
+                <option value="Matériel">📦 Matériel</option>
+                <option value="Communication">📞 Communication</option>
+                <option value="Formation">🎓 Formation</option>
+                <option value="Achat">🛒 Achat</option>
+                <option value="Autre">📌 Autre</option>
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Total HT (DH)</label>
-              <input type="number" class="form-input" id="totalHTInput" step="0.01" placeholder="0,00"/>
+              <label class="form-label" for="totalHTInput">Total HT (DH)</label>
+              <input type="number" class="form-input" id="totalHTInput" step="0.01" min="0" placeholder="0,00"/>
             </div>
             <div class="form-group">
-              <label class="form-label">Total TTC (DH) *</label>
-              <input type="number" class="form-input" id="amountInput" step="0.01" placeholder="0,00"/>
+              <label class="form-label" for="amountInput">Total TTC (DH) *</label>
+              <input type="number" class="form-input" id="amountInput" step="0.01" min="0.01" placeholder="0,00"/>
             </div>
             <div class="form-group span-2">
-              <label class="form-label">Description *</label>
-              <input type="text" class="form-input" id="descInput" placeholder="Taxi, Repas, Hôtel..."/>
+              <label class="form-label" for="descInput">Description *</label>
+              <input type="text" class="form-input" id="descInput" placeholder="Ex : Taxi aéroport, Repas client, Hôtel Casablanca…" autocomplete="off"/>
             </div>
             <div class="form-group">
-              <label class="form-label">Commentaires</label>
-              <input type="text" class="form-input" id="commentInput" placeholder="Remarques..."/>
+              <label class="form-label" for="commentInput">Commentaires</label>
+              <input type="text" class="form-input" id="commentInput" placeholder="Remarques éventuelles..." autocomplete="off"/>
             </div>
           </div>
-          <button class="btn btn-primary btn-lg btn-full" style="margin-top:18px;" onclick="addExpense()">
-            ➕ Ajouter
+          <button class="btn btn-primary btn-lg btn-full" style="margin-top:18px;" onclick="addExpense()" id="addBtn">
+            ➕ Ajouter la dépense
           </button>
         </div>
       </div>
 
+      <!-- OCR -->
       <div class="panel">
         <div class="panel-header">
-          <div class="panel-title"><div class="panel-icon orange">📸</div> OCR — Facture</div>
+          <div class="panel-title"><div class="panel-icon orange">📸</div> OCR — Lire une facture</div>
         </div>
         <div class="panel-body">
           <p style="font-size:13px;color:var(--gray-400);margin-bottom:12px;">
-            📸 Upload une facture → Extraction automatique
+            Importez une photo de facture — Tesseract.js extrait automatiquement la date, le montant et la description.
           </p>
           <div class="upload-zone" id="uploadZone"
                onclick="document.getElementById('fileInput').click()"
                ondragover="handleDragOver(event)" ondragleave="handleDragLeave()" ondrop="handleDrop(event)">
             <div class="upload-icon">📤</div>
-            <p>Clic ou glisse</p>
-            <div class="file-selected" id="fileName">Aucun</div>
+            <p>Cliquez ou glissez-déposez une image</p>
+            <div class="file-selected" id="fileName">Aucun fichier</div>
             <input type="file" id="fileInput" accept="image/*" onchange="onFileChosen(event)"/>
           </div>
-          
           <div class="ocr-progress" id="ocrProgress"><div class="ocr-progress-bar" id="ocrBar"></div></div>
-          <div class="ocr-progress-text" id="ocrProgressText" style="margin-top:8px;">⏳ Extraction...</div>
-          
-          <button class="btn btn-orange btn-full" style="margin-top:14px;" onclick="runOCR()" id="ocrBtn">🔍 Extraire</button>
-          
-          <div class="ocr-output" id="ocrOutput">Résultat ici...</div>
-          
-          <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="fillFormFromOCR()">⬅️ Remplir formulaire</button>
+          <button class="btn btn-orange btn-full" style="margin-top:14px;" onclick="runOCR()" id="ocrBtn">🔍 Lire et extraire</button>
+          <div class="ocr-output" id="ocrOutput">Le texte extrait apparaîtra ici…</div>
+          <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="fillFormFromOCR()">⬅️ Remplir le formulaire</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: TOUTES ══ -->
+  <div id="tab-content-all" style="display:none;">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><div class="panel-icon blue">📋</div> Toutes les dépenses</div>
+        <div class="export-group">
+          <button class="btn btn-pdf"   onclick="exportPDF()">📄 <span>PDF</span></button>
+          <button class="btn btn-excel" onclick="exportExcel()">📊 <span>Excel</span></button>
+          <button class="btn btn-csv"   onclick="exportCSV()">📑 <span>CSV</span></button>
+        </div>
+      </div>
+      <div class="filters-bar">
+        <select class="form-select" id="filterYear"   onchange="renderAll()">
+          <option value="all">📅 Toutes années</option>
+        </select>
+        <select class="form-select" id="filterMonth"  onchange="renderAll()">
+          <option value="all">🗓️ Tous mois</option>
+          <option value="01">Janvier</option><option value="02">Février</option>
+          <option value="03">Mars</option><option value="04">Avril</option>
+          <option value="05">Mai</option><option value="06">Juin</option>
+          <option value="07">Juillet</option><option value="08">Août</option>
+          <option value="09">Septembre</option><option value="10">Octobre</option>
+          <option value="11">Novembre</option><option value="12">Décembre</option>
+        </select>
+        <select class="form-select" id="filterCat"    onchange="renderAll()">
+          <option value="all">🏷️ Toutes catégories</option>
+          <option value="Transport">🚗 Transport</option>
+          <option value="Repas">🍽️ Repas</option>
+          <option value="Hébergement">🏨 Hébergement</option>
+          <option value="Matériel">📦 Matériel</option>
+          <option value="Communication">📞 Communication</option>
+          <option value="Formation">🎓 Formation</option>
+          <option value="Achat">🛒 Achat</option>
+          <option value="Autre">📌 Autre</option>
+        </select>
+        <div class="filter-sep"></div>
+        <input type="text" class="form-input" id="filterSearch" placeholder="🔍 Recherche…" oninput="renderAll()" style="min-width:160px;"/>
+        <button class="btn btn-ghost" style="height:36px;font-size:12px;padding:0 12px;" onclick="resetFilters()">🔄</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th class="sortable" onclick="sortBy('date')">Date ⇅</th>
+              <th>Description</th>
+              <th>Type de dépenses</th>
+              <th class="sortable" onclick="sortBy('totalHT')">Total HT ⇅</th>
+              <th class="sortable" onclick="sortBy('amount')">Total TTC ⇅</th>
+              <th>Commentaires</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <span class="total-info" id="rowCount">0 ligne(s)</span>
+        <div class="total-amount" id="grandTotal">💰 Total : <strong>0,00 DH</strong></div>
       </div>
     </div>
   </div>
@@ -346,28 +556,390 @@
 
 <script>
 'use strict';
+// ════════════════════════════════════════════
+// CONSTANTS & STATE
+// ════════════════════════════════════════════
+const STORAGE_KEY = 'eqnovia_expenses_v3';
+const MONTHS_FR   = ['Janvier','Février','Mars','Avril','Mai','Juin',
+                     'Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MONTHS_SHORT= ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
 
-let ocrText = '';
-let ocrRunning = false;
-let selectedFile = null;
+let sortCol = 'date', sortDir = -1;
+let activeTab = 'saisie';
+let cache = [];
+let useFirebase = false;
 let employeeInfo = { nom: '', prenom: '', dept: '' };
+let ocrText = '';
 
-// Toast
-function toast(msg, type='ok') {
-  const t = document.getElementById('toast');
-  const icon = document.getElementById('toastIcon');
-  const msgEl = document.getElementById('toastMsg');
-  const bar = document.getElementById('toastBar');
-  icon.textContent = {'ok':'✓','err':'✕','info':'ℹ'}[type] || '✓';
-  icon.className = `toast-icon ${type}`;
-  msgEl.textContent = msg;
-  t.className = 'toast show' + (type === 'err' ? ' err' : '');
-  bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
-  clearTimeout(t._tid);
-  t._tid = setTimeout(() => t.classList.remove('show'), 3400);
+// ════════════════════════════════════════════
+// FIREBASE FUNCTIONS
+// ════════════════════════════════════════════
+async function fbAdd(expense) {
+  if (!useFirebase) return;
+  try {
+    const { collection, addDoc, serverTimestamp } = window.__fs;
+    await addDoc(collection(window.__db, 'expenses'), {
+      ...expense,
+      createdAt: serverTimestamp()
+    });
+  } catch(e) { console.warn('FB add failed', e); }
 }
 
-// Drag & Drop
+async function fbDelete(id) {
+  if (!useFirebase) return;
+  try {
+    const { collection, getDocs, deleteDoc, doc } = window.__fs;
+    const snap = await getDocs(collection(window.__db, 'expenses'));
+    for (const d of snap.docs) {
+      if (d.data().id === id) {
+        await deleteDoc(doc(window.__db, 'expenses', d.id));
+        break;
+      }
+    }
+  } catch(e) { console.warn('FB delete failed', e); }
+}
+
+async function fbLoad() {
+  if (!useFirebase) return null;
+  try {
+    const { collection, getDocs, query, orderBy } = window.__fs;
+    const q = query(collection(window.__db, 'expenses'), orderBy('createdAt', 'asc'));
+    const snap = await getDocs(q);
+    const arr = [];
+    snap.forEach(d => arr.push({ ...d.data() }));
+    return arr;
+  } catch(e) { console.warn('FB load failed', e); return null; }
+}
+
+async function fbUpdate(id, data) {
+  if (!useFirebase) return;
+  try {
+    const { collection, getDocs, updateDoc, doc } = window.__fs;
+    const snap = await getDocs(collection(window.__db, 'expenses'));
+    for (const d of snap.docs) {
+      if (d.data().id === id) {
+        await updateDoc(doc(window.__db, 'expenses', d.id), data);
+        break;
+      }
+    }
+  } catch(e) { console.warn('FB update failed', e); }
+}
+
+// ════════════════════════════════════════════
+// LOCAL STORAGE FALLBACK
+// ════════════════════════════════════════════
+function lsLoad()  { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch { return []; } }
+function lsSave(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+
+// ════════════════════════════════════════════
+// UNIFIED DATA LAYER
+// ════════════════════════════════════════════
+async function dataLoad() {
+  if (useFirebase) {
+    const fb = await fbLoad();
+    if (fb !== null) {
+      cache = fb;
+      lsSave(cache);
+      return;
+    }
+  }
+  cache = lsLoad();
+}
+
+async function dataAdd(exp) {
+  cache.push(exp);
+  lsSave(cache);
+  await fbAdd(exp);
+}
+
+async function dataDelete(id) {
+  cache = cache.filter(e => e.id !== id);
+  lsSave(cache);
+  await fbDelete(id);
+}
+
+async function dataUpdate(id, newData) {
+  const idx = cache.findIndex(e => e.id === id);
+  if (idx !== -1) {
+    cache[idx] = { ...cache[idx], ...newData };
+    lsSave(cache);
+    await fbUpdate(id, newData);
+  }
+}
+
+function dataAll() { return [...cache]; }
+
+// ════════════════════════════════════════════
+// EMPLOYEE HELPERS
+// ════════════════════════════════════════════
+function saveEmployeeInfo() {
+  employeeInfo.nom = document.getElementById('empNom').value.trim();
+  employeeInfo.prenom = document.getElementById('empPrenom').value.trim();
+  employeeInfo.dept = document.getElementById('empDept').value.trim();
+  localStorage.setItem('eqnovia_employee_info', JSON.stringify(employeeInfo));
+  updateAvatar();
+}
+
+function loadEmployeeInfo() {
+  try {
+    const saved = localStorage.getItem('eqnovia_employee_info');
+    if (saved) {
+      employeeInfo = JSON.parse(saved);
+      document.getElementById('empNom').value = employeeInfo.nom || '';
+      document.getElementById('empPrenom').value = employeeInfo.prenom || '';
+      document.getElementById('empDept').value = employeeInfo.dept || '';
+    }
+  } catch (e) { console.error("Error loading employee info", e); }
+  updateAvatar();
+}
+
+function updateAvatar() {
+  const avatar = document.querySelector('.avatar');
+  if (avatar) {
+    if (employeeInfo.nom || employeeInfo.prenom) {
+      const first = (employeeInfo.prenom || '').substring(0, 1).toUpperCase();
+      const last = (employeeInfo.nom || '').substring(0, 1).toUpperCase();
+      avatar.textContent = first + last || 'EQ';
+    } else {
+      avatar.textContent = 'EQ';
+    }
+  }
+}
+
+function toggleEmployeePanel() {
+  const body = document.getElementById('employeeBody');
+  const icon = document.getElementById('employeeToggleIcon');
+  body.classList.toggle('collapsed');
+  icon.textContent = body.classList.contains('collapsed') ? '▼' : '▲';
+}
+
+// ════════════════════════════════════════════
+// FORMAT HELPERS
+// ════════════════════════════════════════════
+function fmtDH(n) {
+  return n.toLocaleString('fr-MA', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' DH';
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  return `${d} ${MONTHS_FR[parseInt(m,10)-1].substring(0,3)}. ${y}`;
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function today() { return new Date().toISOString().split('T')[0]; }
+function validateAmount(val) {
+  const n = parseFloat(val);
+  return !isNaN(n) && n >= 0 && n <= 10000000;
+}
+
+// ════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════
+function toast(msg, type='ok') {
+  const t=document.getElementById('toast'),
+        icon=document.getElementById('toastIcon'),
+        msgEl=document.getElementById('toastMsg'),
+        bar=document.getElementById('toastBar');
+  icon.textContent={'ok':'✓','err':'✕','info':'ℹ'}[type]||'✓';
+  icon.className=`toast-icon ${type}`;
+  msgEl.textContent=msg;
+  t.className='toast show'+(type==='err'?' err':'');
+  bar.style.animation='none'; void bar.offsetWidth; bar.style.animation='';
+  clearTimeout(t._tid);
+  t._tid=setTimeout(()=>t.classList.remove('show'),3400);
+}
+
+// ════════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════════
+function showModal(title,msg,cb){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalMsg').textContent=msg;
+  document.getElementById('modalOk').onclick=()=>{closeModal();cb&&cb();};
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modal')) closeModal();
+});
+
+// ════════════════════════════════════════════
+// TAB SWITCHING
+// ════════════════════════════════════════════
+function switchTab(t) {
+  activeTab = t;
+  ['saisie','all'].forEach(id=>{
+    document.getElementById(`tab-content-${id}`).style.display = id===t?'block':'none';
+    document.getElementById(`tab-${id}`)?.classList.toggle('active', id===t);
+    document.getElementById(`nav-${id}`)?.classList.toggle('active', id===t);
+  });
+  if (t==='all') renderAll();
+}
+
+// ════════════════════════════════════════════
+// ADD EXPENSE
+// ════════════════════════════════════════════
+async function addExpense() {
+  const date    = document.getElementById('dateInput').value;
+  const desc    = document.getElementById('descInput').value.trim();
+  const amount  = parseFloat(document.getElementById('amountInput').value);
+  const totalHT = parseFloat(document.getElementById('totalHTInput').value) || 0;
+  const cat     = document.getElementById('catInput').value;
+  const comment = document.getElementById('commentInput').value.trim();
+
+  if (!date)                    return toast('Veuillez saisir une date.','err');
+  if (!desc)                    return toast('Veuillez saisir une description.','err');
+  if (!validateAmount(amount))  return toast('Montant TTC invalide.','err');
+  if (!validateAmount(totalHT)) return toast('Montant HT invalide.','err');
+
+  const btn = document.getElementById('addBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Enregistrement…';
+
+  const exp = { id: Date.now(), date, desc, amount, totalHT, cat, comment };
+  await dataAdd(exp);
+
+  btn.disabled=false; btn.innerHTML='➕ Ajouter la dépense';
+  
+  document.getElementById('descInput').value='';
+  document.getElementById('amountInput').value='';
+  document.getElementById('totalHTInput').value='';
+  document.getElementById('commentInput').value='';
+  
+  updateKPIs();
+  if (activeTab!=='saisie') switchTab(activeTab); else renderAll();
+  toast('✅ Dépense enregistrée dans Firebase !', 'ok');
+}
+
+// ════════════════════════════════════════════
+// DELETE
+// ════════════════════════════════════════════
+function deleteRow(id) {
+  showModal('Supprimer la dépense','Cette action est irréversible. Continuer ?', async()=>{
+    await dataDelete(id);
+    updateKPIs();
+    renderAll();
+    toast('🗑️ Dépense supprimée.', 'info');
+  });
+}
+
+// ════════════════════════════════════════════
+// CLEAR ALL
+// ════════════════════════════════════════════
+function confirmClear(){
+  showModal('⚠️ Supprimer tout','Toutes les dépenses seront effacées de la base de données. Continuer ?', async()=>{
+    for (const e of cache) {
+      await dataDelete(e.id);
+    }
+    cache = [];
+    lsSave([]);
+    updateKPIs();
+    renderAll();
+    toast('🗑️ Toutes les dépenses ont été supprimées.', 'info');
+  });
+}
+
+// ════════════════════════════════════════════
+// KPIs
+// ════════════════════════════════════════════
+function updateKPIs() {
+  const all   = dataAll();
+  const now   = new Date();
+  const ym    = now.toISOString().substring(0,7);
+  const mData = all.filter(e=>e.date.startsWith(ym));
+  const total = all.reduce((s,e)=>s+e.amount,0);
+  const jYes  = all.filter(e=>e.justif==='Oui').length;
+  const jNo   = all.filter(e=>e.justif==='Non').length;
+
+  document.getElementById('kpiTotal').textContent      = fmtDH(total);
+  document.getElementById('kpiCount').textContent      = all.length + ' dépense(s)';
+  document.getElementById('kpiMonth').textContent      = fmtDH(mData.reduce((s,e)=>s+e.amount,0));
+  document.getElementById('kpiMonthLabel').textContent = MONTHS_FR[now.getMonth()] + ' ' + now.getFullYear();
+  document.getElementById('kpiJustif').textContent     = jYes;
+  document.getElementById('kpiNoJustif').textContent   = jNo;
+}
+
+// ════════════════════════════════════════════
+// SORT
+// ════════════════════════════════════════════
+function sortBy(col){
+  if(sortCol===col) sortDir*=-1; else{sortCol=col;sortDir=-1;}
+  renderAll();
+}
+
+// ════════════════════════════════════════════
+// TAB: TOUTES (renderAll)
+// ════════════════════════════════════════════
+function renderAll() {
+  const data    = dataAll();
+  const yearF   = document.getElementById('filterYear').value;
+  const monthF  = document.getElementById('filterMonth').value;
+  const catF    = document.getElementById('filterCat').value;
+  const search  = (document.getElementById('filterSearch').value||'').toLowerCase();
+
+  // Rebuild year dropdown
+  const years = [...new Set(data.map(e=>e.date.substring(0,4)))].sort().reverse();
+  const ySel  = document.getElementById('filterYear');
+  const yVal  = ySel.value;
+  ySel.innerHTML='<option value="all">📅 Toutes années</option>';
+  years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;ySel.appendChild(o);});
+  if(years.includes(yVal)) ySel.value=yVal;
+
+  let rows = data.filter(e=>{
+    const y=e.date.substring(0,4), m=e.date.substring(5,7);
+    return (yearF==='all'||y===yearF)
+        && (monthF==='all'||m===monthF)
+        && (catF==='all'||(e.cat||'Autre')===catF)
+        && (!search||e.desc.toLowerCase().includes(search)||(e.cat||'').toLowerCase().includes(search));
+  }).sort((a,b)=>{
+    if(sortCol==='amount') return (a.amount-b.amount)*sortDir;
+    if(sortCol==='totalHT') return ((a.totalHT||0)-(b.totalHT||0))*sortDir;
+    return a.date.localeCompare(b.date)*sortDir;
+  });
+
+  const tbody=document.getElementById('tbody');
+
+  if(!rows.length){
+    tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🗂️</div><h3>Aucune dépense trouvée</h3><p>Ajustez vos filtres ou saisissez une nouvelle dépense.</p></div></td></tr>`;
+    document.getElementById('grandTotal').innerHTML='💰 Total : <strong>0,00 DH</strong>';
+    document.getElementById('rowCount').textContent='0 ligne(s)';
+    return;
+  }
+
+  let total=0, totalHTSum=0, html='';
+  rows.forEach((e,i)=>{
+    total+=e.amount;
+    totalHTSum+= (e.totalHT || 0);
+    html+=`<tr>
+      <td style="color:var(--gray-400);font-size:12px;">${i+1}</td>
+      <td class="td-date">${fmtDate(e.date)}</td>
+      <td class="td-desc"><span title="${esc(e.desc)}">${esc(e.desc)}</span></td>
+      <td><span class="badge badge-cat">${esc(e.cat||'Autre')}</span></td>
+      <td class="td-amount" style="color:var(--gray-500);font-weight:normal;">${fmtDH(e.totalHT || 0)}</td>
+      <td class="td-amount">${fmtDH(e.amount)}</td>
+      <td class="td-desc"><span title="${esc(e.comment || '')}">${esc(e.comment || '—')}</span></td>
+      <td><div class="action-btns"><button class="btn-icon" onclick="deleteRow(${e.id})" title="Supprimer">✕</button></div></td>
+    </tr>`;
+  });
+  tbody.innerHTML=html;
+  document.getElementById('grandTotal').innerHTML=`Total HT : <strong style="color:var(--gray-700); margin-right:15px;">${fmtDH(totalHTSum)}</strong>  💰 Total TTC : <strong>${fmtDH(total)}</strong>`;
+  document.getElementById('rowCount').textContent=rows.length+' ligne(s) — Total TTC : '+fmtDH(total);
+}
+
+function resetFilters(){
+  ['filterYear','filterMonth','filterCat'].forEach(id=>document.getElementById(id).value='all');
+  document.getElementById('filterSearch').value='';
+  renderAll();
+}
+
+// ════════════════════════════════════════════
+// OCR AVEC TESSERACT.JS
+// ════════════════════════════════════════════
+function onFileChosen(e) {
+  const f = e.target.files[0];
+  document.getElementById('fileName').textContent = f ? '📎 ' + f.name : 'Aucun fichier';
+}
+
 function handleDragOver(e) {
   e.preventDefault();
   document.getElementById('uploadZone').classList.add('drag-over');
@@ -380,163 +952,361 @@ function handleDragLeave() {
 function handleDrop(e) {
   e.preventDefault();
   document.getElementById('uploadZone').classList.remove('drag-over');
-  const files = e.dataTransfer.files;
-  if (files.length > 0) onFileChosen({ target: { files } });
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) {
+    const dt = new DataTransfer();
+    dt.items.add(f);
+    document.getElementById('fileInput').files = dt.files;
+    document.getElementById('fileName').textContent = '📎 ' + f.name;
+  } else {
+    toast('Veuillez déposer un fichier image.', 'err');
+  }
 }
 
-function onFileChosen(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  selectedFile = file;
-  document.getElementById('fileName').textContent = file.name.substring(0, 20);
-  toast('✓ Fichier: ' + file.name);
-}
-
-// OCR - Version ultra-rapide
 async function runOCR() {
-  if (!selectedFile) {
-    toast('Sélectionnez une image', 'err');
-    return;
-  }
-
-  if (ocrRunning) {
-    toast('OCR en cours...', 'info');
-    return;
-  }
-
-  ocrRunning = true;
-  const ocrBtn = document.getElementById('ocrBtn');
-  const ocrOutput = document.getElementById('ocrOutput');
-  const ocrProgress = document.getElementById('ocrProgress');
-  const ocrBar = document.getElementById('ocrBar');
-  const ocrProgressText = document.getElementById('ocrProgressText');
-
-  ocrBtn.disabled = true;
-  ocrProgress.style.display = 'block';
-  ocrProgressText.style.display = 'block';
-  ocrOutput.textContent = '⏳ Extraction en cours...';
-  ocrBar.style.width = '0%';
-
-  try {
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-      try {
-        const img = e.target.result;
-
-        // Progress simulation
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-          if (progress < 90) {
-            progress += Math.random() * 30;
-            if (progress > 90) progress = 90;
-            ocrBar.style.width = progress + '%';
-          }
-        }, 200);
-
-        // Tesseract recognition
-        const result = await Tesseract.recognize(img, 'fra', {
-          logger: m => console.log('OCR:', m.progress)
-        });
-
-        clearInterval(progressInterval);
-        ocrBar.style.width = '100%';
-        ocrText = result.data.text;
-
-        ocrOutput.textContent = ocrText || '⚠️ Aucun texte détecté';
-        ocrProgress.style.display = 'none';
-        ocrProgressText.style.display = 'none';
-        toast('✓ Extraction terminée !', 'ok');
-      } catch(err) {
-        console.error('OCR Error:', err);
-        ocrOutput.textContent = '❌ Erreur: ' + err.message;
-        toast('Erreur OCR: ' + err.message, 'err');
-      } finally {
-        ocrRunning = false;
-        ocrBtn.disabled = false;
-      }
-    };
-    reader.readAsDataURL(selectedFile);
-  } catch(err) {
-    console.error('Error:', err);
-    toast('Erreur: ' + err.message, 'err');
-    ocrRunning = false;
-    ocrBtn.disabled = false;
-    ocrProgress.style.display = 'none';
-    ocrProgressText.style.display = 'none';
-  }
-}
-
-// Fill form from OCR
-function fillFormFromOCR() {
-  if (!ocrText) {
-    toast('Aucun texte OCR', 'err');
-    return;
-  }
-
-  const numberRegex = /\d+[\.,]\d{2}/g;
-  const numbers = ocrText.match(numberRegex) || [];
+  const fi = document.getElementById('fileInput');
+  const out = document.getElementById('ocrOutput');
+  const bar = document.getElementById('ocrBar');
+  const prog = document.getElementById('ocrProgress');
+  const btn = document.getElementById('ocrBtn');
   
-  const dateRegex = /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/g;
-  const dates = ocrText.match(dateRegex) || [];
-
-  if (numbers.length > 0) {
-    const amount = numbers[numbers.length - 1].replace(',', '.');
-    document.getElementById('amountInput').value = amount;
+  if (!fi.files || !fi.files.length) {
+    return toast('Choisissez d\'abord une image.', 'err');
   }
-
-  if (dates.length > 0) {
-    const dateStr = dates[0];
-    const parts = dateStr.split(/[\/\-]/);
-    if (parts.length === 3) {
-      let year = parseInt(parts[2]);
-      if (year < 100) year += (year < 30) ? 2000 : 1900;
-      const formattedDate = `${year}-${String(parts[1]).padStart(2, '0')}-${String(parts[0]).padStart(2, '0')}`;
-      document.getElementById('dateInput').value = formattedDate;
-    }
-  }
-
-  document.getElementById('descInput').value = ocrText.substring(0, 80).trim();
-  toast('✓ Formulaire rempli !', 'ok');
-}
-
-// Employee
-function saveEmployeeInfo() {
-  employeeInfo.nom = document.getElementById('empNom').value.trim();
-  employeeInfo.prenom = document.getElementById('empPrenom').value.trim();
-  employeeInfo.dept = document.getElementById('empDept').value.trim();
-  localStorage.setItem('eqnovia_employee_info', JSON.stringify(employeeInfo));
-}
-
-function loadEmployeeInfo() {
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ Lecture…';
+  prog.style.display = 'block';
+  bar.style.width = '0%';
+  out.textContent = '⏳ Initialisation Tesseract…';
+  
   try {
-    const saved = localStorage.getItem('eqnovia_employee_info');
-    if (saved) {
-      employeeInfo = JSON.parse(saved);
-      document.getElementById('empNom').value = employeeInfo.nom || '';
-      document.getElementById('empPrenom').value = employeeInfo.prenom || '';
-      document.getElementById('empDept').value = employeeInfo.dept || '';
+    const { data: { text } } = await Tesseract.recognize(
+      fi.files[0],
+      'fra',
+      {
+        logger: m => {
+          if (m.status === 'recognizing text') {
+            bar.style.width = Math.round(m.progress * 100) + '%';
+          }
+        }
+      }
+    );
+    
+    ocrText = text;
+    bar.style.width = '100%';
+    out.textContent = text || '(Aucun texte détecté)';
+    toast('✅ Texte extrait avec succès !', 'ok');
+    
+  } catch(e) {
+    out.textContent = '❌ Erreur : ' + e.message;
+    toast('Erreur OCR: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔍 Lire et extraire';
+    setTimeout(() => prog.style.display = 'none', 1000);
+  }
+}
+
+// ════════════════════════════════════════════
+// FILL FORM FROM OCR
+// ════════════════════════════════════════════
+function fillFormFromOCR() {
+  if (!ocrText || ocrText.length < 2) {
+    return toast('Lancez d\'abord l\'OCR.', 'err');
+  }
+  
+  const lines = ocrText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  
+  // Date regex: dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy, yyyy-mm-dd
+  const dateRx = /(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})/;
+  // Amount regex: with or without currency
+  const amtRx = /(\d[\d\s]*[.,]\d{2})\s*(?:MAD|DH|€|\$|DH\s*TTC)?/i;
+  
+  let foundDate = '';
+  let foundAmt = '';
+  let foundDesc = '';
+  let foundCategory = '';
+  
+  // First pass: find date and amount
+  for (const line of lines) {
+    if (!foundDate) {
+      const m = line.match(dateRx);
+      if (m) {
+        let raw = m[1].replace(/\./g, '-').replace(/\//g, '-').replace(/\s/g, '');
+        const p = raw.split('-');
+        if (p.length === 3) {
+          if (p[0].length <= 2 && p[2].length === 4) {
+            foundDate = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+          } else if (p[0].length === 4) {
+            foundDate = `${p[0]}-${p[1].padStart(2, '0')}-${p[2].padStart(2, '0')}`;
+          } else if (p[0].length <= 2 && p[2].length === 2) {
+            const yr = '20' + p[2];
+            foundDate = `${yr}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+          }
+        }
+      }
     }
-  } catch (e) { console.error("Error", e); }
+    
+    if (!foundAmt) {
+      const m = line.match(amtRx);
+      if (m) {
+        let amt = m[1].replace(/\s/g, '').replace(',', '.');
+        const num = parseFloat(amt);
+        if (!isNaN(num) && num > 0 && num < 1000000) {
+          foundAmt = amt;
+        }
+      }
+    }
+  }
+  
+  // Second pass: find best description
+  const skipRx = /^(facture|invoice|reçu|ticket|bon|devis|total|montant|date|client|fournisseur|tva|ht|ttc|ref|n°|no|numéro|moyen|paiement|cb|espece|cheque|virement|compte|transaction|autorisation|stan|ticket|client)/i;
+  
+  // Try to find a meaningful description
+  let bestLine = '';
+  let bestScore = 0;
+  
+  for (const line of lines) {
+    const score = line.length - (line.match(/\d/g) || []).length * 0.5;
+    if (line.length > 5 && 
+        !line.match(dateRx) && 
+        !line.match(amtRx) && 
+        !skipRx.test(line) &&
+        score > bestScore) {
+      bestScore = score;
+      bestLine = line;
+    }
+  }
+  
+  // Try to detect category
+  const textLower = ocrText.toLowerCase();
+  const categories = {
+    'Transport': ['taxi', 'transport', 'voyage', 'avion', 'train', 'bus', 'voiture', 'location', 'essence', 'carburant', 'parking', 'péage'],
+    'Repas': ['restaurant', 'repas', 'café', 'déjeuner', 'dîner', 'petit-déjeuner', 'snack', 'bar', 'brasserie'],
+    'Hébergement': ['hôtel', 'hotel', 'hébergement', 'auberge', 'gîte', 'appartement', 'résidence'],
+    'Achat': ['achat', 'magasin', 'boutique', 'commerce', 'marchandise', 'fournitures', 'matériel', 'équipement']
+  };
+  
+  for (const [cat, keywords] of Object.entries(categories)) {
+    for (const kw of keywords) {
+      if (textLower.includes(kw)) {
+        foundCategory = cat;
+        break;
+      }
+    }
+    if (foundCategory) break;
+  }
+  
+  // Apply found values
+  if (foundDate) {
+    document.getElementById('dateInput').value = foundDate;
+  }
+  
+  if (foundAmt) {
+    document.getElementById('amountInput').value = parseFloat(foundAmt).toFixed(2);
+  }
+  
+  if (bestLine) {
+    document.getElementById('descInput').value = bestLine.substring(0, 80);
+  }
+  
+  if (foundCategory) {
+    document.getElementById('catInput').value = foundCategory;
+  }
+  
+  // Show summary of what was found
+  const filled = [];
+  if (foundDate) filled.push('📅 Date');
+  if (foundAmt) filled.push('💰 Montant');
+  if (bestLine) filled.push('📝 Description');
+  if (foundCategory) filled.push('🏷️ Catégorie');
+  
+  if (filled.length > 0) {
+    toast(`✅ ${filled.join(', ')} extrait(s) — vérifiez avant d'ajouter.`, 'ok');
+  } else {
+    toast('⚠️ Aucune donnée détectée. Vérifiez que l\'image est lisible.', 'err');
+  }
 }
 
-function toggleEmployeePanel() {
-  const body = document.getElementById('employeeBody');
-  const icon = document.getElementById('employeeToggleIcon');
-  body.classList.toggle('collapsed');
-  icon.textContent = body.classList.contains('collapsed') ? '▼' : '▲';
+// ════════════════════════════════════════════
+// EXPORTS
+// ════════════════════════════════════════════
+function exportCSV(){
+  const data=dataAll();
+  if(!data.length) return toast('Aucune dépense à exporter.','err');
+  let csv = `NOTE DE FRAIS\n`;
+  csv += `Employé;${employeeInfo.prenom} ${employeeInfo.nom}\n`;
+  csv += `Département;${employeeInfo.dept}\n`;
+  csv += `Date d'export;${new Date().toLocaleDateString('fr-FR')}\n\n`;
+  
+  csv += 'N°;Date;Description;Type de dépenses;Total HT (DH);Total TTC (DH);Commentaires\n';
+  
+  [...data].sort((a,b)=>b.date.localeCompare(a.date)).forEach((e,i)=>{
+    const amtTTC = e.amount.toFixed(2).replace('.',',');
+    const amtHT = (e.totalHT || 0).toFixed(2).replace('.',',');
+    csv+=`"${i+1}";"${e.date}";"${String(e.desc).replace(/"/g,'""')}";"${e.cat||'Autre'}";"${amtHT}";"${amtTTC}";"${String(e.comment||'').replace(/"/g,'""')}"\n`;
+  });
+  
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=Object.assign(document.createElement('a'),{href:url,download:`note-de-frais_${employeeInfo.nom || 'export'}_${today()}.csv`});
+  a.click();URL.revokeObjectURL(url);
+  toast('📑 Export CSV téléchargé !', 'ok');
 }
 
-// Placeholders
-function addExpense() { toast('À implémenter', 'info'); }
-function switchTab(tab) { }
+function exportExcel(){
+  if(!window.XLSX) return toast('Bibliothèque Excel non chargée.','err');
+  const data=dataAll();
+  if(!data.length) return toast('Aucune dépense à exporter.','err');
+  
+  const employeeRows = [
+    ['NOTE DE FRAIS', ''],
+    ['Employé', `${employeeInfo.prenom} ${employeeInfo.nom}`],
+    ['Département', employeeInfo.dept],
+    ['Date d\'export', new Date().toLocaleDateString('fr-FR')],
+    [],
+  ];
+  
+  const headers = ['N°', 'Date', 'Description', 'Type de dépenses', 'Total HT (DH)', 'Total TTC (DH)', 'Commentaires'];
+  
+  const sorted = [...data].sort((a,b)=>b.date.localeCompare(a.date));
+  const dataRows = sorted.map((e,i)=>[
+    i+1,
+    e.date,
+    e.desc,
+    e.cat || 'Autre',
+    e.totalHT || 0,
+    e.amount,
+    e.comment || ''
+  ]);
+  
+  const totalHT = sorted.reduce((s,e)=>s+(e.totalHT||0),0);
+  const totalTTC = sorted.reduce((s,e)=>s+e.amount,0);
+  
+  const footerRows = [
+    [],
+    ['', '', 'TOTAL', '', totalHT, totalTTC, '']
+  ];
+  
+  const allRows = [...employeeRows, headers, ...dataRows, ...footerRows];
+  
+  const ws = XLSX.utils.aoa_to_sheet(allRows);
+  ws['!cols'] = [
+    {wch:5}, {wch:14}, {wch:35}, {wch:18}, {wch:15}, {wch:15}, {wch:30}
+  ];
+  
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Notes de Frais');
+  XLSX.writeFile(wb, `note-de-frais_${employeeInfo.nom || 'export'}_${today()}.xlsx`);
+  toast('📊 Export Excel téléchargé !', 'ok');
+}
 
-// Init
-window.addEventListener('load', async () => {
+function exportPDF(){
+  if(!window.jspdf) return toast('Bibliothèque PDF non chargée.','err');
+  const data=dataAll();
+  if(!data.length) return toast('Aucune dépense à exporter.','err');
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const W=297;
+  
+  doc.setFillColor(11,79,158);doc.rect(0,0,W,22,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(255,255,255);
+  doc.text('eqnovia',14,14);
+  doc.setFillColor(247,147,30);doc.circle(14+doc.getTextWidth('eqnovia')-2,8,1.5,'F');
+  doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(200,223,245);
+  doc.text('Note de Frais — Document officiel',14,20);
+  const now=new Date();
+  doc.setFontSize(9);
+  doc.text(`Édité le ${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`,W-14,14,{align:'right'});
+  
+  doc.setTextColor(11,79,158);doc.setFont('helvetica','bold');doc.setFontSize(13);
+  doc.text('Récapitulatif des dépenses professionnelles',14,30);
+  
+  doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(53,61,79);
+  doc.text(`Employé : ${employeeInfo.prenom} ${employeeInfo.nom}`, 14, 36);
+  doc.text(`Département : ${employeeInfo.dept}`, 120, 36);
+  
+  const sorted=[...data].sort((a,b)=>b.date.localeCompare(a.date));
+  const total=sorted.reduce((s,e)=>s+e.amount,0);
+  const totalHT = sorted.reduce((s,e)=>s+(e.totalHT||0),0);
+  
+  const head=[['#','Date','Description','Type de dépenses','Total HT','Total TTC','Commentaires']];
+  const body=sorted.map((e,i)=>[
+    i+1,
+    fmtDate(e.date),
+    e.desc,
+    e.cat||'Autre',
+    fmtDH(e.totalHT || 0),
+    fmtDH(e.amount),
+    e.comment || '—'
+  ]);
+  
+  doc.autoTable({
+    head,body,startY:40,
+    styles:{font:'helvetica',fontSize:8.5,cellPadding:3,valign:'middle'},
+    headStyles:{fillColor:[11,79,158],textColor:[255,255,255],fontStyle:'bold',fontSize:9},
+    alternateRowStyles:{fillColor:[235,243,251]},
+    columnStyles:{
+      0:{cellWidth:8,halign:'center',textColor:[100,110,130]},
+      1:{cellWidth:24,textColor:[100,110,130]},
+      2:{cellWidth:50},
+      3:{cellWidth:26},
+      4:{cellWidth:26,halign:'right',textColor:[100,110,130]},
+      5:{cellWidth:26,halign:'right',fontStyle:'bold',textColor:[11,79,158]},
+      6:{cellWidth:45}
+    },
+    foot:[['','','','TOTAL',
+      {content:fmtDH(totalHT),styles:{fontStyle:'bold',halign:'right',textColor:[100,110,130],fontSize:9}},
+      {content:fmtDH(total),styles:{fontStyle:'bold',halign:'right',textColor:[11,79,158],fontSize:9}},
+      ''
+    ]],
+    footStyles:{fillColor:[235,243,251],fontStyle:'bold'},
+    margin:{left:14,right:14}
+  });
+  const fy=doc.lastAutoTable.finalY+8;
+  doc.setFillColor(247,147,30);doc.rect(14,fy,6,6,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100,110,130);
+  doc.text(`Eqnovia · ${sorted.length} dépense(s) · Total HT : ${fmtDH(totalHT)} · Total TTC : ${fmtDH(total)}`,24,fy+4);
+  doc.save(`note-de-frais_${employeeInfo.nom || 'export'}_${today()}.pdf`);
+  toast('📄 Export PDF téléchargé !', 'ok');
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+async function init() {
+  document.getElementById('dateInput').value = today();
   loadEmployeeInfo();
-  document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
-  toast('✓ OCR prêt', 'ok');
-});
-</script>
 
+  // Attendre que Firebase soit chargé
+  await new Promise(r => setTimeout(r, 1500));
+
+  if (window.__fbReady) {
+    useFirebase = true;
+    document.getElementById('dbStatus').className = 'db-status db-online';
+    document.getElementById('dbStatusText').textContent = 'Firebase 🔥';
+    toast('🔥 Base de données Firebase connectée !', 'info');
+  } else {
+    useFirebase = false;
+    document.getElementById('dbStatus').className = 'db-status db-local';
+    document.getElementById('dbStatusText').textContent = 'Stockage local 💾';
+    toast('💾 Mode local (localStorage)', 'info');
+  }
+
+  await dataLoad();
+  updateKPIs();
+  renderAll();
+  
+  // Vérifier que Tesseract est chargé
+  if (typeof Tesseract !== 'undefined') {
+    console.log('✅ Tesseract.js chargé');
+  } else {
+    console.warn('⚠️ Tesseract.js non chargé');
+  }
+}
+
+init();
+</script>
 </body>
 </html>
