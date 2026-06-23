@@ -1,8 +1,12 @@
 # 📋 Eqnovia — Notes de Frais
 
-> Application de gestion des notes de frais professionnels pour les employés d'Eqnovia.
-
-![Logo](image.png)
+[![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)](https://firebase.google.com/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/)
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/)
+[![Tesseract](https://img.shields.io/badge/Tesseract.js-9B59B6?style=for-the-badge&logo=tesseract&logoColor=white)](https://tesseract.projectnaptha.com/)
+[![jsPDF](https://img.shields.io/badge/jsPDF-E74C3C?style=for-the-badge&logo=adobeacrobatreader&logoColor=white)](https://github.com/parallax/jsPDF)
+[![SheetJS](https://img.shields.io/badge/SheetJS-217346?style=for-the-badge&logo=microsoftexcel&logoColor=white)](https://sheetjs.com/)
 
 ---
 
@@ -16,7 +20,7 @@
 | 📅 **Vue mensuelle** | Groupez vos dépenses par mois avec totaux et graphiques |
 | 📆 **Vue annuelle** | Bilan annuel avec répartition mensuelle et par catégorie |
 | 📄 **Export PDF** | Générez un document PDF officiel de vos notes de frais |
-| 📊 **Export Excel** | Exportez vos données au format `.xlsx` pour Excel |
+| 📊 **Export Excel** | Exportez vos données au format .xlsx pour Excel |
 | 📑 **Export CSV** | Téléchargez un fichier CSV compatible avec tous les tableurs |
 | 🔒 **Stockage sécurisé** | Données sauvegardées sur Firebase Firestore (ou localStorage en mode hors-ligne) |
 | 👤 **Profil employé** | Informations personnalisées (nom, prénom, département) |
@@ -27,111 +31,75 @@
 
 ```
 note-de-frais/
-├── index.html          # Application SPA (Single Page Application)
+├── index.html          # Application SPA
 ├── firebase.json       # Configuration Firebase Hosting
-├── DEPLOIEMENT.md      # Guide de déploiement en ligne
+├── DEPLOIEMENT.md      # Guide de déploiement
 ├── GUIDE_GITHUB_DEPLOIEMENT.md  # Guide GitHub Pages
 └── README.md           # Ce fichier
 ```
 
-L'application est entièrement contenue dans un seul fichier [`index.html`](index.html) :
-- **HTML5** — Structure sémantique
-- **CSS3** — Design system Eqnovia (tokens, responsive)
-- **JavaScript ES6+** — Logique métier, Firebase bridge, exports
-- **Firebase SDK** — Base de données Firestore temps réel
-- **Tesseract.js** — Reconnaissance optique de caractères (OCR)
-- **jsPDF + AutoTable** — Génération de PDF
-- **SheetJS (XLSX)** — Export Excel
-
 ---
 
-## 📦 Technologies utilisées
-
-| Technologie | Usage |
-|-------------|-------|
-| [Firebase Firestore](https://firebase.google.com/products/firestore) | Base de données NoSQL temps réel |
-| [Tesseract.js](https://tesseract.projectnaptha.com/) | OCR pour lecture de factures |
-| [jsPDF](https://github.com/parallax/jsPDF) | Génération de documents PDF |
-| [SheetJS](https://sheetjs.com/) | Export de données Excel |
-| [Inter](https://rsms.me/inter/) | Police d'interface moderne |
-
----
-
-## 🔒 Sécurité
-
-L'application intègre plusieurs mesures de protection contre les attaques web :
+## 🛡️ Sécurité
 
 | Mesure | Description |
 |--------|-------------|
-| **CSP (Content Security Policy)** | Restreint les sources de scripts, styles, images et connexions |
+| **CSP** | Content Security Policy pour restreindre les sources de scripts et styles |
 | **XSS Protection** | Échappement HTML (`esc()`), sanitization des entrées (`sanitizeInput()`) |
 | **X-Frame-Options** | Empêche le clickjacking (`DENY`) |
-| **X-Content-Type-Options** | Empêche le sniffing de type MIME (`nosniff`) |
+| **X-Content-Type-Options** | Empêche le sniffing MIME (`nosniff`) |
 | **Referrer Policy** | Politique de référencement stricte |
-| **Validation serveur** | Vérification des montants (0 < x ≤ 10 000 000 DH) et dates (passé, ≤ 10 ans) |
-| **Sanitization** | Suppression des caractères dangereux `< > " '` dans les entrées utilisateur |
+| **Validation serveur** | Vérification des montants et dates |
+| **Sanitization** | Suppression des caractères dangereux `< > " '` |
 
-> ⚠️ **Note** : En mode Firebase, les règles de sécurité Firestore doivent également être configurées côté serveur.
-
-## 🎨 Design System
-
-L'application respecte la charte graphique **Eqnovia** :
-
-- **Couleurs principales** : Bleu Eqnovia `#0B4F9E`, Orange `#F7931E`
-- **Typographie** : Inter (300–800)
-- **Composants** : Panels, badges, modals, toasts, bar charts
-- **Responsive** : Adapté mobile, tablette et desktop
+⚠️ **Note** : En mode Firebase, les règles de sécurité Firestore doivent être configurées côté serveur.
 
 ---
 
-## 📖 Documentation
+## 🎨 Design System
 
-| Document | Description |
-|----------|-------------|
-| [`DEPLOIEMENT.md`](DEPLOIEMENT.md) | Guide de déploiement (Firebase, Netlify, GitHub Pages) |
-| [`GUIDE_GITHUB_DEPLOIEMENT.md`](GUIDE_GITHUB_DEPLOIEMENT.md) | Publication sur GitHub & déploiement GitHub Pages |
+| Élément | Spécification |
+|---------|---------------|
+| **Couleurs principales** | Bleu Eqnovia `#0B4F9E`, Orange `#F7931E` |
+| **Typographie** | Inter (300–800) |
+| **Composants** | Panels, badges, modals, toasts, bar charts |
+| **Responsive** | Adapté mobile, tablette et desktop |
 
 ---
 
 ## ⚡ Démarrage rapide
 
 ### Option 1 : Ouvrir localement
-
-1. Clonez ou téléchargez le projet
-2. Ouvrez [`index.html`](index.html) dans votre navigateur
-3. L'application fonctionne en mode **local** (localStorage) sans configuration
+```bash
+# 1. Clonez ou téléchargez le projet
+# 2. Ouvrez index.html dans votre navigateur
+# L'application fonctionne en mode local (localStorage) sans configuration
+```
 
 ### Option 2 : Build avec variables d'environnement
-
-Pour déployer avec votre propre configuration Firebase :
-
 ```bash
-# 1. Copiez le fichier .env.example vers .env et remplissez vos valeurs
+# 1. Copiez le fichier .env.example vers .env
 cp .env.example .env
 
-# 2. Générez le build
+# 2. Remplissez vos valeurs Firebase
+# 3. Générez le build
 node build.js
 
-# 3. Le fichier dist/index.html contient votre configuration injectée
+# 4. Le fichier dist/index.html contient votre configuration injectée
 ```
 
 ### Option 3 : Déployer en ligne
-
-Consultez [`DEPLOIEMENT.md`](DEPLOIEMENT.md) pour les instructions détaillées.
-
-**Résumé des options :**
-
 | Option | Base de données | URL publique | Complexité |
 |--------|----------------|--------------|------------|
-| Firebase | ✅ Firestore (temps réel) | ✅ `.web.app` | Moyenne |
-| Netlify | ❌ localStorage | ✅ Instant | Très facile |
-| GitHub Pages | ❌ localStorage | ✅ `.github.io` | Facile |
+| **Firebase** | ✅ Firestore (temps réel) | ✅ `.web.app` | Moyenne |
+| **Netlify** | ❌ localStorage | ✅ Instant | Très facile |
+| **GitHub Pages** | ❌ localStorage | ✅ `.github.io` | Facile |
+
+📖 Consultez [DEPLOIEMENT.md](DEPLOIEMENT.md) pour les instructions détaillées.
 
 ---
 
 ## 📜 Conditions d'utilisation
-
-L'utilisation de cette application est soumise aux conditions suivantes :
 
 - Destinée exclusivement aux employés d'Eqnovia
 - Toute dépense doit être justifiée par un justificatif valide
@@ -139,17 +107,17 @@ L'utilisation de cette application est soumise aux conditions suivantes :
 - L'utilisateur est responsable de l'exactitude des informations
 - Les données sont conservées 10 ans (durée légale comptable)
 
-> 📌 Consultez la section **Conditions & Politique** dans l'application pour plus de détails.
+📌 Consultez la section **Conditions & Politique** dans l'application pour plus de détails.
 
 ---
 
 ## 🤝 Contribution
 
-1. Forkez le projet
-2. Créez une branche (`git checkout -b feature/ma-fonctionnalite`)
-3. Committez vos modifications (`git commit -m "feat: ajout de..."`)
-4. Pushez vers la branche (`git push origin feature/ma-fonctionnalite`)
-5. Ouvrez une Pull Request
+1. **Forkez** le projet
+2. **Créez** une branche (`git checkout -b feature/ma-fonctionnalite`)
+3. **Committez** (`git commit -m "feat: ajout de..."`)
+4. **Pushez** (`git push origin feature/ma-fonctionnalite`)
+5. **Ouvrez** une Pull Request
 
 ---
 
@@ -165,14 +133,12 @@ Ce projet est la propriété d'Eqnovia. Toute reproduction ou distribution sans 
 
 | | |
 |---|---|
-| 📧 Email | [support@eqnovia.ma](mailto:support@eqnovia.ma) |
-| 📍 Adresse | Eqnovia, Casablanca, Maroc |
-| 🔗 Version | v3.0 · Firebase + Local |
+| **📧 Email** | support@eqnovia.ma |
+| **📍 Adresse** | Eqnovia, Casablanca, Maroc |
+| **🔗 Version** | v3.0 · Firebase + Local |
 
 ---
 
-<div align="center">
-
-**Eqnovia** · Gestion intelligente des notes de frais
-
-</div>
+<p align="center">
+  <sub>Eqnovia · Gestion intelligente des notes de frais</sub>
+</p>
