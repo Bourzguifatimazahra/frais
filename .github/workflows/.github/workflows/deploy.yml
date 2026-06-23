@@ -1,0 +1,103 @@
+name: 🚀 Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+# Permissions étendues pour l'automatisation
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  deployments: write
+  actions: write
+
+# Évite les déploiements concurrents
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Job 1: Build et préparation
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      build_status: ${{ steps.build_check.outputs.status }}
+    
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: 📦 Build du projet
+        id: build_check
+        run: |
+          if [ -f "build.js" ]; then
+            node build.js
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Pas de build.js, déploiement direct"
+            echo "status=no_build" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 📤 Upload des artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-content
+          path: |
+            ./
+            !.git
+            !.github
+            !node_modules
+          retention-days: 1
+
+  # Job 2: Activation Pages + Déploiement
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: 📥 Download des artefacts
+        uses: actions/download-artifact@v4
+        with:
+          name: site-content
+          path: .
+      
+      - name: 🔍 Vérification de l'état Pages
+        id: check_pages
+        run: |
+          if curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pages" | grep -q "200"; then
+            echo "pages_active=true" >> $GITHUB_OUTPUT
+          else
+            echo "pages_active=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: ⚙️ Configuration Pages (auto-activation)
+        if: steps.check_pages.outputs.pages_active == 'false'
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: ⚙️ Configuration Pages (si déjà actif)
+        if: steps.check_pages.outputs.pages_active == 'true'
+        uses: actions/configure-pages@v5
+      
+      - name: 📤 Upload vers Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      
+      - name: 🚀 Déploiement final
+        id: deployment
+        uses: actions/deploy-pages@v4
