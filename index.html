@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Notes de Frais — Eqnovia</title>
   <meta name="description" content="Application de gestion des notes de frais Eqnovia. Saisie, OCR, historique, export PDF/Excel/CSV. Base de données Firebase."/>
+  
   <!-- Security Headers -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.gstatic.com https://firestore.googleapis.com; frame-src 'self' https:;"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.gstatic.com https://firestore.googleapis.com https://tesseract.projectnaptha.com; frame-src 'self' https:;"/>
   <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
   <meta http-equiv="X-Frame-Options" content="DENY"/>
   <meta http-equiv="X-XSS-Protection" content="1; mode=block"/>
@@ -21,15 +22,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // ── Firebase config (remplacez par votre config si vous avez votre propre projet) ──
-    // Note : la clé API Firebase est publique par conception (elle identifie le projet).
-    // La sécurité est ensured par les règles Firestore configurées dans la console Firebase.
     const firebaseConfig = {
       apiKey: "AIzaSyCCWjweceYZqbHBhdyHZCwVTdbjXgAZ-TI",
       authDomain: "eqnovia-expenses.firebaseapp.com",
@@ -120,7 +119,7 @@
     .content{margin-left:var(--sidebar-w);flex:1;padding:28px 32px 80px;max-width:calc(100vw - var(--sidebar-w));}
 
     /* ══ PAGE TABS ══ */
-    .page-tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-200);margin-bottom:24px;}
+    .page-tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-200);margin-bottom:24px;flex-wrap:wrap;}
     .tab-btn{padding:12px 22px;font-size:13px;font-weight:600;color:var(--gray-400);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;font-family:'Inter',sans-serif;}
     .tab-btn:hover{color:var(--eq-blue);}
     .tab-btn.active{color:var(--eq-blue);border-bottom-color:var(--eq-blue);}
@@ -186,6 +185,7 @@
     .btn-excel:hover{background:#155332;}
     .btn-csv{background:#5C6BC0;color:white;}
     .btn-csv:hover{background:#3949AB;}
+    .btn:disabled{opacity:0.6;cursor:not-allowed;}
 
     /* ══ EXPORT GROUP ══ */
     .export-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
@@ -641,7 +641,7 @@
           <div class="ocr-progress" id="ocrProgress"><div class="ocr-progress-bar" id="ocrBar"></div></div>
           <button class="btn btn-orange btn-full" style="margin-top:14px;" onclick="runOCR()" id="ocrBtn">🔍 Lire et extraire</button>
           <div class="ocr-output" id="ocrOutput">Le texte extrait apparaîtra ici…</div>
-          <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="fillFormFromOCR()">⬅️ Remplir le formulaire</button>
+          <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="fillFormFromOCR()">⬅️ Remplir le formulaire</button>
         </div>
       </div>
     </div>
@@ -822,14 +822,16 @@ const MONTHS_SHORT= ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oc
 
 let sortCol = 'date', sortDir = -1;
 let activeTab = 'saisie';
-let cache = [];       // in-memory cache
+let cache = [];
 let useFirebase = false;
 let addJustifData = { fileData: '', fileName: '' };
 let editJustifData = { fileData: '', fileName: '' };
 let employeeInfo = { nom: '', prenom: '', dept: '' };
+let ocrText = '';
+let ocrRunning = false;
 
 // ════════════════════════════════════════════
-// FIREBASE BRIDGE (async, module-loaded)
+// FIREBASE BRIDGE
 // ════════════════════════════════════════════
 async function fbAdd(expense) {
   if (!useFirebase) return;
@@ -845,11 +847,11 @@ async function fbAdd(expense) {
 async function fbDelete(id) {
   if (!useFirebase) return;
   try {
-    const { collection, getDocs, deleteDoc, doc, query } = window.__fs;
+    const { collection, getDocs, deleteDoc, doc } = window.__fs;
     const snap = await getDocs(collection(window.__db, 'expenses'));
-    snap.forEach(async d => {
+    for (const d of snap.docs) {
       if (d.data().id === id) await deleteDoc(doc(window.__db, 'expenses', d.id));
-    });
+    }
   } catch(e) { console.warn('FB delete failed', e); }
 }
 
@@ -857,31 +859,21 @@ async function fbLoad() {
   if (!useFirebase) return null;
   try {
     const { collection, getDocs, query, orderBy } = window.__fs;
-    const q    = query(collection(window.__db,'expenses'), orderBy('createdAt','asc'));
+    const q = query(collection(window.__db, 'expenses'), orderBy('createdAt', 'asc'));
     const snap = await getDocs(q);
-    const arr  = [];
+    const arr = [];
     snap.forEach(d => arr.push({ ...d.data() }));
     return arr;
   } catch(e) { console.warn('FB load failed', e); return null; }
 }
 
-// ════════════════════════════════════════════
-// LOCAL STORAGE FALLBACK
-// ════════════════════════════════════════════
-function lsLoad()  { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch { return []; } }
+function lsLoad() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch { return []; } }
 function lsSave(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
 
-// ════════════════════════════════════════════
-// UNIFIED DATA LAYER
-// ════════════════════════════════════════════
 async function dataLoad() {
   if (useFirebase) {
     const fb = await fbLoad();
-    if (fb !== null) {
-      cache = fb;
-      lsSave(cache); // sync local
-      return;
-    }
+    if (fb !== null) { cache = fb; lsSave(cache); return; }
   }
   cache = lsLoad();
 }
@@ -901,7 +893,7 @@ async function dataDelete(id) {
 function dataAll() { return [...cache]; }
 
 // ════════════════════════════════════════════
-// COLLABORATEUR / EMPLOYE HELPERS
+// EMPLOYEE HELPERS
 // ════════════════════════════════════════════
 function saveEmployeeInfo() {
   employeeInfo.nom = document.getElementById('empNom').value.trim();
@@ -920,9 +912,7 @@ function loadEmployeeInfo() {
       document.getElementById('empPrenom').value = employeeInfo.prenom || '';
       document.getElementById('empDept').value = employeeInfo.dept || '';
     }
-  } catch (e) {
-    console.error("Error loading employee info", e);
-  }
+  } catch (e) { console.error("Error loading employee info", e); }
   updateAvatar();
 }
 
@@ -937,52 +927,26 @@ function updateAvatar() {
       avatar.textContent = 'EQ';
     }
   }
-  
-  const statusEl = document.getElementById('dbStatus');
-  let empTag = document.getElementById('empHeaderTag');
-  if (!empTag && statusEl) {
-    empTag = document.createElement('span');
-    empTag.id = 'empHeaderTag';
-    empTag.style.fontSize = '13px';
-    empTag.style.fontWeight = '600';
-    empTag.style.color = 'var(--gray-700)';
-    empTag.style.marginRight = '8px';
-    statusEl.parentNode.insertBefore(empTag, statusEl);
-  }
-  if (empTag) {
-    if (employeeInfo.nom || employeeInfo.prenom) {
-      empTag.textContent = `${employeeInfo.prenom} ${employeeInfo.nom}`;
-      empTag.style.display = 'inline';
-    } else {
-      empTag.style.display = 'none';
-    }
-  }
 }
 
 function toggleEmployeePanel() {
   const body = document.getElementById('employeeBody');
   const icon = document.getElementById('employeeToggleIcon');
   body.classList.toggle('collapsed');
-  if (body.classList.contains('collapsed')) {
-    icon.textContent = '▼';
-  } else {
-    icon.textContent = '▲';
-  }
+  icon.textContent = body.classList.contains('collapsed') ? '▼' : '▲';
 }
 
 // ════════════════════════════════════════════
-// JUSTIFICATIF UPLOAD & PREVIEW HELPERS
+// JUSTIFICATIF HELPERS
 // ════════════════════════════════════════════
 function handleJustifFileSelect(input, mode) {
   const file = input.files[0];
   if (!file) return;
-
   if (file.size > 800 * 1024) {
     toast("Fichier trop volumineux (max 800 Ko).", "err");
     input.value = "";
     return;
   }
-
   const reader = new FileReader();
   reader.onload = function(e) {
     if (mode === 'add') {
@@ -1020,14 +984,11 @@ function clearJustifFile(mode) {
 function openJustifPreview(id) {
   const exp = cache.find(e => e.id === id);
   if (!exp || !exp.justifFile) return toast('Aucun justificatif disponible.', 'err');
-  
   const content = document.getElementById('justifModalContent');
   const downloadBtn = document.getElementById('justifDownloadBtn');
   document.getElementById('justifModalTitle').textContent = `Justificatif - ${exp.desc}`;
-  
   downloadBtn.href = exp.justifFile;
   downloadBtn.download = exp.justifName || `justificatif_${exp.id}`;
-  
   if (exp.justifFile.startsWith('data:image/')) {
     content.innerHTML = `<img src="${exp.justifFile}" style="max-width:100%; border-radius:var(--radius-md); box-shadow:var(--shadow-sm);" alt="Receipt"/>`;
   } else if (exp.justifFile.startsWith('data:application/pdf')) {
@@ -1035,7 +996,6 @@ function openJustifPreview(id) {
   } else {
     content.innerHTML = `<p style="padding:20px; color:var(--gray-500);">Aperçu indisponible. Utilisez le bouton ci-dessous pour télécharger le fichier.</p>`;
   }
-  
   document.getElementById('justifModal').classList.add('open');
 }
 
@@ -1060,9 +1020,6 @@ function esc(s) {
 }
 function today() { return new Date().toISOString().split('T')[0]; }
 
-// ════════════════════════════════════════════
-// SECURITY HELPERS
-// ════════════════════════════════════════════
 function sanitizeInput(str) {
   if (typeof str !== 'string') return '';
   return str.replace(/[<>\"']/g, '').trim();
@@ -1122,14 +1079,11 @@ function switchTab(t) {
     document.getElementById(`tab-${id}`)?.classList.toggle('active', id===t);
     document.getElementById(`nav-${id}`)?.classList.toggle('active', id===t);
   });
-  if (t==='all')     { renderAll(); }
-  if (t==='monthly') { renderMonthly(); }
-  if (t==='yearly')  { renderYearly(); }
+  if (t==='all') renderAll();
+  if (t==='monthly') renderMonthly();
+  if (t==='yearly') renderYearly();
 }
 
-// ════════════════════════════════════════════
-// ADD EXPENSE
-// ════════════════════════════════════════════
 // ════════════════════════════════════════════
 // ADD EXPENSE
 // ════════════════════════════════════════════
@@ -1159,7 +1113,6 @@ async function addExpense() {
 
   btn.disabled=false; btn.innerHTML='➕ Ajouter la dépense';
   
-  // Reset inputs
   document.getElementById('descInput').value='';
   document.getElementById('amountInput').value='';
   document.getElementById('totalHTInput').value='';
@@ -1230,12 +1183,10 @@ async function saveEdit() {
   const justifName = editJustifData.fileName || '';
   const justif     = justifFile ? 'Oui' : 'Non';
 
-  // Update in cache
   const idx = cache.findIndex(e => e.id === editingId);
   if (idx !== -1) {
     cache[idx] = { ...cache[idx], date, desc, amount, totalHT, cat, comment, justif, justifFile, justifName };
     lsSave(cache);
-    // Firebase: delete old + re-add updated
     if (useFirebase) {
       try {
         const { collection, getDocs, deleteDoc, doc, addDoc, serverTimestamp } = window.__fs;
@@ -1276,7 +1227,6 @@ function deleteRow(id) {
 // ════════════════════════════════════════════
 function confirmClear(){
   showModal('⚠️ Supprimer tout','Toutes les dépenses seront effacées de la base de données. Continuer ?', async()=>{
-    // Delete from firebase
     if (useFirebase) {
       try {
         const { collection, getDocs, deleteDoc, doc } = window.__fs;
@@ -1304,7 +1254,6 @@ function handleGlobalSearch(query) {
     resetFilters();
     return;
   }
-  // Switch to "all" tab and apply search
   if (activeTab !== 'all') switchTab('all');
   document.getElementById('filterSearch').value = q;
   renderAll();
@@ -1341,9 +1290,6 @@ function sortBy(col){
 // ════════════════════════════════════════════
 // TAB: TOUTES (renderAll)
 // ════════════════════════════════════════════
-// ════════════════════════════════════════════
-// TAB: TOUTES (renderAll)
-// ════════════════════════════════════════════
 function renderAll() {
   const data    = dataAll();
   const yearF   = document.getElementById('filterYear').value;
@@ -1352,7 +1298,6 @@ function renderAll() {
   const justifF = document.getElementById('filterJustif').value;
   const search  = (document.getElementById('filterSearch').value||'').toLowerCase();
 
-  // Rebuild year dropdown
   const years = [...new Set(data.map(e=>e.date.substring(0,4)))].sort().reverse();
   const ySel  = document.getElementById('filterYear');
   const yVal  = ySel.value;
@@ -1424,7 +1369,6 @@ function renderMonthly() {
   const data   = dataAll();
   const yearF  = document.getElementById('filterYearMonth').value;
 
-  // Rebuild year filter
   const years=[...new Set(data.map(e=>e.date.substring(0,4)))].sort().reverse();
   const ySel=document.getElementById('filterYearMonth');
   const yVal=ySel.value;
@@ -1434,7 +1378,6 @@ function renderMonthly() {
 
   const filtered = data.filter(e=> yearF==='all'||e.date.substring(0,4)===yearF);
 
-  // Group by YYYY-MM
   const groups={};
   filtered.forEach(e=>{
     const key=e.date.substring(0,7);
@@ -1520,7 +1463,6 @@ function toggleGroup(key){
 // ════════════════════════════════════════════
 function renderYearly() {
   const data=dataAll();
-  // Group by year
   const groups={};
   data.forEach(e=>{
     const y=e.date.substring(0,4);
@@ -1543,7 +1485,6 @@ function renderYearly() {
 
   container.innerHTML=years.map(y=>{
     const g=groups[y];
-    // Bar chart: monthly
     const vals=Object.values(g.byMonth);
     const maxVal=Math.max(...vals,1);
     const bars=Array.from({length:12},(_,i)=>{
@@ -1556,7 +1497,6 @@ function renderYearly() {
       </div>`;
     }).join('');
 
-    // Category breakdown
     const catRows=Object.entries(g.byCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`
       <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--gray-100);">
         <span class="badge badge-cat">${esc(cat)}</span>
@@ -1602,100 +1542,216 @@ function renderYearly() {
 }
 
 // ════════════════════════════════════════════
-// OCR
+// OCR — VERSION OPTIMISÉE
 // ════════════════════════════════════════════
-let ocrText='';
-function onFileChosen(e){const f=e.target.files[0];document.getElementById('fileName').textContent=f?'📎 '+f.name:'Aucun fichier';}
+function onFileChosen(e){
+  const f = e.target.files[0];
+  if (f) {
+    document.getElementById('fileName').textContent = '📎 ' + f.name;
+    ocrText = ''; // Reset previous OCR text
+    document.getElementById('ocrOutput').textContent = '📷 Image prête. Cliquez sur "Lire et extraire" pour lancer l\'OCR.';
+  } else {
+    document.getElementById('fileName').textContent = 'Aucun fichier';
+  }
+}
+
 function handleDragOver(e){e.preventDefault();document.getElementById('uploadZone').classList.add('drag-over');}
 function handleDragLeave(){document.getElementById('uploadZone').classList.remove('drag-over');}
 function handleDrop(e){
-  e.preventDefault();document.getElementById('uploadZone').classList.remove('drag-over');
-  const f=e.dataTransfer.files[0];
-  if(f&&f.type.startsWith('image/')){
-    const dt=new DataTransfer();dt.items.add(f);
-    document.getElementById('fileInput').files=dt.files;
-    document.getElementById('fileName').textContent='📎 '+f.name;
-  } else toast('Veuillez déposer un fichier image.','err');
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if(f && f.type.startsWith('image/')){
+    const dt = new DataTransfer();
+    dt.items.add(f);
+    document.getElementById('fileInput').files = dt.files;
+    document.getElementById('fileName').textContent = '📎 ' + f.name;
+    ocrText = '';
+    document.getElementById('ocrOutput').textContent = '📷 Image prête. Cliquez sur "Lire et extraire" pour lancer l\'OCR.';
+  } else {
+    toast('Veuillez déposer un fichier image.','err');
+  }
 }
 
-async function runOCR(){
-  const fi=document.getElementById('fileInput');
-  const out=document.getElementById('ocrOutput');
-  const bar=document.getElementById('ocrBar');
-  const prog=document.getElementById('ocrProgress');
-  const btn=document.getElementById('ocrBtn');
-  if(!fi.files||!fi.files.length) return toast('Choisissez d\'abord une image.','err');
-  btn.disabled=true;btn.textContent='⏳ Lecture…';prog.style.display='block';bar.style.width='0%';
-  out.textContent='⏳ Initialisation Tesseract…';
-  try{
-    const{data:{text}}=await Tesseract.recognize(fi.files[0],'fra',{
-      logger:m=>{if(m.status==='recognizing text')bar.style.width=Math.round(m.progress*100)+'%';}
+async function runOCR() {
+  if (ocrRunning) return;
+  const fi = document.getElementById('fileInput');
+  const out = document.getElementById('ocrOutput');
+  const bar = document.getElementById('ocrBar');
+  const prog = document.getElementById('ocrProgress');
+  const btn = document.getElementById('ocrBtn');
+  
+  if(!fi.files || !fi.files.length) {
+    return toast('Choisissez d\'abord une image.', 'err');
+  }
+  
+  ocrRunning = true;
+  btn.disabled = true;
+  btn.textContent = '⏳ Lecture en cours...';
+  prog.style.display = 'block';
+  bar.style.width = '0%';
+  out.textContent = '⏳ Initialisation de Tesseract...';
+  
+  try {
+    const imageFile = fi.files[0];
+    const imageUrl = URL.createObjectURL(imageFile);
+    
+    // Load image into canvas for better quality
+    const img = new Image();
+    img.src = imageUrl;
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
     });
-    ocrText=text;bar.style.width='100%';
-    out.textContent=text||'(Aucun texte détecté)';
-    toast('Texte extrait !');
-  }catch(e){out.textContent='❌ Erreur : '+e.message;toast('Erreur OCR.','err');}
-  finally{btn.disabled=false;btn.textContent='🔍 Lire et extraire';setTimeout(()=>prog.style.display='none',1000);}
-}
-
-function fillFormFromOCR(){
-  if(!ocrText) return toast('Lancez d\'abord l\'OCR.','err');
-  const lines=ocrText.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
-  // Date regex: supports dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy, yyyy-mm-dd, yyyy/mm/dd, and 2-digit years
-  const dateRx=/(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})/;
-  // Amount regex: supports 123,45 / 123.45 / 1 234,56 / 1 234.56 with optional currency suffix
-  const amtRx=/(\d[\d\s]*[.,]\d{2})/;
-  let foundDate='',foundAmt='',foundDesc='';
-  // First pass: find date and amount
-  for(const line of lines){
-    if(!foundDate){
-      const m=line.match(dateRx);
-      if(m){
-        let raw=m[1].replace(/\./g,'-').replace(/\//g,'-').replace(/\s/g,'');
-        const p=raw.split('-');
-        if(p.length===3){
-          if(p[0].length<=2&&p[2].length===4) foundDate=`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-          else if(p[0].length===4) foundDate=`${p[0]}-${p[1].padStart(2,'0')}-${p[2].padStart(2,'0')}`;
-          else if(p[0].length<=2&&p[2].length===2){
-            // 2-digit year: assume 20xx
-            const yr='20'+p[2];
-            foundDate=`${yr}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-          }
+    
+    // Create canvas for preprocessing
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = img.width * 1.5;
+    canvas.height = img.height * 1.5;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    
+    // Convert to grayscale for better OCR
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+      data[i] = avg;
+      data[i + 1] = avg;
+      data[i + 2] = avg;
+    }
+    ctx.putImageData(imageData, 0, 0);
+    
+    const processedImage = canvas.toDataURL('image/png');
+    const blob = await (await fetch(processedImage)).blob();
+    
+    // Run OCR with optimized settings
+    const result = await Tesseract.recognize(blob, 'fra', {
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          const progress = Math.round(m.progress * 100);
+          bar.style.width = progress + '%';
+          out.textContent = `⏳ Reconnaissance en cours... ${progress}%`;
         }
       }
-    }
-    if(!foundAmt){
-      const m=line.match(amtRx);
-      if(m){
-        let amt=m[1].replace(/\s/g,'').replace(',','.');
-        // Validate it's a reasonable number
-        const num=parseFloat(amt);
-        if(!isNaN(num)&&num>0&&num<1000000) foundAmt=amt;
-      }
-    }
+    });
+    
+    ocrText = result.data.text;
+    bar.style.width = '100%';
+    out.textContent = ocrText || '(Aucun texte détecté)';
+    toast('✅ Texte extrait avec succès !', 'ok');
+    
+    // URL.revokeObjectURL(imageUrl);
+    
+  } catch(e) {
+    out.textContent = '❌ Erreur : ' + e.message;
+    toast('Erreur OCR. Vérifiez l\'image.', 'err');
+    console.error('OCR Error:', e);
+  } finally {
+    ocrRunning = false;
+    btn.disabled = false;
+    btn.textContent = '🔍 Lire et extraire';
+    setTimeout(() => prog.style.display = 'none', 1000);
   }
-  // Second pass: find best description (skip header lines, look for meaningful text)
-  const skipRx=/^(facture|invoice|reçu|ticket|bon|devis|total|montant|date|client|fournisseur|tva|ht|ttc|ref|n°|no|numéro)/i;
-  for(const line of lines){
-    if(!foundDesc&&line.length>3&&!line.match(dateRx)&&!line.match(amtRx)&&!line.match(/^\d+$/)&&!skipRx.test(line)){
-      foundDesc=line.substring(0,60);
+}
+
+function fillFormFromOCR() {
+  if (!ocrText || ocrText.trim().length < 3) {
+    return toast('Lancez d\'abord l\'OCR sur une image de facture.', 'err');
+  }
+  
+  const lines = ocrText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  
+  // Improved regex for better extraction
+  const dateRx = /(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})/;
+  const amtRx = /(\d[\d\s]*[.,]\d{2})/;
+  
+  let foundDate = '', foundAmt = '', foundDesc = '';
+  
+  // Extract date
+  for (const line of lines) {
+    const m = line.match(dateRx);
+    if (m && !foundDate) {
+      let raw = m[1].replace(/\./g,'-').replace(/\//g,'-').replace(/\s/g,'');
+      const p = raw.split('-');
+      if (p.length === 3) {
+        if (p[0].length <= 2 && p[2].length === 4) {
+          foundDate = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+        } else if (p[0].length === 4) {
+          foundDate = `${p[0]}-${p[1].padStart(2,'0')}-${p[2].padStart(2,'0')}`;
+        } else if (p[0].length <= 2 && p[2].length === 2) {
+          foundDate = `20${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+        }
+      }
       break;
     }
   }
-  // Fallback: if no good description found, use the longest non-date, non-amount line
-  if(!foundDesc){
-    let bestLen=0;
-    for(const line of lines){
-      if(line.length>3&&!line.match(dateRx)&&!line.match(amtRx)&&!line.match(/^\d+$/)){
-        if(line.length>bestLen){bestLen=line.length;foundDesc=line.substring(0,60);}
+  
+  // Extract amount - look for numbers with decimals
+  for (const line of lines) {
+    const matches = line.match(/\d[\d\s]*[.,]\d{2}/g);
+    if (matches && matches.length > 0) {
+      for (const match of matches) {
+        const amt = parseFloat(match.replace(/\s/g,'').replace(',','.'));
+        if (!isNaN(amt) && amt > 0 && amt < 1000000 && amt > 10) {
+          foundAmt = amt.toString();
+          break;
+        }
       }
     }
+    if (foundAmt) break;
   }
-  let n=0;
-  if(foundDate){document.getElementById('dateInput').value=foundDate;n++;}
-  if(foundAmt){document.getElementById('amountInput').value=parseFloat(foundAmt);n++;}
-  if(foundDesc){document.getElementById('descInput').value=foundDesc;n++;}
-  toast(n>0?`${n} champ(s) rempli(s) — vérifiez avant d'ajouter.`:'Aucun champ détecté. Vérifiez que l\'image contient une facture lisible.', n>0?'ok':'err');
+  
+  // Extract description - look for meaningful text
+  const skipRx = /^(facture|invoice|reçu|ticket|bon|devis|total|montant|date|client|fournisseur|tva|ht|ttc|ref|n°|no|numéro|siret|phone|email|www|http|reglement|paiement|merci|conditions|iban|bic|code|tva|numero|prix|unité|qte|quantité|total|sous-total|€|dh|mad|dirham|euro|dollar|$)/i;
+  const wordCount = (str) => str.split(/\s+/).length;
+  
+  for (const line of lines) {
+    if (foundDesc) break;
+    const clean = line.replace(/^\d+[\s\.\)\-:]+/, '').trim();
+    if (clean.length > 5 && 
+        !clean.match(dateRx) && 
+        !clean.match(amtRx) && 
+        !skipRx.test(clean) &&
+        wordCount(clean) >= 2) {
+      foundDesc = clean.substring(0, 80);
+    }
+  }
+  
+  // If no description found, take a medium-length line
+  if (!foundDesc) {
+    let bestMatch = '';
+    for (const line of lines) {
+      if (line.length > 5 && line.length < 60 && !skipRx.test(line)) {
+        const clean = line.replace(/^\d+[\s\.\)\-:]+/, '').trim();
+        if (clean.length > bestMatch.length) {
+          bestMatch = clean;
+        }
+      }
+    }
+    if (bestMatch) foundDesc = bestMatch;
+  }
+  
+  // Fill form
+  let count = 0;
+  if (foundDate) {
+    document.getElementById('dateInput').value = foundDate;
+    count++;
+  }
+  if (foundAmt) {
+    document.getElementById('amountInput').value = parseFloat(foundAmt);
+    count++;
+  }
+  if (foundDesc) {
+    document.getElementById('descInput').value = foundDesc;
+    count++;
+  }
+  
+  if (count > 0) {
+    toast(`✅ ${count} champ(s) rempli(s) — Vérifiez avant d'ajouter.`, 'ok');
+  } else {
+    toast('⚠️ Aucun champ détecté. Vérifiez que l\'image contient une facture lisible.', 'err');
+  }
 }
 
 // ════════════════════════════════════════════
@@ -1708,15 +1764,10 @@ function exportCSV(){
   csv += `Employé;${employeeInfo.prenom} ${employeeInfo.nom}\n`;
   csv += `Département;${employeeInfo.dept}\n`;
   csv += `Date d'export;${new Date().toLocaleDateString('fr-FR')}\n\n`;
-  
   csv += 'N°;Date;Description;Type de dépenses;Total HT (DH);Total TTC (DH);Commentaires;Justificatif\n';
-  
   [...data].sort((a,b)=>b.date.localeCompare(a.date)).forEach((e,i)=>{
-    const amtTTC = e.amount.toFixed(2).replace('.',',');
-    const amtHT = (e.totalHT || 0).toFixed(2).replace('.',',');
-    csv+=`"${i+1}";"${e.date}";"${String(e.desc).replace(/"/g,'""')}";"${e.cat||'Autre'}";"${amtHT}";"${amtTTC}";"${String(e.comment||'').replace(/"/g,'""')}";"${e.justifFile ? 'Oui ('+e.justifName+')' : 'Non'}"\n`;
+    csv+=`"${i+1}";"${e.date}";"${String(e.desc).replace(/"/g,'""')}";"${e.cat||'Autre'}";"${(e.totalHT||0).toFixed(2).replace('.',',')}";"${e.amount.toFixed(2).replace('.',',')}";"${String(e.comment||'').replace(/"/g,'""')}";"${e.justifFile ? 'Oui' : 'Non'}"\n`;
   });
-  
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=Object.assign(document.createElement('a'),{href:url,download:`note-de-frais_${employeeInfo.nom || 'export'}_${today()}.csv`});
@@ -1728,57 +1779,34 @@ function exportExcel(){
   if(!window.XLSX) return toast('Bibliothèque Excel non chargée.','err');
   const data=dataAll();
   if(!data.length) return toast('Aucune dépense à exporter.','err');
-  
-  const employeeRows = [
+  const allRows = [
     ['NOTE DE FRAIS', ''],
     ['Employé', `${employeeInfo.prenom} ${employeeInfo.nom}`],
     ['Département', employeeInfo.dept],
     ['Date d\'export', new Date().toLocaleDateString('fr-FR')],
-    [], // empty separator
+    [],
+    ['N°', 'Date', 'Description', 'Type de dépenses', 'Total HT (DH)', 'Total TTC (DH)', 'Commentaires', 'Justificatif']
   ];
-  
-  const headers = ['N°', 'Date', 'Description', 'Type de dépenses', 'Total HT (DH)', 'Total TTC (DH)', 'Commentaires', 'Justificatif'];
-  
   const sorted = [...data].sort((a,b)=>b.date.localeCompare(a.date));
-  const dataRows = sorted.map((e,i)=>[
-    i+1,
-    e.date,
-    e.desc,
-    e.cat || 'Autre',
-    e.totalHT || 0,
-    e.amount,
-    e.comment || '',
-    e.justifFile ? `Oui (${e.justifName})` : 'Non'
-  ]);
-  
+  sorted.forEach((e,i)=>{
+    allRows.push([
+      i+1,
+      e.date,
+      e.desc,
+      e.cat || 'Autre',
+      e.totalHT || 0,
+      e.amount,
+      e.comment || '',
+      e.justifFile ? 'Oui' : 'Non'
+    ]);
+  });
   const totalHT = sorted.reduce((s,e)=>s+(e.totalHT||0),0);
   const totalTTC = sorted.reduce((s,e)=>s+e.amount,0);
-  
-  const footerRows = [
-    [], // empty
-    ['', '', 'TOTAL', '', totalHT, totalTTC, '', '']
-  ];
-  
-  const allRows = [
-    ...employeeRows,
-    headers,
-    ...dataRows,
-    ...footerRows
-  ];
+  allRows.push([]);
+  allRows.push(['', '', 'TOTAL', '', totalHT, totalTTC, '', '']);
   
   const ws = XLSX.utils.aoa_to_sheet(allRows);
-  
-  ws['!cols'] = [
-    {wch:5}, // N°
-    {wch:14}, // Date
-    {wch:35}, // Description
-    {wch:18}, // Type de dépenses
-    {wch:15}, // Total HT
-    {wch:15}, // Total TTC
-    {wch:30}, // Commentaires
-    {wch:20}  // Justificatif
-  ];
-  
+  ws['!cols'] = [{wch:5},{wch:14},{wch:35},{wch:18},{wch:15},{wch:15},{wch:30},{wch:15}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Notes de Frais');
   XLSX.writeFile(wb, `note-de-frais_${employeeInfo.nom || 'export'}_${today()}.xlsx`);
@@ -1792,7 +1820,6 @@ function exportPDF(){
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
   const W=297;
-  // Header
   doc.setFillColor(11,79,158);doc.rect(0,0,W,22,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(255,255,255);
   doc.text('eqnovia',14,14);
@@ -1802,16 +1829,12 @@ function exportPDF(){
   const now=new Date();
   doc.setFontSize(9);
   doc.text(`Édité le ${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}`,W-14,14,{align:'right'});
-  // Title
   doc.setTextColor(11,79,158);doc.setFont('helvetica','bold');doc.setFontSize(13);
   doc.text('Récapitulatif des dépenses professionnelles',14,30);
-  
-  // Employee details
   doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(53,61,79);
   doc.text(`Employé : ${employeeInfo.prenom} ${employeeInfo.nom}`, 14, 36);
   doc.text(`Département : ${employeeInfo.dept}`, 120, 36);
   
-  // Table
   const sorted=[...data].sort((a,b)=>b.date.localeCompare(a.date));
   const total=sorted.reduce((s,e)=>s+e.amount,0);
   const totalHT = sorted.reduce((s,e)=>s+(e.totalHT||0),0);
@@ -1870,7 +1893,6 @@ async function init() {
   document.getElementById('dateInput').value = today();
   loadEmployeeInfo();
 
-  // Wait for Firebase module to load
   await new Promise(r => setTimeout(r, 1800));
 
   if (window.__fbReady) {
