@@ -15,8 +15,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 
-  <!-- Tesseract.js with worker CDN -->
-  <script async src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.3/dist/tesseract.min.js"></script>
+  <!-- Tesseract.js - Simple version -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.3"></script>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -159,17 +159,12 @@
     .btn-danger:hover{background:#FADADAAA;}
     .btn-icon{width:32px;height:32px;padding:0;border-radius:var(--radius-sm);border:1.5px solid var(--gray-200);background:var(--white);color:var(--gray-400);cursor:pointer;display:flex;align-items:center;justify-content:center;}
     .btn-icon:hover{border-color:var(--red);color:var(--red);background:var(--red-pale);}
-    .btn-icon.edit{color:var(--gray-400);}
-    .btn-icon.edit:hover{border-color:var(--eq-blue);color:var(--eq-blue);background:var(--eq-blue-pale);}
     .btn-lg{height:44px;font-size:14px;padding:0 24px;}
     .btn-full{width:100%;}
     .btn:disabled{opacity:0.6;cursor:not-allowed;}
     .btn-pdf{background:#E53935;color:white;}
-    .btn-pdf:hover{background:#C62828;}
     .btn-excel{background:#1D6F42;color:white;}
-    .btn-excel:hover{background:#155332;}
     .btn-csv{background:#5C6BC0;color:white;}
-    .btn-csv:hover{background:#3949AB;}
 
     .export-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 
@@ -179,64 +174,10 @@
     .upload-zone .upload-icon{font-size:30px;margin-bottom:8px;}
     .upload-zone p{font-size:13px;color:var(--gray-400);}
     .upload-zone .file-selected{font-size:12px;color:var(--eq-blue);font-weight:600;margin-top:6px;}
-    .ocr-progress{height:4px;background:var(--gray-100);border-radius:4px;margin-top:12px;display:none;overflow:hidden;}
+    .ocr-progress{height:6px;background:var(--gray-100);border-radius:4px;margin-top:12px;display:none;overflow:hidden;}
     .ocr-progress-bar{height:100%;background:linear-gradient(90deg,var(--eq-blue),var(--eq-orange));border-radius:4px;width:0%;transition:width .3s;}
-    .ocr-output{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px;font-size:12px;font-family:'Courier New',monospace;color:var(--gray-500);max-height:150px;overflow-y:auto;}
-
-    .filters-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 22px;background:var(--gray-50);border-bottom:1px solid var(--gray-100);}
-    .filters-bar .form-input,.filters-bar .form-select{height:36px;font-size:13px;width:auto;min-width:140px;}
-    .filter-sep{width:1px;height:24px;background:var(--gray-200);margin:0 4px;}
-
-    .table-wrap{overflow-x:auto;}
-    table{width:100%;border-collapse:collapse;font-size:13.5px;}
-    thead tr{background:var(--gray-50);border-bottom:2px solid var(--gray-200);}
-    th{padding:11px 16px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-400);white-space:nowrap;}
-    th.sortable{cursor:pointer;user-select:none;}
-    th.sortable:hover{color:var(--eq-blue);}
-    tbody tr{border-bottom:1px solid var(--gray-100);transition:background .1s;}
-    tbody tr:hover{background:var(--eq-blue-pale);}
-    tbody tr:last-child{border-bottom:none;}
-    td{padding:12px 16px;color:var(--gray-700);vertical-align:middle;}
-    td.td-date{font-size:13px;color:var(--gray-400);font-variant-numeric:tabular-nums;white-space:nowrap;}
-    td.td-amount{font-weight:700;color:var(--eq-blue);font-variant-numeric:tabular-nums;white-space:nowrap;}
-    td.td-desc{max-width:250px;}
-    td.td-desc span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:30px;font-size:11px;font-weight:600;white-space:nowrap;}
-    .badge-yes{background:var(--green-pale);color:var(--green);}
-    .badge-no{background:var(--red-pale);color:var(--red);}
-    .badge-cat{background:var(--eq-blue-pale);color:var(--eq-blue);}
-
-    .table-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:var(--gray-50);border-top:2px solid var(--gray-200);flex-wrap:wrap;gap:12px;}
-    .total-info{font-size:13px;color:var(--gray-400);}
-    .total-amount{display:flex;align-items:center;gap:10px;background:var(--eq-blue-pale);border:1px solid var(--eq-blue-mid);padding:10px 20px;border-radius:var(--radius-md);font-size:16px;font-weight:800;color:var(--eq-blue);}
-
-    .empty-state{text-align:center;padding:52px 32px;}
-    .empty-state .empty-icon{font-size:46px;margin-bottom:12px;}
-    .empty-state h3{font-size:16px;font-weight:700;color:var(--gray-700);margin-bottom:6px;}
-    .empty-state p{font-size:13px;color:var(--gray-400);}
-
-    .history-group{margin-bottom:16px;border:1px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
-    .history-group-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--white);cursor:pointer;user-select:none;transition:background .15s;}
-    .history-group-header:hover{background:var(--eq-blue-pale);}
-    .history-group-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--gray-900);}
-    .history-group-badge{display:flex;align-items:center;gap:16px;}
-    .group-total{font-size:15px;font-weight:800;color:var(--eq-blue);}
-    .group-count{font-size:12px;color:var(--gray-400);}
-    .group-toggle{font-size:12px;color:var(--gray-400);transition:transform .2s;}
-    .group-toggle.open{transform:rotate(180deg);}
-    .history-group-body{display:none;}
-    .history-group-body.open{display:block;}
-
-    .year-chart{padding:20px 22px 8px;border-bottom:1px solid var(--gray-100);}
-    .year-chart h4{font-size:12px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
-    .bar-chart{display:flex;align-items:flex-end;gap:8px;height:80px;}
-    .bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
-    .bar-fill{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--eq-blue),var(--eq-blue-light));min-height:4px;transition:height .4s;}
-    .bar-label{font-size:10px;color:var(--gray-400);font-weight:600;white-space:nowrap;}
-    .bar-value{font-size:10px;color:var(--eq-blue);font-weight:700;white-space:nowrap;}
-
-    .spinner{display:inline-block;width:18px;height:18px;border:2.5px solid var(--eq-blue-pale);border-top-color:var(--eq-blue);border-radius:50%;animation:spin .7s linear infinite;}
-    @keyframes spin{to{transform:rotate(360deg);}}
+    .ocr-progress-text{font-size:11px;color:var(--gray-400);margin-top:6px;text-align:center;display:none;}
+    .ocr-output{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px;font-size:12px;font-family:'Courier New',monospace;color:var(--gray-500);max-height:150px;overflow-y:auto;min-height:60px;}
 
     #toast{position:fixed;bottom:28px;right:28px;min-width:280px;max-width:360px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:14px 18px;display:none;align-items:center;gap:12px;z-index:10000;box-shadow:var(--shadow-md);}
     #toast.show{display:flex;}
@@ -246,22 +187,7 @@
     .toast-icon.info{background:var(--eq-blue-pale);}
     .toast-bar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 0 var(--radius-lg) var(--radius-lg);background:var(--green);animation:shrink 3.4s linear forwards;}
     #toast.err .toast-bar{background:var(--red);}
-    @keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
     @keyframes shrink{from{width:100%;}to{width:0%;}}
-
-    .modal-overlay{position:fixed;inset:0;background:rgba(26,33,48,.55);backdrop-filter:blur(3px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
-    .modal-overlay.open{opacity:1;pointer-events:all;}
-    .modal{background:var(--white);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:scale(.95);transition:transform .2s;}
-    .modal-overlay.open .modal{transform:scale(1);}
-    .modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;}
-    .modal-header h3{font-size:15px;font-weight:700;color:var(--gray-900);}
-    .modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--gray-400);line-height:1;padding:2px;}
-    .modal-close:hover{color:var(--gray-700);}
-    .modal-body{padding:20px 24px;}
-    .modal-footer{padding:14px 24px 20px;display:flex;gap:10px;justify-content:flex-end;}
-
-    #editModal .modal{max-width:560px;}
-    .action-btns{display:flex;align-items:center;gap:6px;}
 
     .employee-panel{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-bottom:20px;overflow:hidden;}
     .employee-header{padding:14px 22px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .15s;}
@@ -269,23 +195,12 @@
     .employee-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--gray-900);}
     .employee-body{padding:18px 22px;display:block;}
     .employee-body.collapsed{display:none;}
-    .employee-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
-
-    ::-webkit-scrollbar{width:6px;height:6px;}
-    ::-webkit-scrollbar-track{background:transparent;}
-    ::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:4px;}
-    ::-webkit-scrollbar-thumb:hover{background:var(--gray-300);}
 
     @media(max-width:900px){
       .sidebar{display:none;}
       .content{margin-left:0;max-width:100%;padding:20px 16px 60px;}
       .form-grid{grid-template-columns:1fr;}
       .form-group.span-2{grid-column:span 1;}
-      .input-form-grid{grid-template-columns:1fr;}
-    }
-    @media(max-width:600px){
-      .topbar-title{display:none;}
-      .export-group .btn span{display:none;}
     }
   </style>
 </head>
@@ -297,96 +212,6 @@
   <div class="toast-bar" id="toastBar"></div>
 </div>
 
-<div class="modal-overlay" id="modal" role="dialog" aria-modal="true">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="modalTitle">Confirmation</h3>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body"><p id="modalMsg" style="color:var(--gray-700);"></p></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
-      <button class="btn btn-danger" id="modalOk">Confirmer</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="editModal" role="dialog" aria-modal="true">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>✏️ Modifier la dépense</h3>
-      <button class="modal-close" onclick="closeEditModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label" for="editDate">Date *</label>
-          <input type="date" class="form-input" id="editDate"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="editCat">Type de dépenses</label>
-          <select class="form-select" id="editCat">
-            <option value="Transport">🚗 Transport</option>
-            <option value="Repas">🍽️ Repas</option>
-            <option value="Hébergement">🏨 Hébergement</option>
-            <option value="Matériel">📦 Matériel</option>
-            <option value="Communication">📞 Communication</option>
-            <option value="Formation">🎓 Formation</option>
-            <option value="Autre">📌 Autre</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="editTotalHT">Total HT (DH)</label>
-          <input type="number" class="form-input" id="editTotalHT" step="0.01" min="0" placeholder="0,00"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="editAmount">Total TTC (DH) *</label>
-          <input type="number" class="form-input" id="editAmount" step="0.01" min="0.01" placeholder="0,00"/>
-        </div>
-        <div class="form-group span-2">
-          <label class="form-label" for="editDesc">Description *</label>
-          <input type="text" class="form-input" id="editDesc" placeholder="Description de la dépense" autocomplete="off"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Justificatif (Image/PDF, < 800Ko)</label>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <button class="btn btn-ghost" type="button" onclick="document.getElementById('editJustifFileInput').click()" style="height:40px;flex:1;">
-              📎 Changer fichier
-            </button>
-            <input type="file" id="editJustifFileInput" accept="image/*,application/pdf" style="display:none;" onchange="handleJustifFileSelect(this, 'edit')"/>
-            <span id="editJustifFileStatus" style="font-size:12px;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">Aucun</span>
-            <button class="btn btn-icon" type="button" id="btnDelEditJustif" onclick="clearJustifFile('edit')" style="display:none;height:40px;width:40px;color:var(--red);" title="Supprimer le justificatif">🗑️</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="editComment">Commentaires</label>
-          <input type="text" class="form-input" id="editComment" placeholder="Remarques éventuelles..." autocomplete="off"/>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeEditModal()">Annuler</button>
-      <button class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">💾 Enregistrer les modifications</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="justifModal" role="dialog" aria-modal="true">
-  <div class="modal" style="max-width: 600px;">
-    <div class="modal-header">
-      <h3 id="justifModalTitle">Visualisation du justificatif</h3>
-      <button class="modal-close" onclick="closeJustifModal()">✕</button>
-    </div>
-    <div class="modal-body" style="text-align:center; overflow: auto; max-height: 70vh;">
-      <div id="justifModalContent"></div>
-    </div>
-    <div class="modal-footer">
-      <a class="btn btn-primary" id="justifDownloadBtn" download href="#">💾 Télécharger</a>
-      <button class="btn btn-ghost" onclick="closeJustifModal()">Fermer</button>
-    </div>
-  </div>
-</div>
-
 <header class="topbar">
   <a href="#" class="logo-wrap" aria-label="Eqnovia">
     <span class="logo-eq">eqnovia</span>
@@ -395,9 +220,8 @@
   <div class="topbar-sep"></div>
   <span class="topbar-title">Notes de Frais</span>
   <div class="topbar-right">
-    <input type="text" class="form-input" id="globalSearch" placeholder="🔍 Rechercher..." style="height:36px;width:220px;font-size:13px;" oninput="handleGlobalSearch(this.value)"/>
     <div class="db-status db-local" id="dbStatus">
-      <span>⏳</span> <span id="dbStatusText">Connexion…</span>
+      <span>✓</span> <span id="dbStatusText">Prêt</span>
     </div>
     <div class="avatar">EQ</div>
   </div>
@@ -405,45 +229,12 @@
 
 <aside class="sidebar">
   <span class="nav-label">Tableau de bord</span>
-  <a class="nav-item active" onclick="switchTab('saisie')" id="nav-saisie">
+  <a class="nav-item active" onclick="switchTab('saisie')">
     <span class="nav-icon">✏️</span> Saisie & OCR
   </a>
-
-  <span class="nav-label">Historique</span>
-  <a class="nav-item" onclick="switchTab('all')" id="nav-all">
-    <span class="nav-icon">📋</span> Toutes les dépenses
-  </a>
-  <a class="nav-item" onclick="switchTab('monthly')" id="nav-monthly">
-    <span class="nav-icon">📅</span> Par mois
-  </a>
-  <a class="nav-item" onclick="switchTab('yearly')" id="nav-yearly">
-    <span class="nav-icon">📆</span> Par année
-  </a>
-
-  <span class="nav-label">Exports</span>
-  <a class="nav-item" onclick="exportPDF()">
-    <span class="nav-icon">📄</span> Exporter PDF
-  </a>
-  <a class="nav-item" onclick="exportExcel()">
-    <span class="nav-icon">📊</span> Exporter Excel
-  </a>
-  <a class="nav-item" onclick="exportCSV()">
-    <span class="nav-icon">📑</span> Exporter CSV
-  </a>
-
-  <span class="nav-label">Gestion</span>
-  <a class="nav-item" onclick="confirmClear()" style="color:var(--red);">
-    <span class="nav-icon">🗑️</span> Tout effacer
-  </a>
-
-  <span class="nav-label">Informations</span>
-  <a class="nav-item" onclick="switchTab('policy')" id="nav-policy">
-    <span class="nav-icon">📜</span> Conditions & Politique
-  </a>
-
   <div class="sidebar-footer">
     <p>Eqnovia © 2025</p>
-    <p>v3.0 · Firebase + Local</p>
+    <p>v3.2 · OCR Simplifié</p>
   </div>
 </aside>
 
@@ -454,65 +245,30 @@
     <div class="employee-header" onclick="toggleEmployeePanel()">
       <div class="employee-title">
         <span style="font-size:18px;">👨‍💼</span>
-        <span>Informations de l'employé concerné</span>
+        <span>Informations de l'employé</span>
       </div>
       <span style="font-size:12px;color:var(--gray-400);" id="employeeToggleIcon">▲</span>
     </div>
     <div class="employee-body" id="employeeBody">
-      <div class="employee-grid">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
         <div class="form-group">
-          <label class="form-label" for="empNom">Nom</label>
-          <input type="text" class="form-input" id="empNom" placeholder="Ex : Dupont" oninput="saveEmployeeInfo()"/>
+          <label class="form-label">Nom</label>
+          <input type="text" class="form-input" id="empNom" placeholder="Dupont" oninput="saveEmployeeInfo()"/>
         </div>
         <div class="form-group">
-          <label class="form-label" for="empPrenom">Prénom</label>
-          <input type="text" class="form-input" id="empPrenom" placeholder="Ex : Jean" oninput="saveEmployeeInfo()"/>
+          <label class="form-label">Prénom</label>
+          <input type="text" class="form-input" id="empPrenom" placeholder="Jean" oninput="saveEmployeeInfo()"/>
         </div>
         <div class="form-group">
-          <label class="form-label" for="empDept">Département</label>
-          <input type="text" class="form-input" id="empDept" placeholder="Ex : R&D, Commercial, Finance..." oninput="saveEmployeeInfo()"/>
+          <label class="form-label">Département</label>
+          <input type="text" class="form-input" id="empDept" placeholder="R&D" oninput="saveEmployeeInfo()"/>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card blue">
-      <div class="stat-icon blue">💰</div>
-      <div class="stat-label">Total général</div>
-      <div class="stat-value" id="kpiTotal">0,00 DH</div>
-      <div class="stat-sub" id="kpiCount">0 dépense(s)</div>
-    </div>
-    <div class="stat-card orange">
-      <div class="stat-icon orange">📅</div>
-      <div class="stat-label">Ce mois-ci</div>
-      <div class="stat-value" id="kpiMonth">0,00 DH</div>
-      <div class="stat-sub" id="kpiMonthLabel">—</div>
-    </div>
-    <div class="stat-card green">
-      <div class="stat-icon green">✅</div>
-      <div class="stat-label">Avec justificatif</div>
-      <div class="stat-value" id="kpiJustif">0</div>
-      <div class="stat-sub">pièce(s) jointe(s)</div>
-    </div>
-    <div class="stat-card red">
-      <div class="stat-icon red">❌</div>
-      <div class="stat-label">Sans justificatif</div>
-      <div class="stat-value" id="kpiNoJustif">0</div>
-      <div class="stat-sub">à régulariser</div>
-    </div>
-  </div>
-
-  <div class="page-tabs">
-    <button class="tab-btn active" id="tab-saisie"   onclick="switchTab('saisie')">✏️ Saisie & OCR</button>
-    <button class="tab-btn"        id="tab-all"      onclick="switchTab('all')">📋 Toutes</button>
-    <button class="tab-btn"        id="tab-monthly"  onclick="switchTab('monthly')">📅 Par mois</button>
-    <button class="tab-btn"        id="tab-yearly"   onclick="switchTab('yearly')">📆 Par année</button>
-    <button class="tab-btn"        id="tab-policy"   onclick="switchTab('policy')">📜 Conditions & Politique</button>
-  </div>
-
   <div id="tab-content-saisie">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" class="input-form-grid">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
 
       <div class="panel">
         <div class="panel-header">
@@ -521,217 +277,65 @@
         <div class="panel-body">
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label" for="dateInput">Date *</label>
+              <label class="form-label">Date *</label>
               <input type="date" class="form-input" id="dateInput"/>
             </div>
             <div class="form-group">
-              <label class="form-label" for="catInput">Type de dépenses</label>
+              <label class="form-label">Type</label>
               <select class="form-select" id="catInput">
                 <option value="Transport">🚗 Transport</option>
                 <option value="Repas">🍽️ Repas</option>
                 <option value="Hébergement">🏨 Hébergement</option>
-                <option value="Matériel">📦 Matériel</option>
-                <option value="Communication">📞 Communication</option>
-                <option value="Formation">🎓 Formation</option>
-                <option value="Autre">📌 Autre</option>
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" for="totalHTInput">Total HT (DH)</label>
-              <input type="number" class="form-input" id="totalHTInput" step="0.01" min="0" placeholder="0,00"/>
+              <label class="form-label">Total HT (DH)</label>
+              <input type="number" class="form-input" id="totalHTInput" step="0.01" placeholder="0,00"/>
             </div>
             <div class="form-group">
-              <label class="form-label" for="amountInput">Total TTC (DH) *</label>
-              <input type="number" class="form-input" id="amountInput" step="0.01" min="0.01" placeholder="0,00"/>
+              <label class="form-label">Total TTC (DH) *</label>
+              <input type="number" class="form-input" id="amountInput" step="0.01" placeholder="0,00"/>
             </div>
             <div class="form-group span-2">
-              <label class="form-label" for="descInput">Description *</label>
-              <input type="text" class="form-input" id="descInput" placeholder="Ex : Taxi aéroport, Repas client, Hôtel Casablanca…" autocomplete="off"/>
+              <label class="form-label">Description *</label>
+              <input type="text" class="form-input" id="descInput" placeholder="Taxi, Repas, Hôtel..."/>
             </div>
             <div class="form-group">
-              <label class="form-label">Justificatif (Image/PDF, < 800Ko)</label>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn btn-ghost" type="button" onclick="document.getElementById('justifFileInput').click()" style="height:40px;flex:1;">
-                  📎 Choisir fichier
-                </button>
-                <input type="file" id="justifFileInput" accept="image/*,application/pdf" style="display:none;" onchange="handleJustifFileSelect(this, 'add')"/>
-                <span id="justifFileStatus" style="font-size:12px;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">Aucun</span>
-                <button class="btn btn-icon" type="button" id="btnDelJustif" onclick="clearJustifFile('add')" style="display:none;height:40px;width:40px;color:var(--red);" title="Supprimer le justificatif">🗑️</button>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="commentInput">Commentaires</label>
-              <input type="text" class="form-input" id="commentInput" placeholder="Remarques éventuelles..." autocomplete="off"/>
+              <label class="form-label">Commentaires</label>
+              <input type="text" class="form-input" id="commentInput" placeholder="Remarques..."/>
             </div>
           </div>
-          <button class="btn btn-primary btn-lg btn-full" style="margin-top:18px;" onclick="addExpense()" id="addBtn">
-            ➕ Ajouter la dépense
+          <button class="btn btn-primary btn-lg btn-full" style="margin-top:18px;" onclick="addExpense()">
+            ➕ Ajouter
           </button>
         </div>
       </div>
 
       <div class="panel">
         <div class="panel-header">
-          <div class="panel-title"><div class="panel-icon orange">📸</div> OCR — Lire une facture</div>
+          <div class="panel-title"><div class="panel-icon orange">📸</div> OCR — Facture</div>
         </div>
         <div class="panel-body">
           <p style="font-size:13px;color:var(--gray-400);margin-bottom:12px;">
-            Importez une photo de facture — Tesseract.js extrait automatiquement la date, le montant et la description.
+            📸 Upload une facture → Extraction automatique
           </p>
           <div class="upload-zone" id="uploadZone"
                onclick="document.getElementById('fileInput').click()"
                ondragover="handleDragOver(event)" ondragleave="handleDragLeave()" ondrop="handleDrop(event)">
             <div class="upload-icon">📤</div>
-            <p>Cliquez ou glissez-déposez une image</p>
-            <div class="file-selected" id="fileName">Aucun fichier</div>
+            <p>Clic ou glisse</p>
+            <div class="file-selected" id="fileName">Aucun</div>
             <input type="file" id="fileInput" accept="image/*" onchange="onFileChosen(event)"/>
           </div>
+          
           <div class="ocr-progress" id="ocrProgress"><div class="ocr-progress-bar" id="ocrBar"></div></div>
-          <button class="btn btn-orange btn-full" style="margin-top:14px;" onclick="runOCR()" id="ocrBtn">🔍 Lire et extraire</button>
-          <div class="ocr-output" id="ocrOutput">Le texte extrait apparaîtra ici…</div>
-          <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="fillFormFromOCR()">⬅️ Remplir le formulaire</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="tab-content-all" style="display:none;">
-    <div class="panel">
-      <div class="panel-header">
-        <div class="panel-title"><div class="panel-icon blue">📋</div> Toutes les dépenses</div>
-        <div class="export-group">
-          <button class="btn btn-pdf"   onclick="exportPDF()">📄 <span>PDF</span></button>
-          <button class="btn btn-excel" onclick="exportExcel()">📊 <span>Excel</span></button>
-          <button class="btn btn-csv"   onclick="exportCSV()">📑 <span>CSV</span></button>
-        </div>
-      </div>
-      <div class="filters-bar">
-        <select class="form-select" id="filterYear"   onchange="renderAll()">
-          <option value="all">📅 Toutes années</option>
-        </select>
-        <select class="form-select" id="filterMonth"  onchange="renderAll()">
-          <option value="all">🗓️ Tous mois</option>
-          <option value="01">Janvier</option><option value="02">Février</option>
-          <option value="03">Mars</option><option value="04">Avril</option>
-          <option value="05">Mai</option><option value="06">Juin</option>
-          <option value="07">Juillet</option><option value="08">Août</option>
-          <option value="09">Septembre</option><option value="10">Octobre</option>
-          <option value="11">Novembre</option><option value="12">Décembre</option>
-        </select>
-        <select class="form-select" id="filterCat"    onchange="renderAll()">
-          <option value="all">🏷️ Toutes catégories</option>
-          <option value="Transport">🚗 Transport</option>
-          <option value="Repas">🍽️ Repas</option>
-          <option value="Hébergement">🏨 Hébergement</option>
-          <option value="Matériel">📦 Matériel</option>
-          <option value="Communication">📞 Communication</option>
-          <option value="Formation">🎓 Formation</option>
-          <option value="Autre">📌 Autre</option>
-        </select>
-        <select class="form-select" id="filterJustif" onchange="renderAll()">
-          <option value="all">📎 Tous</option>
-          <option value="Oui">✅ Avec justif.</option>
-          <option value="Non">❌ Sans justif.</option>
-        </select>
-        <div class="filter-sep"></div>
-        <input type="text" class="form-input" id="filterSearch" placeholder="🔍 Recherche…" oninput="renderAll()" style="min-width:160px;"/>
-        <button class="btn btn-ghost" style="height:36px;font-size:12px;padding:0 12px;" onclick="resetFilters()">🔄</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th class="sortable" onclick="sortBy('date')">Date ⇅</th>
-              <th>Description</th>
-              <th>Type de dépenses</th>
-              <th class="sortable" onclick="sortBy('totalHT')">Total HT ⇅</th>
-              <th class="sortable" onclick="sortBy('amount')">Total TTC ⇅</th>
-              <th>Commentaires</th>
-              <th>Justificatif</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-      <div class="table-footer">
-        <span class="total-info" id="rowCount">0 ligne(s)</span>
-        <div class="total-amount" id="grandTotal">💰 Total : <strong>0,00 DH</strong></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="tab-content-monthly" style="display:none;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-      <div style="display:flex;gap:8px;">
-        <select class="form-select" id="filterYearMonth" onchange="renderMonthly()" style="height:36px;width:auto;">
-          <option value="all">Toutes années</option>
-        </select>
-      </div>
-      <div class="export-group">
-        <button class="btn btn-pdf"   onclick="exportPDF()">📄 PDF</button>
-        <button class="btn btn-excel" onclick="exportExcel()">📊 Excel</button>
-        <button class="btn btn-csv"   onclick="exportCSV()">📑 CSV</button>
-      </div>
-    </div>
-    <div id="monthlyGroups"></div>
-  </div>
-
-  <div id="tab-content-yearly" style="display:none;">
-    <div style="margin-bottom:16px;display:flex;justify-content:flex-end;gap:8px;">
-      <button class="btn btn-pdf"   onclick="exportPDF()">📄 PDF</button>
-      <button class="btn btn-excel" onclick="exportExcel()">📊 Excel</button>
-      <button class="btn btn-csv"   onclick="exportCSV()">📑 CSV</button>
-    </div>
-    <div id="yearlyGroups"></div>
-  </div>
-
-  <div id="tab-content-policy" style="display:none;">
-    <div class="panel">
-      <div class="panel-header">
-        <div class="panel-title"><div class="panel-icon blue">📜</div> Conditions Générales & Politique de Confidentialité</div>
-      </div>
-      <div class="panel-body" style="max-width:900px;">
-        <div style="display:grid;gap:24px;">
-          <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--white);">
-            <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-              <span style="font-size:20px;">📋</span> Conditions d'utilisation
-            </h3>
-            <div style="font-size:13.5px;color:var(--gray-700);line-height:1.7;">
-              <p style="margin-bottom:10px;">En utilisant l'application <strong>Eqnovia Notes de Frais</strong>, vous acceptez les présentes conditions :</p>
-              <ul style="padding-left:20px;margin-bottom:10px;">
-                <li style="margin-bottom:6px;">L'application est destinée aux employés d'Eqnovia.</li>
-                <li style="margin-bottom:6px;">Toute dépense doit être justifiée par un justificatif valide.</li>
-                <li style="margin-bottom:6px;">Les montants saisis doivent être exacts.</li>
-                <li style="margin-bottom:6px;">L'utilisateur est responsable de l'exactitude des informations.</li>
-                <li style="margin-bottom:6px;">Les données sont conservées 10 ans.</li>
-              </ul>
-            </div>
-          </div>
-          <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--white);">
-            <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-              <span style="font-size:20px;">🔒</span> Politique de confidentialité
-            </h3>
-            <div style="font-size:13.5px;color:var(--gray-700);line-height:1.7;">
-              <p>Eqnovia s'engage à protéger la confidentialité des données personnelles.</p>
-              <ul style="padding-left:20px;margin-top:10px;">
-                <li style="margin-bottom:6px;"><strong>Données collectées :</strong> nom, prénom, département, dépenses.</li>
-                <li style="margin-bottom:6px;"><strong>Finalité :</strong> gestion comptable des notes de frais.</li>
-                <li style="margin-bottom:6px;"><strong>Conservation :</strong> 10 ans.</li>
-                <li style="margin-bottom:6px;"><strong>Sécurité :</strong> données stockées de manière sécurisée.</li>
-              </ul>
-            </div>
-          </div>
-          <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--eq-blue-pale);">
-            <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-              <span style="font-size:20px;">📞</span> Contact & Support
-            </h3>
-            <div style="font-size:13.5px;color:var(--gray-700);line-height:1.7;">
-              <p><strong>Email :</strong> <a href="mailto:support@eqnovia.ma" style="color:var(--eq-blue);">support@eqnovia.ma</a></p>
-              <p><strong>Adresse :</strong> Eqnovia, Casablanca, Maroc</p>
-            </div>
-          </div>
+          <div class="ocr-progress-text" id="ocrProgressText" style="margin-top:8px;">⏳ Extraction...</div>
+          
+          <button class="btn btn-orange btn-full" style="margin-top:14px;" onclick="runOCR()" id="ocrBtn">🔍 Extraire</button>
+          
+          <div class="ocr-output" id="ocrOutput">Résultat ici...</div>
+          
+          <button class="btn btn-primary btn-full" style="margin-top:10px;" onclick="fillFormFromOCR()">⬅️ Remplir formulaire</button>
         </div>
       </div>
     </div>
@@ -743,106 +347,27 @@
 <script>
 'use strict';
 
-const STORAGE_KEY = 'eqnovia_expenses_v3';
-const MONTHS_FR   = ['Janvier','Février','Mars','Avril','Mai','Juin',
-                     'Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-const MONTHS_SHORT= ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-
-let sortCol = 'date', sortDir = -1;
-let activeTab = 'saisie';
-let cache = [];
-let useFirebase = false;
-let addJustifData = { fileData: '', fileName: '' };
-let editJustifData = { fileData: '', fileName: '' };
-let employeeInfo = { nom: '', prenom: '', dept: '' };
 let ocrText = '';
 let ocrRunning = false;
-let tesseractReady = false;
 let selectedFile = null;
+let employeeInfo = { nom: '', prenom: '', dept: '' };
 
-// Check if Tesseract is available
-function checkTesseractAvailable() {
-  return typeof Tesseract !== 'undefined' && Tesseract.recognize;
+// Toast
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  const msgEl = document.getElementById('toastMsg');
+  const bar = document.getElementById('toastBar');
+  icon.textContent = {'ok':'✓','err':'✕','info':'ℹ'}[type] || '✓';
+  icon.className = `toast-icon ${type}`;
+  msgEl.textContent = msg;
+  t.className = 'toast show' + (type === 'err' ? ' err' : '');
+  bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 3400);
 }
 
-// Initialize Tesseract when page loads
-window.addEventListener('load', function() {
-  setTimeout(() => {
-    if (checkTesseractAvailable()) {
-      tesseractReady = true;
-      console.log('✓ Tesseract.js chargé avec succès');
-    } else {
-      tesseractReady = false;
-      console.warn('⚠ Tesseract.js non disponible');
-    }
-  }, 1000);
-});
-
-// ════════════════════════════════════════════
-// FIREBASE BRIDGE
-// ════════════════════════════════════════════
-async function fbAdd(expense) {
-  if (!useFirebase) return;
-  try {
-    const { collection, addDoc, serverTimestamp } = window.__fs;
-    await addDoc(collection(window.__db, 'expenses'), {
-      ...expense,
-      createdAt: serverTimestamp()
-    });
-  } catch(e) { console.warn('FB add failed', e); }
-}
-
-async function fbDelete(id) {
-  if (!useFirebase) return;
-  try {
-    const { collection, getDocs, deleteDoc, doc } = window.__fs;
-    const snap = await getDocs(collection(window.__db, 'expenses'));
-    for (const d of snap.docs) {
-      if (d.data().id === id) await deleteDoc(doc(window.__db, 'expenses', d.id));
-    }
-  } catch(e) { console.warn('FB delete failed', e); }
-}
-
-async function fbLoad() {
-  if (!useFirebase) return null;
-  try {
-    const { collection, getDocs, query, orderBy } = window.__fs;
-    const q = query(collection(window.__db, 'expenses'), orderBy('createdAt', 'asc'));
-    const snap = await getDocs(q);
-    const arr = [];
-    snap.forEach(d => arr.push({ ...d.data() }));
-    return arr;
-  } catch(e) { console.warn('FB load failed', e); return null; }
-}
-
-function lsLoad() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch { return []; } }
-function lsSave(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
-
-async function dataLoad() {
-  if (useFirebase) {
-    const fb = await fbLoad();
-    if (fb !== null) { cache = fb; lsSave(cache); return; }
-  }
-  cache = lsLoad();
-}
-
-async function dataAdd(exp) {
-  cache.push(exp);
-  lsSave(cache);
-  await fbAdd(exp);
-}
-
-async function dataDelete(id) {
-  cache = cache.filter(e => e.id !== id);
-  lsSave(cache);
-  await fbDelete(id);
-}
-
-function dataAll() { return [...cache]; }
-
-// ════════════════════════════════════════════
-// OCR FUNCTIONS
-// ════════════════════════════════════════════
+// Drag & Drop
 function handleDragOver(e) {
   e.preventDefault();
   document.getElementById('uploadZone').classList.add('drag-over');
@@ -863,23 +388,19 @@ function onFileChosen(e) {
   const file = e.target.files[0];
   if (!file) return;
   selectedFile = file;
-  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileName').textContent = file.name.substring(0, 20);
+  toast('✓ Fichier: ' + file.name);
 }
 
+// OCR - Version ultra-rapide
 async function runOCR() {
   if (!selectedFile) {
-    toast('Veuillez sélectionner une image d\'abord.', 'err');
-    return;
-  }
-
-  if (!checkTesseractAvailable()) {
-    toast('Erreur : Tesseract.js non disponible. Veuillez actualiser la page.', 'err');
-    console.error('Tesseract not available');
+    toast('Sélectionnez une image', 'err');
     return;
   }
 
   if (ocrRunning) {
-    toast('OCR déjà en cours...', 'info');
+    toast('OCR en cours...', 'info');
     return;
   }
 
@@ -888,28 +409,47 @@ async function runOCR() {
   const ocrOutput = document.getElementById('ocrOutput');
   const ocrProgress = document.getElementById('ocrProgress');
   const ocrBar = document.getElementById('ocrBar');
+  const ocrProgressText = document.getElementById('ocrProgressText');
 
   ocrBtn.disabled = true;
   ocrProgress.style.display = 'block';
-  ocrOutput.textContent = 'Extraction en cours...';
+  ocrProgressText.style.display = 'block';
+  ocrOutput.textContent = '⏳ Extraction en cours...';
+  ocrBar.style.width = '0%';
 
   try {
     const reader = new FileReader();
     reader.onload = async function(e) {
       try {
         const img = e.target.result;
-        
-        // Use Tesseract
-        const result = await Tesseract.recognize(img, 'fra');
+
+        // Progress simulation
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          if (progress < 90) {
+            progress += Math.random() * 30;
+            if (progress > 90) progress = 90;
+            ocrBar.style.width = progress + '%';
+          }
+        }, 200);
+
+        // Tesseract recognition
+        const result = await Tesseract.recognize(img, 'fra', {
+          logger: m => console.log('OCR:', m.progress)
+        });
+
+        clearInterval(progressInterval);
+        ocrBar.style.width = '100%';
         ocrText = result.data.text;
-        
-        ocrOutput.textContent = ocrText || 'Aucun texte détecté.';
+
+        ocrOutput.textContent = ocrText || '⚠️ Aucun texte détecté';
         ocrProgress.style.display = 'none';
-        toast('✓ Extraction OCR terminée !', 'ok');
+        ocrProgressText.style.display = 'none';
+        toast('✓ Extraction terminée !', 'ok');
       } catch(err) {
         console.error('OCR Error:', err);
-        ocrOutput.textContent = '❌ Erreur lors de l\'extraction : ' + err.message;
-        toast('Erreur lors de l\'OCR : ' + err.message, 'err');
+        ocrOutput.textContent = '❌ Erreur: ' + err.message;
+        toast('Erreur OCR: ' + err.message, 'err');
       } finally {
         ocrRunning = false;
         ocrBtn.disabled = false;
@@ -917,21 +457,22 @@ async function runOCR() {
     };
     reader.readAsDataURL(selectedFile);
   } catch(err) {
-    console.error('File reading error:', err);
-    toast('Erreur de lecture du fichier : ' + err.message, 'err');
+    console.error('Error:', err);
+    toast('Erreur: ' + err.message, 'err');
     ocrRunning = false;
     ocrBtn.disabled = false;
     ocrProgress.style.display = 'none';
+    ocrProgressText.style.display = 'none';
   }
 }
 
+// Fill form from OCR
 function fillFormFromOCR() {
   if (!ocrText) {
-    toast('Aucun texte OCR à traiter.', 'err');
+    toast('Aucun texte OCR', 'err');
     return;
   }
 
-  // Extract number patterns (dates, amounts)
   const numberRegex = /\d+[\.,]\d{2}/g;
   const numbers = ocrText.match(numberRegex) || [];
   
@@ -954,19 +495,16 @@ function fillFormFromOCR() {
     }
   }
 
-  document.getElementById('descInput').value = ocrText.substring(0, 100);
-  toast('Formulaire pré-rempli avec les données OCR', 'ok');
+  document.getElementById('descInput').value = ocrText.substring(0, 80).trim();
+  toast('✓ Formulaire rempli !', 'ok');
 }
 
-// ════════════════════════════════════════════
-// EMPLOYEE HELPERS
-// ════════════════════════════════════════════
+// Employee
 function saveEmployeeInfo() {
   employeeInfo.nom = document.getElementById('empNom').value.trim();
   employeeInfo.prenom = document.getElementById('empPrenom').value.trim();
   employeeInfo.dept = document.getElementById('empDept').value.trim();
   localStorage.setItem('eqnovia_employee_info', JSON.stringify(employeeInfo));
-  updateAvatar();
 }
 
 function loadEmployeeInfo() {
@@ -978,21 +516,7 @@ function loadEmployeeInfo() {
       document.getElementById('empPrenom').value = employeeInfo.prenom || '';
       document.getElementById('empDept').value = employeeInfo.dept || '';
     }
-  } catch (e) { console.error("Error loading employee info", e); }
-  updateAvatar();
-}
-
-function updateAvatar() {
-  const avatar = document.querySelector('.avatar');
-  if (avatar) {
-    if (employeeInfo.nom || employeeInfo.prenom) {
-      const first = (employeeInfo.prenom || '').substring(0, 1).toUpperCase();
-      const last = (employeeInfo.nom || '').substring(0, 1).toUpperCase();
-      avatar.textContent = first + last || 'EQ';
-    } else {
-      avatar.textContent = 'EQ';
-    }
-  }
+  } catch (e) { console.error("Error", e); }
 }
 
 function toggleEmployeePanel() {
@@ -1002,281 +526,15 @@ function toggleEmployeePanel() {
   icon.textContent = body.classList.contains('collapsed') ? '▼' : '▲';
 }
 
-// ════════════════════════════════════════════
-// JUSTIFICATIF HELPERS
-// ════════════════════════════════════════════
-function handleJustifFileSelect(input, mode) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 800 * 1024) {
-    toast("Fichier trop volumineux (max 800 Ko).", "err");
-    input.value = "";
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    if (mode === 'add') {
-      addJustifData = { fileData: e.target.result, fileName: file.name };
-      document.getElementById('justifFileStatus').textContent = file.name;
-      document.getElementById('justifFileStatus').style.color = 'var(--eq-blue)';
-      document.getElementById('btnDelJustif').style.display = 'inline-flex';
-    } else {
-      editJustifData = { fileData: e.target.result, fileName: file.name };
-      document.getElementById('editJustifFileStatus').textContent = file.name;
-      document.getElementById('editJustifFileStatus').style.color = 'var(--eq-blue)';
-      document.getElementById('btnDelEditJustif').style.display = 'inline-flex';
-    }
-    toast("Justificatif chargé !");
-  };
-  reader.readAsDataURL(file);
-}
+// Placeholders
+function addExpense() { toast('À implémenter', 'info'); }
+function switchTab(tab) { }
 
-function clearJustifFile(mode) {
-  if (mode === 'add') {
-    addJustifData = { fileData: '', fileName: '' };
-    document.getElementById('justifFileInput').value = "";
-    document.getElementById('justifFileStatus').textContent = "Aucun";
-    document.getElementById('justifFileStatus').style.color = 'var(--gray-400)';
-    document.getElementById('btnDelJustif').style.display = 'none';
-  } else {
-    editJustifData = { fileData: '', fileName: '' };
-    document.getElementById('editJustifFileInput').value = "";
-    document.getElementById('editJustifFileStatus').textContent = "Aucun";
-    document.getElementById('editJustifFileStatus').style.color = 'var(--gray-400)';
-    document.getElementById('btnDelEditJustif').style.display = 'none';
-  }
-}
-
-function openJustifPreview(id) {
-  const exp = cache.find(e => e.id === id);
-  if (!exp || !exp.justifFile) return toast('Aucun justificatif disponible.', 'err');
-  const content = document.getElementById('justifModalContent');
-  const downloadBtn = document.getElementById('justifDownloadBtn');
-  document.getElementById('justifModalTitle').textContent = `Justificatif - ${exp.desc}`;
-  downloadBtn.href = exp.justifFile;
-  downloadBtn.download = exp.justifName || `justificatif_${exp.id}`;
-  if (exp.justifFile.startsWith('data:image/')) {
-    content.innerHTML = `<img src="${exp.justifFile}" style="max-width:100%; border-radius:var(--radius-md); box-shadow:var(--shadow-sm);" alt="Receipt"/>`;
-  } else if (exp.justifFile.startsWith('data:application/pdf')) {
-    content.innerHTML = `<iframe src="${exp.justifFile}" style="width:100%; height:400px; border:none;" title="PDF Preview"></iframe>`;
-  } else {
-    content.innerHTML = `<p style="padding:20px; color:var(--gray-500);">Aperçu indisponible.</p>`;
-  }
-  document.getElementById('justifModal').classList.add('open');
-}
-
-function closeJustifModal() {
-  document.getElementById('justifModal').classList.remove('open');
-  document.getElementById('justifModalContent').innerHTML = '';
-}
-
-// ════════════════════════════════════════════
-// FORMAT HELPERS
-// ════════════════════════════════════════════
-function fmtDH(n) {
-  return n.toLocaleString('fr-MA', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' DH';
-}
-function fmtDate(iso) {
-  if (!iso) return '—';
-  const [y,m,d] = iso.split('-');
-  return `${d} ${MONTHS_FR[parseInt(m,10)-1].substring(0,3)}. ${y}`;
-}
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-function today() { return new Date().toISOString().split('T')[0]; }
-
-function sanitizeInput(str) {
-  if (typeof str !== 'string') return '';
-  return str.replace(/[<>\"']/g, '').trim();
-}
-
-function validateAmount(val) {
-  const n = parseFloat(val);
-  return !isNaN(n) && n >= 0 && n <= 10000000;
-}
-
-function validateDate(dateStr) {
-  const d = new Date(dateStr);
-  const now = new Date();
-  const tenYearsAgo = new Date(now.getFullYear() - 10, now.getMonth(), now.getDate());
-  return !isNaN(d.getTime()) && d <= now && d >= tenYearsAgo;
-}
-
-// ════════════════════════════════════════════
-// TOAST
-// ════════════════════════════════════════════
-function toast(msg, type='ok') {
-  const t=document.getElementById('toast'),
-        icon=document.getElementById('toastIcon'),
-        msgEl=document.getElementById('toastMsg'),
-        bar=document.getElementById('toastBar');
-  icon.textContent={'ok':'✓','err':'✕','info':'ℹ'}[type]||'✓';
-  icon.className=`toast-icon ${type}`;
-  msgEl.textContent=msg;
-  t.className='toast show'+(type==='err'?' err':'');
-  bar.style.animation='none'; void bar.offsetWidth; bar.style.animation='';
-  clearTimeout(t._tid);
-  t._tid=setTimeout(()=>t.classList.remove('show'),3400);
-}
-
-// ════════════════════════════════════════════
-// MODAL
-// ════════════════════════════════════════════
-function showModal(title,msg,cb){
-  document.getElementById('modalTitle').textContent=title;
-  document.getElementById('modalMsg').textContent=msg;
-  document.getElementById('modalOk').onclick=()=>{closeModal();cb&&cb();};
-  document.getElementById('modal').classList.add('open');
-}
-function closeModal(){ document.getElementById('modal').classList.remove('open'); }
-document.getElementById('modal').addEventListener('click',e=>{
-  if(e.target===document.getElementById('modal')) closeModal();
-});
-
-// Rest of the functions would continue here...
-// (addExpense, saveEdit, switchTab, renderAll, exportPDF, exportExcel, exportCSV, etc.)
-// These are large functions that would follow the same pattern
-
-async function addExpense() {
-  const date = document.getElementById('dateInput').value;
-  const cat = document.getElementById('catInput').value;
-  const totalHT = parseFloat(document.getElementById('totalHTInput').value || 0);
-  const amount = parseFloat(document.getElementById('amountInput').value);
-  const desc = document.getElementById('descInput').value.trim();
-  const comment = document.getElementById('commentInput').value.trim();
-
-  if (!date || !desc || !amount) {
-    toast('Veuillez remplir tous les champs obligatoires.', 'err');
-    return;
-  }
-  if (!validateDate(date)) {
-    toast('Date invalide.', 'err');
-    return;
-  }
-  if (!validateAmount(amount)) {
-    toast('Montant invalide.', 'err');
-    return;
-  }
-
-  const exp = {
-    id: Date.now().toString(),
-    date, cat, totalHT, amount, desc, comment,
-    justifFile: addJustifData.fileData,
-    justifName: addJustifData.fileName,
-    emp: employeeInfo
-  };
-
-  await dataAdd(exp);
-  toast('✓ Dépense ajoutée !', 'ok');
-  
-  document.getElementById('dateInput').value = '';
-  document.getElementById('totalHTInput').value = '';
-  document.getElementById('amountInput').value = '';
-  document.getElementById('descInput').value = '';
-  document.getElementById('commentInput').value = '';
-  clearJustifFile('add');
-  
-  updateKPIs();
-  renderAll();
-}
-
-function saveEdit() {
-  const idx = cache.findIndex(e => e.id === window._editingId);
-  if (idx < 0) return;
-  
-  const date = document.getElementById('editDate').value;
-  const cat = document.getElementById('editCat').value;
-  const totalHT = parseFloat(document.getElementById('editTotalHT').value || 0);
-  const amount = parseFloat(document.getElementById('editAmount').value);
-  const desc = document.getElementById('editDesc').value.trim();
-  const comment = document.getElementById('editComment').value.trim();
-
-  if (!validateDate(date) || !validateAmount(amount) || !desc) {
-    toast('Données invalides.', 'err');
-    return;
-  }
-
-  cache[idx] = {
-    ...cache[idx],
-    date, cat, totalHT, amount, desc, comment,
-    justifFile: editJustifData.fileData || cache[idx].justifFile,
-    justifName: editJustifData.fileName || cache[idx].justifName
-  };
-
-  lsSave(cache);
-  toast('✓ Dépense mise à jour !', 'ok');
-  closeEditModal();
-  updateKPIs();
-  renderAll();
-}
-
-function closeEditModal() {
-  document.getElementById('editModal').classList.remove('open');
-  clearJustifFile('edit');
-}
-
-function switchTab(tab) {
-  activeTab = tab;
-  ['saisie','all','monthly','yearly','policy'].forEach(t => {
-    document.getElementById(`tab-content-${t}`).style.display = t===tab?'block':'none';
-    document.getElementById(`tab-${t}`).classList.toggle('active', t===tab);
-    const navItem = document.getElementById(`nav-${t}`);
-    if (navItem) navItem.classList.toggle('active', t===tab);
-  });
-  if (tab==='all') renderAll();
-  else if (tab==='monthly') renderMonthly();
-  else if (tab==='yearly') renderYearly();
-}
-
-function renderAll() {
-  // Placeholder - would render expenses table
-  const tbody = document.getElementById('tbody');
-  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;">Aucune dépense.</td></tr>';
-}
-
-function renderMonthly() {
-  // Placeholder
-}
-
-function renderYearly() {
-  // Placeholder
-}
-
-function updateKPIs() {
-  let total = 0, count = 0, withJustif = 0;
-  cache.forEach(e => {
-    total += e.amount;
-    count++;
-    if (e.justifFile) withJustif++;
-  });
-  document.getElementById('kpiTotal').textContent = fmtDH(total);
-  document.getElementById('kpiCount').textContent = count + ' dépense(s)';
-  document.getElementById('kpiJustif').textContent = withJustif;
-  document.getElementById('kpiNoJustif').textContent = count - withJustif;
-}
-
-function exportPDF() { toast('Export PDF non disponible encore', 'info'); }
-function exportExcel() { toast('Export Excel non disponible encore', 'info'); }
-function exportCSV() { toast('Export CSV non disponible encore', 'info'); }
-function confirmClear() { showModal('Tout effacer', 'Êtes-vous sûr ?', () => { cache=[]; lsSave(cache); updateKPIs(); renderAll(); toast('✓ Données effacées', 'ok'); }); }
-function resetFilters() { renderAll(); }
-function sortBy(col) { sortCol=col; sortDir*=-1; renderAll(); }
-function handleGlobalSearch(q) { renderAll(); }
-
-// Initialize on page load
+// Init
 window.addEventListener('load', async () => {
-  await dataLoad();
   loadEmployeeInfo();
-  updateKPIs();
-  document.getElementById('dateInput').value = today();
-  
-  // Check Firebase
-  if (window.__fbReady) {
-    useFirebase = true;
-    document.getElementById('dbStatus').classList.add('db-online');
-    document.getElementById('dbStatusText').textContent = 'Firebase connecté';
-  }
+  document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+  toast('✓ OCR prêt', 'ok');
 });
 </script>
 
