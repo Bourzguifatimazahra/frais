@@ -4,10 +4,10 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Notes de Frais — Eqnovia</title>
-  <meta name="description" content="Application de gestion des notes de frais Eqnovia. Saisie, OCR, historique, export PDF/Excel/CSV. Base de données Firebase."/>
+  <meta name="description" content="Application de gestion des notes de frais Eqnovia. Saisie, OCR, historique, export PDF/Excel/CSV."/>
   
   <!-- Security Headers -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.gstatic.com https://firestore.googleapis.com https://tesseract.projectnaptha.com; frame-src 'self' https:;"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.gstatic.com https://firestore.googleapis.com https://tesseract.projectnaptha.com https://cdn.jsdelivr.net https://unpkg.com; frame-src 'self' https:;"/>
   <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
   <meta http-equiv="X-Frame-Options" content="DENY"/>
   <meta http-equiv="X-XSS-Protection" content="1; mode=block"/>
@@ -18,7 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 
   <!-- Libs -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://unpkg.com/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -88,12 +88,8 @@
     html{scroll-behavior:smooth;}
     body{font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-900);font-size:14px;line-height:1.5;min-height:100vh;}
 
-    /* ══ TOPBAR ══ */
     .topbar{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--white);border-bottom:2px solid var(--eq-blue);display:flex;align-items:center;padding:0 28px;gap:16px;z-index:100;box-shadow:var(--shadow-md);}
     .logo-wrap{display:flex;align-items:center;gap:2px;text-decoration:none;}
-    .logo-eq{font-size:26px;font-weight:800;color:var(--eq-blue);letter-spacing:-1px;}
-    .logo-novia{font-size:26px;font-weight:800;color:var(--eq-blue);letter-spacing:-1px;position:relative;}
-    .logo-dot{display:inline-block;width:9px;height:9px;background:var(--eq-orange);border-radius:50%;position:relative;top:-14px;margin-left:1px;}
     .topbar-sep{width:1px;height:30px;background:var(--gray-200);margin:0 6px;}
     .topbar-title{font-size:15px;font-weight:600;color:var(--gray-700);}
     .topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
@@ -102,10 +98,7 @@
     .db-local {background:var(--amber-pale);color:var(--amber);border:1px solid #fde68a;}
     .avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--eq-blue),var(--eq-blue-light));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;}
 
-    /* ══ LAYOUT ══ */
     .layout{display:flex;padding-top:var(--header-h);min-height:100vh;}
-
-    /* ══ SIDEBAR ══ */
     .sidebar{width:var(--sidebar-w);background:var(--white);border-right:1px solid var(--gray-200);position:fixed;top:var(--header-h);bottom:0;left:0;display:flex;flex-direction:column;padding:16px 0;overflow-y:auto;}
     .nav-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);padding:12px 20px 5px;}
     .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--gray-500);font-size:13px;font-weight:500;cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none;}
@@ -115,16 +108,13 @@
     .sidebar-footer{margin-top:auto;padding:14px 20px;border-top:1px solid var(--gray-100);}
     .sidebar-footer p{font-size:11px;color:var(--gray-400);margin-bottom:2px;}
 
-    /* ══ CONTENT ══ */
     .content{margin-left:var(--sidebar-w);flex:1;padding:28px 32px 80px;max-width:calc(100vw - var(--sidebar-w));}
 
-    /* ══ PAGE TABS ══ */
     .page-tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-200);margin-bottom:24px;flex-wrap:wrap;}
     .tab-btn{padding:12px 22px;font-size:13px;font-weight:600;color:var(--gray-400);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;font-family:'Inter',sans-serif;}
     .tab-btn:hover{color:var(--eq-blue);}
     .tab-btn.active{color:var(--eq-blue);border-bottom-color:var(--eq-blue);}
 
-    /* ══ STATS ══ */
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
     .stat-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
     .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
@@ -142,7 +132,6 @@
     .stat-value{font-size:22px;font-weight:800;color:var(--gray-900);line-height:1;margin-bottom:4px;font-variant-numeric:tabular-nums;}
     .stat-sub{font-size:12px;color:var(--gray-400);}
 
-    /* ══ PANEL ══ */
     .panel{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-bottom:20px;overflow:hidden;}
     .panel-header{padding:16px 22px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
     .panel-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--gray-900);}
@@ -152,7 +141,6 @@
     .panel-icon.green{background:var(--green-pale);}
     .panel-body{padding:22px;}
 
-    /* ══ FORM ══ */
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
     .form-group{display:flex;flex-direction:column;gap:6px;}
     .form-group.span-2{grid-column:span 2;}
@@ -162,7 +150,6 @@
     .form-input:focus,.form-select:focus{border-color:var(--eq-blue);box-shadow:0 0 0 3px rgba(11,79,158,.12);}
     .form-select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10L6 8z' fill='%23636E82'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
 
-    /* ══ BUTTONS ══ */
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 18px;border-radius:var(--radius-md);font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;text-decoration:none;}
     .btn:active{transform:scale(.97);}
     .btn-primary{background:var(--eq-blue);color:white;box-shadow:0 2px 8px rgba(11,79,158,.25);}
@@ -179,18 +166,16 @@
     .btn-icon.edit:hover{border-color:var(--eq-blue);color:var(--eq-blue);background:var(--eq-blue-pale);}
     .btn-lg{height:44px;font-size:14px;padding:0 24px;}
     .btn-full{width:100%;}
+    .btn:disabled{opacity:0.6;cursor:not-allowed;}
     .btn-pdf{background:#E53935;color:white;}
     .btn-pdf:hover{background:#C62828;}
     .btn-excel{background:#1D6F42;color:white;}
     .btn-excel:hover{background:#155332;}
     .btn-csv{background:#5C6BC0;color:white;}
     .btn-csv:hover{background:#3949AB;}
-    .btn:disabled{opacity:0.6;cursor:not-allowed;}
 
-    /* ══ EXPORT GROUP ══ */
     .export-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 
-    /* ══ OCR ZONE ══ */
     .upload-zone{border:2px dashed var(--gray-300);border-radius:var(--radius-md);padding:26px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--gray-50);}
     .upload-zone:hover,.upload-zone.drag-over{border-color:var(--eq-blue);background:var(--eq-blue-pale);}
     .upload-zone input{display:none;}
@@ -201,12 +186,10 @@
     .ocr-progress-bar{height:100%;background:linear-gradient(90deg,var(--eq-blue),var(--eq-orange));border-radius:4px;width:0%;transition:width .3s;}
     .ocr-output{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px;font-size:12px;font-family:'Courier New',monospace;color:var(--gray-500);max-height:130px;overflow-y:auto;margin-top:12px;white-space:pre-wrap;line-height:1.6;}
 
-    /* ══ FILTERS ══ */
     .filters-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 22px;background:var(--gray-50);border-bottom:1px solid var(--gray-100);}
     .filters-bar .form-input,.filters-bar .form-select{height:36px;font-size:13px;width:auto;min-width:140px;}
     .filter-sep{width:1px;height:24px;background:var(--gray-200);margin:0 4px;}
 
-    /* ══ TABLE ══ */
     .table-wrap{overflow-x:auto;}
     table{width:100%;border-collapse:collapse;font-size:13.5px;}
     thead tr{background:var(--gray-50);border-bottom:2px solid var(--gray-200);}
@@ -226,18 +209,15 @@
     .badge-no{background:var(--red-pale);color:var(--red);}
     .badge-cat{background:var(--eq-blue-pale);color:var(--eq-blue);}
 
-    /* ══ TABLE FOOTER ══ */
     .table-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:var(--gray-50);border-top:2px solid var(--gray-200);flex-wrap:wrap;gap:12px;}
     .total-info{font-size:13px;color:var(--gray-400);}
     .total-amount{display:flex;align-items:center;gap:10px;background:var(--eq-blue-pale);border:1px solid var(--eq-blue-mid);padding:10px 20px;border-radius:var(--radius-md);font-size:16px;font-weight:800;color:var(--eq-blue);font-variant-numeric:tabular-nums;}
 
-    /* ══ EMPTY ══ */
     .empty-state{text-align:center;padding:52px 32px;}
     .empty-state .empty-icon{font-size:46px;margin-bottom:12px;}
     .empty-state h3{font-size:16px;font-weight:700;color:var(--gray-700);margin-bottom:6px;}
     .empty-state p{font-size:13px;color:var(--gray-400);}
 
-    /* ══ HISTORY GROUPS ══ */
     .history-group{margin-bottom:16px;border:1px solid var(--gray-200);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
     .history-group-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--white);cursor:pointer;user-select:none;transition:background .15s;}
     .history-group-header:hover{background:var(--eq-blue-pale);}
@@ -250,7 +230,6 @@
     .history-group-body{display:none;}
     .history-group-body.open{display:block;}
 
-    /* ══ YEAR CHART ══ */
     .year-chart{padding:20px 22px 8px;border-bottom:1px solid var(--gray-100);}
     .year-chart h4{font-size:12px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
     .bar-chart{display:flex;align-items:flex-end;gap:8px;height:80px;}
@@ -259,12 +238,9 @@
     .bar-label{font-size:10px;color:var(--gray-400);font-weight:600;white-space:nowrap;}
     .bar-value{font-size:10px;color:var(--eq-blue);font-weight:700;white-space:nowrap;}
 
-    /* ══ LOADING ══ */
     .spinner{display:inline-block;width:18px;height:18px;border:2.5px solid var(--eq-blue-pale);border-top-color:var(--eq-blue);border-radius:50%;animation:spin .7s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg);}}
-    .loading-row td{text-align:center;padding:40px 16px;}
 
-    /* ══ TOAST ══ */
     #toast{position:fixed;bottom:28px;right:28px;min-width:280px;max-width:360px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:14px 18px;display:none;align-items:center;gap:12px;z-index:9999;box-shadow:var(--shadow-lg);animation:slideUp .25s ease;font-size:13.5px;font-weight:500;color:var(--gray-700);}
     #toast.show{display:flex;}
     .toast-icon{width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
@@ -276,7 +252,6 @@
     @keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
     @keyframes shrink{from{width:100%;}to{width:0%;}}
 
-    /* ══ MODAL ══ */
     .modal-overlay{position:fixed;inset:0;background:rgba(26,33,48,.55);backdrop-filter:blur(3px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
     .modal-overlay.open{opacity:1;pointer-events:all;}
     .modal{background:var(--white);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:scale(.95);transition:transform .2s;}
@@ -288,11 +263,9 @@
     .modal-body{padding:20px 24px;}
     .modal-footer{padding:14px 24px 20px;display:flex;gap:10px;justify-content:flex-end;}
 
-    /* ══ EDIT MODAL ══ */
     #editModal .modal{max-width:560px;}
     .action-btns{display:flex;align-items:center;gap:6px;}
 
-    /* ══ EMPLOYEE INFO ══ */
     .employee-panel{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-bottom:20px;overflow:hidden;}
     .employee-header{padding:14px 22px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .15s;}
     .employee-header:hover{background:var(--eq-blue-pale);}
@@ -301,21 +274,11 @@
     .employee-body.collapsed{display:none;}
     .employee-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
 
-    /* ══ POLICY ══ */
-    .policy-section h3{font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-    .policy-section p{font-size:13.5px;color:var(--gray-700);line-height:1.7;margin-bottom:10px;}
-    .policy-section ul{padding-left:20px;margin-bottom:10px;}
-    .policy-section li{font-size:13.5px;color:var(--gray-700);line-height:1.7;margin-bottom:6px;}
-    .policy-section a{color:var(--eq-blue);text-decoration:none;}
-    .policy-section a:hover{text-decoration:underline;}
-
-    /* ══ SCROLLBAR ══ */
     ::-webkit-scrollbar{width:6px;height:6px;}
     ::-webkit-scrollbar-track{background:transparent;}
     ::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:4px;}
     ::-webkit-scrollbar-thumb:hover{background:var(--gray-300);}
 
-    /* ══ RESPONSIVE ══ */
     @media(max-width:900px){
       .sidebar{display:none;}
       .content{margin-left:0;max-width:100%;padding:20px 16px 60px;}
@@ -434,7 +397,8 @@
 <!-- TOP BAR -->
 <header class="topbar">
   <a href="#" class="logo-wrap" aria-label="Eqnovia">
-    <img src="image.png" alt="Eqnovia Logo" style="height:38px;width:auto;border-radius:6px;"/>
+    <span class="logo-eq">eqnovia</span>
+    <span class="logo-dot"></span>
   </a>
   <div class="topbar-sep"></div>
   <span class="topbar-title">Notes de Frais</span>
@@ -750,8 +714,6 @@
       </div>
       <div class="panel-body" style="max-width:900px;">
         <div style="display:grid;gap:24px;">
-
-          <!-- Conditions d'utilisation -->
           <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--white);">
             <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
               <span style="font-size:20px;">📋</span> Conditions d'utilisation
@@ -759,49 +721,37 @@
             <div style="font-size:13.5px;color:var(--gray-700);line-height:1.7;">
               <p style="margin-bottom:10px;">En utilisant l'application <strong>Eqnovia Notes de Frais</strong>, vous acceptez les présentes conditions d'utilisation :</p>
               <ul style="padding-left:20px;margin-bottom:10px;">
-                <li style="margin-bottom:6px;">L'application est destinée exclusivement aux employés d'Eqnovia pour la gestion de leurs notes de frais professionnels.</li>
-                <li style="margin-bottom:6px;">Toute dépense enregistrée doit être justifiée par un justificatif valide (facture, ticket de caisse, etc.).</li>
-                <li style="margin-bottom:6px;">Les montants saisis doivent être exacts et correspondre aux documents justificatifs.</li>
-                <li style="margin-bottom:6px;">L'utilisateur est responsable de l'exactitude des informations qu'il saisit.</li>
-                <li style="margin-bottom:6px;">Toute tentative de fraude ou de falsification de données pourra entraîner des sanctions disciplinaires.</li>
-                <li style="margin-bottom:6px;">L'administration se réserve le droit de vérifier et de contrôler les notes de frais soumises.</li>
+                <li style="margin-bottom:6px;">L'application est destinée exclusivement aux employés d'Eqnovia.</li>
+                <li style="margin-bottom:6px;">Toute dépense doit être justifiée par un justificatif valide.</li>
+                <li style="margin-bottom:6px;">Les montants saisis doivent être exacts.</li>
+                <li style="margin-bottom:6px;">L'utilisateur est responsable de l'exactitude des informations.</li>
+                <li style="margin-bottom:6px;">Les données sont conservées 10 ans (durée légale comptable).</li>
               </ul>
-              <p>Les présentes conditions peuvent être modifiées à tout moment. Il est conseillé de les consulter régulièrement.</p>
             </div>
           </div>
-
-          <!-- Politique de confidentialité -->
           <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--white);">
             <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
               <span style="font-size:20px;">🔒</span> Politique de confidentialité
             </h3>
             <div style="font-size:13.5px;color:var(--gray-700);line-height:1.7;">
-              <p style="margin-bottom:10px;">Eqnovia s'engage à protéger la confidentialité des données personnelles de ses employés :</p>
-              <ul style="padding-left:20px;margin-bottom:10px;">
-                <li style="margin-bottom:6px;"><strong>Données collectées :</strong> nom, prénom, département, dates de dépenses, montants, descriptions, catégories, justificatifs.</li>
-                <li style="margin-bottom:6px;"><strong>Finalité :</strong> gestion comptable des notes de frais et remboursement des employés.</li>
-                <li style="margin-bottom:6px;"><strong>Conservation :</strong> les données sont conservées pendant la durée légale de conservation comptable (10 ans).</li>
-                <li style="margin-bottom:6px;"><strong>Partage :</strong> les données ne sont partagées qu'avec les services habilités (comptabilité, RH, direction).</li>
-                <li style="margin-bottom:6px;"><strong>Sécurité :</strong> les données sont stockées de manière sécurisée (Firebase / localStorage) et protégées contre tout accès non autorisé.</li>
-                <li style="margin-bottom:6px;"><strong>Droits :</strong> vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Contactez le service RH pour exercer ces droits.</li>
+              <p>Eqnovia s'engage à protéger la confidentialité des données personnelles de ses employés.</p>
+              <ul style="padding-left:20px;margin-top:10px;">
+                <li style="margin-bottom:6px;"><strong>Données collectées :</strong> nom, prénom, département, dépenses.</li>
+                <li style="margin-bottom:6px;"><strong>Finalité :</strong> gestion comptable des notes de frais.</li>
+                <li style="margin-bottom:6px;"><strong>Conservation :</strong> 10 ans (durée légale).</li>
+                <li style="margin-bottom:6px;"><strong>Sécurité :</strong> données stockées de manière sécurisée.</li>
               </ul>
-              <p>Pour toute question relative à la protection des données, contactez le délégué à la protection des données (DPO) d'Eqnovia.</p>
             </div>
           </div>
-
-          <!-- Contact -->
           <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--eq-blue-pale);">
             <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
               <span style="font-size:20px;">📞</span> Contact & Support
             </h3>
             <div style="font-size:13.5px;color:var(--gray-700);line-height:1.7;">
-              <p style="margin-bottom:8px;">Pour toute question concernant l'utilisation de l'application ou les notes de frais :</p>
-              <p style="margin-bottom:4px;"><strong>Email :</strong> <a href="mailto:support@eqnovia.ma" style="color:var(--eq-blue);text-decoration:none;">support@eqnovia.ma</a></p>
-              <p style="margin-bottom:4px;"><strong>Téléphone :</strong> +212 5XX-XXXXXX</p>
+              <p><strong>Email :</strong> <a href="mailto:support@eqnovia.ma" style="color:var(--eq-blue);">support@eqnovia.ma</a></p>
               <p><strong>Adresse :</strong> Eqnovia, Casablanca, Maroc</p>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -829,6 +779,7 @@ let editJustifData = { fileData: '', fileName: '' };
 let employeeInfo = { nom: '', prenom: '', dept: '' };
 let ocrText = '';
 let ocrRunning = false;
+let ocrWorker = null;
 
 // ════════════════════════════════════════════
 // FIREBASE BRIDGE
@@ -994,7 +945,7 @@ function openJustifPreview(id) {
   } else if (exp.justifFile.startsWith('data:application/pdf')) {
     content.innerHTML = `<iframe src="${exp.justifFile}" style="width:100%; height:400px; border:none;" title="PDF Preview"></iframe>`;
   } else {
-    content.innerHTML = `<p style="padding:20px; color:var(--gray-500);">Aperçu indisponible. Utilisez le bouton ci-dessous pour télécharger le fichier.</p>`;
+    content.innerHTML = `<p style="padding:20px; color:var(--gray-500);">Aperçu indisponible.</p>`;
   }
   document.getElementById('justifModal').classList.add('open');
 }
@@ -1097,9 +1048,9 @@ async function addExpense() {
 
   if (!date)                    return toast('Veuillez saisir une date.','err');
   if (!desc)                    return toast('Veuillez saisir une description.','err');
-  if (!validateDate(date))      return toast('Date invalide (doit être dans le passé et <= 10 ans).','err');
-  if (!validateAmount(amount))  return toast('Montant TTC invalide (0 < montant <= 10 000 000).','err');
-  if (!validateAmount(totalHT)) return toast('Montant HT invalide (0 <= montant <= 10 000 000).','err');
+  if (!validateDate(date))      return toast('Date invalide.','err');
+  if (!validateAmount(amount))  return toast('Montant TTC invalide.','err');
+  if (!validateAmount(totalHT)) return toast('Montant HT invalide.','err');
 
   const btn = document.getElementById('addBtn');
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Enregistrement…';
@@ -1112,7 +1063,6 @@ async function addExpense() {
   await dataAdd(exp);
 
   btn.disabled=false; btn.innerHTML='➕ Ajouter la dépense';
-  
   document.getElementById('descInput').value='';
   document.getElementById('amountInput').value='';
   document.getElementById('totalHTInput').value='';
@@ -1121,7 +1071,7 @@ async function addExpense() {
   
   updateKPIs();
   if (activeTab!=='saisie') switchTab(activeTab); else renderAll();
-  toast('Dépense enregistrée dans la base de données ✔');
+  toast('Dépense enregistrée ✔');
 }
 
 // ════════════════════════════════════════════
@@ -1172,9 +1122,9 @@ async function saveEdit() {
 
   if (!date)                    return toast('Veuillez saisir une date.', 'err');
   if (!desc)                    return toast('Veuillez saisir une description.', 'err');
-  if (!validateDate(date))      return toast('Date invalide (doit être dans le passé et <= 10 ans).', 'err');
-  if (!validateAmount(amount))  return toast('Montant TTC invalide (0 < montant <= 10 000 000).', 'err');
-  if (!validateAmount(totalHT)) return toast('Montant HT invalide (0 <= montant <= 10 000 000).', 'err');
+  if (!validateDate(date))      return toast('Date invalide.', 'err');
+  if (!validateAmount(amount))  return toast('Montant TTC invalide.', 'err');
+  if (!validateAmount(totalHT)) return toast('Montant HT invalide.', 'err');
 
   const btn = document.getElementById('editSaveBtn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enregistrement…';
@@ -1205,7 +1155,7 @@ async function saveEdit() {
   if (activeTab === 'monthly') renderMonthly();
   else if (activeTab === 'yearly') renderYearly();
   else renderAll();
-  toast('Dépense modifiée avec succès ✔');
+  toast('Dépense modifiée ✔');
 }
 
 // ════════════════════════════════════════════
@@ -1226,7 +1176,7 @@ function deleteRow(id) {
 // CLEAR ALL
 // ════════════════════════════════════════════
 function confirmClear(){
-  showModal('⚠️ Supprimer tout','Toutes les dépenses seront effacées de la base de données. Continuer ?', async()=>{
+  showModal('⚠️ Supprimer tout','Toutes les dépenses seront effacées. Continuer ?', async()=>{
     if (useFirebase) {
       try {
         const { collection, getDocs, deleteDoc, doc } = window.__fs;
@@ -1240,7 +1190,7 @@ function confirmClear(){
     lsSave([]);
     updateKPIs();
     renderAll(); renderMonthly(); renderYearly();
-    toast('Toutes les dépenses ont été supprimées.');
+    toast('Toutes les dépenses supprimées.');
   });
 }
 
@@ -1542,13 +1492,13 @@ function renderYearly() {
 }
 
 // ════════════════════════════════════════════
-// OCR — VERSION OPTIMISÉE
+// OCR — VERSION CORRIGÉE (sans erreur "Failed to fetch")
 // ════════════════════════════════════════════
 function onFileChosen(e){
   const f = e.target.files[0];
   if (f) {
     document.getElementById('fileName').textContent = '📎 ' + f.name;
-    ocrText = ''; // Reset previous OCR text
+    ocrText = '';
     document.getElementById('ocrOutput').textContent = '📷 Image prête. Cliquez sur "Lire et extraire" pour lancer l\'OCR.';
   } else {
     document.getElementById('fileName').textContent = 'Aucun fichier';
@@ -1573,15 +1523,35 @@ function handleDrop(e){
   }
 }
 
+async function initOCRWorker() {
+  if (ocrWorker) return ocrWorker;
+  try {
+    ocrWorker = await Tesseract.createWorker('fra', 1, {
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          const progress = Math.round(m.progress * 100);
+          document.getElementById('ocrBar').style.width = progress + '%';
+          document.getElementById('ocrOutput').textContent = `⏳ Reconnaissance en cours... ${progress}%`;
+        }
+      }
+    });
+    return ocrWorker;
+  } catch (e) {
+    console.error('Erreur initialisation Tesseract:', e);
+    throw e;
+  }
+}
+
 async function runOCR() {
   if (ocrRunning) return;
+  
   const fi = document.getElementById('fileInput');
   const out = document.getElementById('ocrOutput');
   const bar = document.getElementById('ocrBar');
   const prog = document.getElementById('ocrProgress');
   const btn = document.getElementById('ocrBtn');
   
-  if(!fi.files || !fi.files.length) {
+  if (!fi.files || !fi.files.length) {
     return toast('Choisissez d\'abord une image.', 'err');
   }
   
@@ -1590,68 +1560,76 @@ async function runOCR() {
   btn.textContent = '⏳ Lecture en cours...';
   prog.style.display = 'block';
   bar.style.width = '0%';
-  out.textContent = '⏳ Initialisation de Tesseract...';
+  out.textContent = '⏳ Préparation de l\'image...';
   
   try {
-    const imageFile = fi.files[0];
-    const imageUrl = URL.createObjectURL(imageFile);
+    const file = fi.files[0];
     
-    // Load image into canvas for better quality
+    // Lire l'image en base64
+    const reader = new FileReader();
+    const imageData = await new Promise((resolve, reject) => {
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    
+    // Charger l'image dans un canvas pour prétraitement
     const img = new Image();
-    img.src = imageUrl;
+    img.src = imageData;
     await new Promise((resolve, reject) => {
       img.onload = resolve;
       img.onerror = reject;
     });
     
-    // Create canvas for preprocessing
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = img.width * 1.5;
     canvas.height = img.height * 1.5;
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     
-    // Convert to grayscale for better OCR
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
+    // Amélioration du contraste et niveaux de gris
+    const imageData2 = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData2.data;
     for (let i = 0; i < data.length; i += 4) {
-      const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-      data[i] = avg;
-      data[i + 1] = avg;
-      data[i + 2] = avg;
+      const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+      const enhanced = gray > 200 ? 255 : gray < 50 ? 0 : gray;
+      data[i] = enhanced;
+      data[i+1] = enhanced;
+      data[i+2] = enhanced;
     }
-    ctx.putImageData(imageData, 0, 0);
+    ctx.putImageData(imageData2, 0, 0);
     
     const processedImage = canvas.toDataURL('image/png');
-    const blob = await (await fetch(processedImage)).blob();
+    bar.style.width = '30%';
+    out.textContent = '⏳ Initialisation de Tesseract...';
     
-    // Run OCR with optimized settings
-    const result = await Tesseract.recognize(blob, 'fra', {
-      logger: m => {
-        if (m.status === 'recognizing text') {
-          const progress = Math.round(m.progress * 100);
-          bar.style.width = progress + '%';
-          out.textContent = `⏳ Reconnaissance en cours... ${progress}%`;
-        }
-      }
-    });
+    // Initialiser le worker
+    const worker = await initOCRWorker();
+    bar.style.width = '50%';
+    out.textContent = '⏳ Reconnaissance en cours...';
+    
+    // Exécuter la reconnaissance
+    const result = await worker.recognize(processedImage);
     
     ocrText = result.data.text;
     bar.style.width = '100%';
     out.textContent = ocrText || '(Aucun texte détecté)';
-    toast('✅ Texte extrait avec succès !', 'ok');
     
-    // URL.revokeObjectURL(imageUrl);
+    if (ocrText.trim().length > 0) {
+      toast('✅ Texte extrait avec succès !', 'ok');
+    } else {
+      toast('⚠️ Aucun texte détecté. Vérifiez la qualité de l\'image.', 'info');
+    }
     
-  } catch(e) {
-    out.textContent = '❌ Erreur : ' + e.message;
-    toast('Erreur OCR. Vérifiez l\'image.', 'err');
+  } catch (e) {
     console.error('OCR Error:', e);
+    out.textContent = '❌ Erreur : ' + (e.message || 'Erreur inconnue');
+    toast('Erreur OCR. Vérifiez la console.', 'err');
   } finally {
     ocrRunning = false;
     btn.disabled = false;
     btn.textContent = '🔍 Lire et extraire';
-    setTimeout(() => prog.style.display = 'none', 1000);
+    setTimeout(() => { prog.style.display = 'none'; }, 1000);
   }
 }
 
@@ -1661,14 +1639,11 @@ function fillFormFromOCR() {
   }
   
   const lines = ocrText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  
-  // Improved regex for better extraction
   const dateRx = /(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})/;
-  const amtRx = /(\d[\d\s]*[.,]\d{2})/;
   
   let foundDate = '', foundAmt = '', foundDesc = '';
   
-  // Extract date
+  // Extraction de la date
   for (const line of lines) {
     const m = line.match(dateRx);
     if (m && !foundDate) {
@@ -1687,10 +1662,10 @@ function fillFormFromOCR() {
     }
   }
   
-  // Extract amount - look for numbers with decimals
+  // Extraction du montant
   for (const line of lines) {
     const matches = line.match(/\d[\d\s]*[.,]\d{2}/g);
-    if (matches && matches.length > 0) {
+    if (matches) {
       for (const match of matches) {
         const amt = parseFloat(match.replace(/\s/g,'').replace(',','.'));
         if (!isNaN(amt) && amt > 0 && amt < 1000000 && amt > 10) {
@@ -1702,23 +1677,22 @@ function fillFormFromOCR() {
     if (foundAmt) break;
   }
   
-  // Extract description - look for meaningful text
+  // Extraction de la description
   const skipRx = /^(facture|invoice|reçu|ticket|bon|devis|total|montant|date|client|fournisseur|tva|ht|ttc|ref|n°|no|numéro|siret|phone|email|www|http|reglement|paiement|merci|conditions|iban|bic|code|tva|numero|prix|unité|qte|quantité|total|sous-total|€|dh|mad|dirham|euro|dollar|$)/i;
-  const wordCount = (str) => str.split(/\s+/).length;
   
   for (const line of lines) {
     if (foundDesc) break;
     const clean = line.replace(/^\d+[\s\.\)\-:]+/, '').trim();
     if (clean.length > 5 && 
         !clean.match(dateRx) && 
-        !clean.match(amtRx) && 
+        !clean.match(/\d[\d\s]*[.,]\d{2}/) && 
         !skipRx.test(clean) &&
-        wordCount(clean) >= 2) {
+        clean.split(/\s+/).length >= 2) {
       foundDesc = clean.substring(0, 80);
     }
   }
   
-  // If no description found, take a medium-length line
+  // Si aucune description trouvée, prendre une ligne de longueur moyenne
   if (!foundDesc) {
     let bestMatch = '';
     for (const line of lines) {
@@ -1732,7 +1706,7 @@ function fillFormFromOCR() {
     if (bestMatch) foundDesc = bestMatch;
   }
   
-  // Fill form
+  // Remplir le formulaire
   let count = 0;
   if (foundDate) {
     document.getElementById('dateInput').value = foundDate;
