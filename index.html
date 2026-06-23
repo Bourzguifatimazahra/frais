@@ -1641,19 +1641,61 @@ async function runOCR(){
 function fillFormFromOCR(){
   if(!ocrText) return toast('Lancez d\'abord l\'OCR.','err');
   const lines=ocrText.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
-  const dateRx=/\b(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{2}[\/\-\.]\d{2})\b/;
-  const amtRx=/\b(\d{1,6}[.,]\d{2})\b/;
+  // Date regex: supports dd/mm/yyyy, dd-mm-yyyy, dd.mm.yyyy, yyyy-mm-dd, yyyy/mm/dd, and 2-digit years
+  const dateRx=/(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})/;
+  // Amount regex: supports 123,45 / 123.45 / 1 234,56 / 1 234.56 with optional currency suffix
+  const amtRx=/(\d[\d\s]*[.,]\d{2})/;
   let foundDate='',foundAmt='',foundDesc='';
+  // First pass: find date and amount
   for(const line of lines){
-    if(!foundDate){const m=line.match(dateRx);if(m){let raw=m[0].replace(/\./g,'-').replace(/\//g,'-');const p=raw.split('-');if(p[0].length<=2&&p[2]?.length===4)foundDate=`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;else if(p[0].length===4)foundDate=`${p[0]}-${p[1].padStart(2,'0')}-${p[2].padStart(2,'0')}`;}}
-    if(!foundAmt){const m=line.match(amtRx);if(m)foundAmt=m[0].replace(',','.');}
-    if(!foundDesc&&line.length>3&&!line.match(dateRx)&&!line.match(amtRx)&&!line.match(/^\d+$/))foundDesc=line.substring(0,50);
+    if(!foundDate){
+      const m=line.match(dateRx);
+      if(m){
+        let raw=m[1].replace(/\./g,'-').replace(/\//g,'-').replace(/\s/g,'');
+        const p=raw.split('-');
+        if(p.length===3){
+          if(p[0].length<=2&&p[2].length===4) foundDate=`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+          else if(p[0].length===4) foundDate=`${p[0]}-${p[1].padStart(2,'0')}-${p[2].padStart(2,'0')}`;
+          else if(p[0].length<=2&&p[2].length===2){
+            // 2-digit year: assume 20xx
+            const yr='20'+p[2];
+            foundDate=`${yr}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+          }
+        }
+      }
+    }
+    if(!foundAmt){
+      const m=line.match(amtRx);
+      if(m){
+        let amt=m[1].replace(/\s/g,'').replace(',','.');
+        // Validate it's a reasonable number
+        const num=parseFloat(amt);
+        if(!isNaN(num)&&num>0&&num<1000000) foundAmt=amt;
+      }
+    }
+  }
+  // Second pass: find best description (skip header lines, look for meaningful text)
+  const skipRx=/^(facture|invoice|reçu|ticket|bon|devis|total|montant|date|client|fournisseur|tva|ht|ttc|ref|n°|no|numéro)/i;
+  for(const line of lines){
+    if(!foundDesc&&line.length>3&&!line.match(dateRx)&&!line.match(amtRx)&&!line.match(/^\d+$/)&&!skipRx.test(line)){
+      foundDesc=line.substring(0,60);
+      break;
+    }
+  }
+  // Fallback: if no good description found, use the longest non-date, non-amount line
+  if(!foundDesc){
+    let bestLen=0;
+    for(const line of lines){
+      if(line.length>3&&!line.match(dateRx)&&!line.match(amtRx)&&!line.match(/^\d+$/)){
+        if(line.length>bestLen){bestLen=line.length;foundDesc=line.substring(0,60);}
+      }
+    }
   }
   let n=0;
   if(foundDate){document.getElementById('dateInput').value=foundDate;n++;}
   if(foundAmt){document.getElementById('amountInput').value=parseFloat(foundAmt);n++;}
   if(foundDesc){document.getElementById('descInput').value=foundDesc;n++;}
-  toast(n>0?`${n} champ(s) rempli(s) — vérifiez avant d'ajouter.`:'Aucun champ détecté.', n>0?'ok':'err');
+  toast(n>0?`${n} champ(s) rempli(s) — vérifiez avant d'ajouter.`:'Aucun champ détecté. Vérifiez que l\'image contient une facture lisible.', n>0?'ok':'err');
 }
 
 // ════════════════════════════════════════════
