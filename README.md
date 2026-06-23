@@ -101,7 +101,21 @@ L'application respecte la charte graphique **Eqnovia** :
 2. Ouvrez [`index.html`](index.html) dans votre navigateur
 3. L'application fonctionne en mode **local** (localStorage) sans configuration
 
-### Option 2 : Déployer en ligne
+### Option 2 : Build avec variables d'environnement
+
+Pour déployer avec votre propre configuration Firebase :
+
+```bash
+# 1. Copiez le fichier .env.example vers .env et remplissez vos valeurs
+cp .env.example .env
+
+# 2. Générez le build
+node build.js
+
+# 3. Le fichier dist/index.html contient votre configuration injectée
+```
+
+### Option 3 : Déployer en ligne
 
 Consultez [`DEPLOIEMENT.md`](DEPLOIEMENT.md) pour les instructions détaillées.
 
