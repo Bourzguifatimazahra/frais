@@ -132,12 +132,10 @@
     .stat-card.blue::after{background:var(--eq-blue);}
     .stat-card.orange::after{background:var(--eq-orange);}
     .stat-card.green::after{background:var(--green);}
-    .stat-card.red::after{background:var(--red);}
     .stat-icon{width:36px;height:36px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:12px;}
     .stat-icon.blue{background:var(--eq-blue-pale);}
     .stat-icon.orange{background:var(--eq-orange-pale);}
     .stat-icon.green{background:var(--green-pale);}
-    .stat-icon.red{background:var(--red-pale);}
     .stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-400);margin-bottom:4px;}
     .stat-value{font-size:22px;font-weight:800;color:var(--gray-900);line-height:1;margin-bottom:4px;font-variant-numeric:tabular-nums;}
     .stat-sub{font-size:12px;color:var(--gray-400);}
@@ -401,7 +399,7 @@
 <!-- TOP BAR -->
 <header class="topbar">
   <a href="#" class="logo-wrap" aria-label="Eqnovia">
-    <span class="logo-eq">eq</span><span class="logo-novia">novia</span><span class="logo-dot"></span>
+    <img src="image.png" alt="Eqnovia Logo" style="height:38px;width:auto;border-radius:6px;"/>
   </a>
   <div class="topbar-sep"></div>
   <span class="topbar-title">Notes de Frais</span>
@@ -509,12 +507,6 @@
       <div class="stat-label">Avec justificatif</div>
       <div class="stat-value" id="kpiJustif">0</div>
       <div class="stat-sub">pièce(s) jointe(s)</div>
-    </div>
-    <div class="stat-card red">
-      <div class="stat-icon red">❌</div>
-      <div class="stat-label">Sans justificatif</div>
-      <div class="stat-value" id="kpiNoJustif">0</div>
-      <div class="stat-sub">à régulariser</div>
     </div>
   </div>
 
@@ -647,6 +639,7 @@
               <th>Type de dépenses</th>
               <th class="sortable" onclick="sortBy('amount')">Total TTC ⇅</th>
               <th>Commentaires</th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -1146,14 +1139,12 @@ function updateKPIs() {
   const mData = all.filter(e=>e.date.startsWith(ym));
   const total = all.reduce((s,e)=>s+e.amount,0);
   const jYes  = all.filter(e=>e.justif==='Oui').length;
-  const jNo   = all.filter(e=>e.justif==='Non').length;
 
   document.getElementById('kpiTotal').textContent      = fmtDH(total);
   document.getElementById('kpiCount').textContent      = all.length + ' dépense(s)';
   document.getElementById('kpiMonth').textContent      = fmtDH(mData.reduce((s,e)=>s+e.amount,0));
   document.getElementById('kpiMonthLabel').textContent = MONTHS_FR[now.getMonth()] + ' ' + now.getFullYear();
   document.getElementById('kpiJustif').textContent     = jYes;
-  document.getElementById('kpiNoJustif').textContent   = jNo;
 }
 
 // ════════════════════════════════════════════
@@ -1195,7 +1186,7 @@ function renderAll() {
   const tbody=document.getElementById('tbody');
 
   if(!rows.length){
-    tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🗂️</div><h3>Aucune dépense trouvée</h3><p>Ajustez vos filtres ou saisissez une nouvelle dépense.</p></div></td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🗂️</div><h3>Aucune dépense trouvée</h3><p>Ajustez vos filtres ou saisissez une nouvelle dépense.</p></div></td></tr>`;
     document.getElementById('grandTotal').innerHTML='💰 Total : <strong>0,00 DH</strong>';
     document.getElementById('rowCount').textContent='0 ligne(s)';
     return;
@@ -1651,10 +1642,19 @@ function exportPDF(){
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
   const W=297;
+  
+  // Logo dans le PDF
+  const logoUrl = 'image.png';
+  try {
+    doc.addImage(logoUrl, 'PNG', 14, 4, 20, 18);
+  } catch(e) {
+    console.warn('Logo not found in PDF export', e);
+  }
+  
   doc.setFillColor(11,79,158);doc.rect(0,0,W,22,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(255,255,255);
-  doc.text('eqnovia',14,14);
-  doc.setFillColor(247,147,30);doc.circle(14+doc.getTextWidth('eqnovia')-2,8,1.5,'F');
+  doc.text('eqnovia',38,14);
+  doc.setFillColor(247,147,30);doc.circle(38+doc.getTextWidth('eqnovia')-2,8,1.5,'F');
   doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(200,223,245);
   doc.text('Note de Frais — Document officiel',14,20);
   const now=new Date();
