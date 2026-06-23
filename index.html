@@ -378,27 +378,12 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label" for="editTotalHT">Total HT (DH)</label>
-          <input type="number" class="form-input" id="editTotalHT" step="0.01" min="0" placeholder="0,00"/>
-        </div>
-        <div class="form-group">
           <label class="form-label" for="editAmount">Total TTC (DH) *</label>
           <input type="number" class="form-input" id="editAmount" step="0.01" min="0.01" placeholder="0,00"/>
         </div>
         <div class="form-group span-2">
           <label class="form-label" for="editDesc">Description *</label>
           <input type="text" class="form-input" id="editDesc" placeholder="Description de la dépense" autocomplete="off"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Justificatif (Image/PDF, < 800Ko)</label>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <button class="btn btn-ghost" type="button" onclick="document.getElementById('editJustifFileInput').click()" style="height:40px;flex:1;">
-              📎 Changer fichier
-            </button>
-            <input type="file" id="editJustifFileInput" accept="image/*,application/pdf" style="display:none;" onchange="handleJustifFileSelect(this, 'edit')"/>
-            <span id="editJustifFileStatus" style="font-size:12px;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">Aucun</span>
-            <button class="btn btn-icon" type="button" id="btnDelEditJustif" onclick="clearJustifFile('edit')" style="display:none;height:40px;width:40px;color:var(--red);" title="Supprimer le justificatif">✕</button>
-          </div>
         </div>
         <div class="form-group">
           <label class="form-label" for="editComment">Commentaires</label>
@@ -409,23 +394,6 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeEditModal()">Annuler</button>
       <button class="btn btn-primary" id="editSaveBtn" onclick="saveEdit()">💾 Enregistrer les modifications</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL (justificatif preview) -->
-<div class="modal-overlay" id="justifModal" role="dialog" aria-modal="true">
-  <div class="modal" style="max-width: 600px;">
-    <div class="modal-header">
-      <h3 id="justifModalTitle">Visualisation du justificatif</h3>
-      <button class="modal-close" onclick="closeJustifModal()">✕</button>
-    </div>
-    <div class="modal-body" style="text-align:center; overflow: auto; max-height: 70vh;">
-      <div id="justifModalContent"></div>
-    </div>
-    <div class="modal-footer">
-      <a class="btn btn-primary" id="justifDownloadBtn" download href="#">💾 Télécharger</a>
-      <button class="btn btn-ghost" onclick="closeJustifModal()">Fermer</button>
     </div>
   </div>
 </div>
@@ -587,27 +555,12 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" for="totalHTInput">Total HT (DH)</label>
-              <input type="number" class="form-input" id="totalHTInput" step="0.01" min="0" placeholder="0,00"/>
-            </div>
-            <div class="form-group">
               <label class="form-label" for="amountInput">Total TTC (DH) *</label>
               <input type="number" class="form-input" id="amountInput" step="0.01" min="0.01" placeholder="0,00"/>
             </div>
             <div class="form-group span-2">
               <label class="form-label" for="descInput">Description *</label>
               <input type="text" class="form-input" id="descInput" placeholder="Ex : Taxi aéroport, Repas client, Hôtel Casablanca…" autocomplete="off"/>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Justificatif (Image/PDF, < 800Ko)</label>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn btn-ghost" type="button" onclick="document.getElementById('justifFileInput').click()" style="height:40px;flex:1;">
-                  📎 Choisir fichier
-                </button>
-                <input type="file" id="justifFileInput" accept="image/*,application/pdf" style="display:none;" onchange="handleJustifFileSelect(this, 'add')"/>
-                <span id="justifFileStatus" style="font-size:12px;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">Aucun</span>
-                <button class="btn btn-icon" type="button" id="btnDelJustif" onclick="clearJustifFile('add')" style="display:none;height:40px;width:40px;color:var(--red);" title="Supprimer le justificatif">✕</button>
-              </div>
             </div>
             <div class="form-group">
               <label class="form-label" for="commentInput">Commentaires</label>
@@ -680,11 +633,6 @@
           <option value="Formation">🎓 Formation</option>
           <option value="Autre">📌 Autre</option>
         </select>
-        <select class="form-select" id="filterJustif" onchange="renderAll()">
-          <option value="all">📎 Tous</option>
-          <option value="Oui">✅ Avec justif.</option>
-          <option value="Non">❌ Sans justif.</option>
-        </select>
         <div class="filter-sep"></div>
         <input type="text" class="form-input" id="filterSearch" placeholder="🔍 Recherche…" oninput="renderAll()" style="min-width:160px;"/>
         <button class="btn btn-ghost" style="height:36px;font-size:12px;padding:0 12px;" onclick="resetFilters()">🔄</button>
@@ -697,11 +645,8 @@
               <th class="sortable" onclick="sortBy('date')">Date ⇅</th>
               <th>Description</th>
               <th>Type de dépenses</th>
-              <th class="sortable" onclick="sortBy('totalHT')">Total HT ⇅</th>
               <th class="sortable" onclick="sortBy('amount')">Total TTC ⇅</th>
               <th>Commentaires</th>
-              <th>Justificatif</th>
-              <th></th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -777,7 +722,7 @@
             <div style="font-size:13.5px;color:var(--gray-700);line-height:1.7;">
               <p style="margin-bottom:10px;">Eqnovia s'engage à protéger la confidentialité des données personnelles de ses employés :</p>
               <ul style="padding-left:20px;margin-bottom:10px;">
-                <li style="margin-bottom:6px;"><strong>Données collectées :</strong> nom, prénom, département, dates de dépenses, montants, descriptions, catégories, justificatifs.</li>
+                <li style="margin-bottom:6px;"><strong>Données collectées :</strong> nom, prénom, département, dates de dépenses, montants, descriptions, catégories.</li>
                 <li style="margin-bottom:6px;"><strong>Finalité :</strong> gestion comptable des notes de frais et remboursement des employés.</li>
                 <li style="margin-bottom:6px;"><strong>Conservation :</strong> les données sont conservées pendant la durée légale de conservation comptable (10 ans).</li>
                 <li style="margin-bottom:6px;"><strong>Partage :</strong> les données ne sont partagées qu'avec les services habilités (comptabilité, RH, direction).</li>
@@ -823,8 +768,6 @@ let sortCol = 'date', sortDir = -1;
 let activeTab = 'saisie';
 let cache = [];
 let useFirebase = false;
-let addJustifData = { fileData: '', fileName: '' };
-let editJustifData = { fileData: '', fileName: '' };
 let employeeInfo = { nom: '', prenom: '', dept: '' };
 let ocrText = '';
 
@@ -966,80 +909,6 @@ function toggleEmployeePanel() {
 }
 
 // ════════════════════════════════════════════
-// JUSTIFICATIF
-// ════════════════════════════════════════════
-function handleJustifFileSelect(input, mode) {
-  const file = input.files[0];
-  if (!file) return;
-
-  if (file.size > 800 * 1024) {
-    toast("Fichier trop volumineux (max 800 Ko).", "err");
-    input.value = "";
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    if (mode === 'add') {
-      addJustifData = { fileData: e.target.result, fileName: file.name };
-      document.getElementById('justifFileStatus').textContent = file.name;
-      document.getElementById('justifFileStatus').style.color = 'var(--eq-blue)';
-      document.getElementById('btnDelJustif').style.display = 'inline-flex';
-    } else {
-      editJustifData = { fileData: e.target.result, fileName: file.name };
-      document.getElementById('editJustifFileStatus').textContent = file.name;
-      document.getElementById('editJustifFileStatus').style.color = 'var(--eq-blue)';
-      document.getElementById('btnDelEditJustif').style.display = 'inline-flex';
-    }
-    toast("Justificatif chargé !");
-  };
-  reader.readAsDataURL(file);
-}
-
-function clearJustifFile(mode) {
-  if (mode === 'add') {
-    addJustifData = { fileData: '', fileName: '' };
-    document.getElementById('justifFileInput').value = "";
-    document.getElementById('justifFileStatus').textContent = "Aucun";
-    document.getElementById('justifFileStatus').style.color = 'var(--gray-400)';
-    document.getElementById('btnDelJustif').style.display = 'none';
-  } else {
-    editJustifData = { fileData: '', fileName: '' };
-    document.getElementById('editJustifFileInput').value = "";
-    document.getElementById('editJustifFileStatus').textContent = "Aucun";
-    document.getElementById('editJustifFileStatus').style.color = 'var(--gray-400)';
-    document.getElementById('btnDelEditJustif').style.display = 'none';
-  }
-}
-
-function openJustifPreview(id) {
-  const exp = cache.find(e => e.id === id);
-  if (!exp || !exp.justifFile) return toast('Aucun justificatif disponible.', 'err');
-  
-  const content = document.getElementById('justifModalContent');
-  const downloadBtn = document.getElementById('justifDownloadBtn');
-  document.getElementById('justifModalTitle').textContent = `Justificatif - ${exp.desc}`;
-  
-  downloadBtn.href = exp.justifFile;
-  downloadBtn.download = exp.justifName || `justificatif_${exp.id}`;
-  
-  if (exp.justifFile.startsWith('data:image/')) {
-    content.innerHTML = `<img src="${exp.justifFile}" style="max-width:100%; border-radius:var(--radius-md); box-shadow:var(--shadow-sm);" alt="Receipt"/>`;
-  } else if (exp.justifFile.startsWith('data:application/pdf')) {
-    content.innerHTML = `<iframe src="${exp.justifFile}" style="width:100%; height:400px; border:none;" title="PDF Preview"></iframe>`;
-  } else {
-    content.innerHTML = `<p style="padding:20px; color:var(--gray-500);">Aperçu indisponible. Utilisez le bouton ci-dessous pour télécharger le fichier.</p>`;
-  }
-  
-  document.getElementById('justifModal').classList.add('open');
-}
-
-function closeJustifModal() {
-  document.getElementById('justifModal').classList.remove('open');
-  document.getElementById('justifModalContent').innerHTML = '';
-}
-
-// ════════════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════════════
 function fmtDH(n) {
@@ -1123,7 +992,6 @@ async function addExpense() {
   const date    = document.getElementById('dateInput').value;
   const desc    = sanitizeInput(document.getElementById('descInput').value);
   const amount  = parseFloat(document.getElementById('amountInput').value);
-  const totalHT = parseFloat(document.getElementById('totalHTInput').value);
   const cat     = document.getElementById('catInput').value;
   const comment = sanitizeInput(document.getElementById('commentInput').value);
 
@@ -1131,25 +999,18 @@ async function addExpense() {
   if (!desc)                    return toast('Veuillez saisir une description.','err');
   if (!validateDate(date))      return toast('Date invalide (doit être dans le passé et <= 10 ans).','err');
   if (!validateAmount(amount))  return toast('Montant TTC invalide (0 < montant <= 10 000 000).','err');
-  if (!validateAmount(totalHT)) return toast('Montant HT invalide (0 <= montant <= 10 000 000).','err');
 
   const btn = document.getElementById('addBtn');
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Enregistrement…';
 
-  const justifFile = addJustifData.fileData || '';
-  const justifName = addJustifData.fileName || '';
-  const justif     = justifFile ? 'Oui' : 'Non';
-
-  const exp = { id: Date.now(), date, desc, amount, totalHT, cat, comment, justif, justifFile, justifName };
+  const exp = { id: Date.now(), date, desc, amount, cat, comment, justif: 'Non', justifFile: '', justifName: '' };
   await dataAdd(exp);
 
   btn.disabled=false; btn.innerHTML='➕ Ajouter la dépense';
   
   document.getElementById('descInput').value='';
   document.getElementById('amountInput').value='';
-  document.getElementById('totalHTInput').value='';
   document.getElementById('commentInput').value='';
-  clearJustifFile('add');
   
   updateKPIs();
   if (activeTab!=='saisie') switchTab(activeTab); else renderAll();
@@ -1167,19 +1028,9 @@ function editRow(id) {
   editingId = id;
   document.getElementById('editDate').value    = exp.date;
   document.getElementById('editAmount').value  = exp.amount;
-  document.getElementById('editTotalHT').value = exp.totalHT || '';
   document.getElementById('editDesc').value    = exp.desc;
   document.getElementById('editCat').value     = exp.cat || 'Autre';
   document.getElementById('editComment').value = exp.comment || '';
-  
-  if (exp.justifFile) {
-    editJustifData = { fileData: exp.justifFile, fileName: exp.justifName || 'justificatif' };
-    document.getElementById('editJustifFileStatus').textContent = exp.justifName || 'justificatif';
-    document.getElementById('editJustifFileStatus').style.color = 'var(--eq-blue)';
-    document.getElementById('btnDelEditJustif').style.display = 'inline-flex';
-  } else {
-    clearJustifFile('edit');
-  }
   
   document.getElementById('editModal').classList.add('open');
 }
@@ -1198,7 +1049,6 @@ async function saveEdit() {
   const date    = document.getElementById('editDate').value;
   const desc    = sanitizeInput(document.getElementById('editDesc').value);
   const amount  = parseFloat(document.getElementById('editAmount').value);
-  const totalHT = parseFloat(document.getElementById('editTotalHT').value);
   const cat     = document.getElementById('editCat').value;
   const comment = sanitizeInput(document.getElementById('editComment').value);
 
@@ -1206,18 +1056,13 @@ async function saveEdit() {
   if (!desc)                    return toast('Veuillez saisir une description.', 'err');
   if (!validateDate(date))      return toast('Date invalide (doit être dans le passé et <= 10 ans).', 'err');
   if (!validateAmount(amount))  return toast('Montant TTC invalide (0 < montant <= 10 000 000).', 'err');
-  if (!validateAmount(totalHT)) return toast('Montant HT invalide (0 <= montant <= 10 000 000).', 'err');
 
   const btn = document.getElementById('editSaveBtn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Enregistrement…';
 
-  const justifFile = editJustifData.fileData || '';
-  const justifName = editJustifData.fileName || '';
-  const justif     = justifFile ? 'Oui' : 'Non';
-
   const idx = cache.findIndex(e => e.id === editingId);
   if (idx !== -1) {
-    cache[idx] = { ...cache[idx], date, desc, amount, totalHT, cat, comment, justif, justifFile, justifName };
+    cache[idx] = { ...cache[idx], date, desc, amount, cat, comment };
     try { lsSave(cache); } catch(e) {}
     if (useFirebase) {
       try {
@@ -1327,7 +1172,6 @@ function renderAll() {
   const yearF   = document.getElementById('filterYear').value;
   const monthF  = document.getElementById('filterMonth').value;
   const catF    = document.getElementById('filterCat').value;
-  const justifF = document.getElementById('filterJustif').value;
   const search  = (document.getElementById('filterSearch').value||'').toLowerCase();
 
   const years = [...new Set(data.map(e=>e.date.substring(0,4)))].sort().reverse();
@@ -1342,54 +1186,42 @@ function renderAll() {
     return (yearF==='all'||y===yearF)
         && (monthF==='all'||m===monthF)
         && (catF==='all'||(e.cat||'Autre')===catF)
-        && (justifF==='all'||e.justif===justifF)
         && (!search||e.desc.toLowerCase().includes(search)||(e.cat||'').toLowerCase().includes(search));
   }).sort((a,b)=>{
     if(sortCol==='amount') return (a.amount-b.amount)*sortDir;
-    if(sortCol==='totalHT') return ((a.totalHT||0)-(b.totalHT||0))*sortDir;
     return a.date.localeCompare(b.date)*sortDir;
   });
 
   const tbody=document.getElementById('tbody');
 
   if(!rows.length){
-    tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🗂️</div><h3>Aucune dépense trouvée</h3><p>Ajustez vos filtres ou saisissez une nouvelle dépense.</p></div></td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🗂️</div><h3>Aucune dépense trouvée</h3><p>Ajustez vos filtres ou saisissez une nouvelle dépense.</p></div></td></tr>`;
     document.getElementById('grandTotal').innerHTML='💰 Total : <strong>0,00 DH</strong>';
     document.getElementById('rowCount').textContent='0 ligne(s)';
     return;
   }
 
-  let total=0, totalHTSum=0, html='';
+  let total=0, html='';
   rows.forEach((e,i)=>{
     total+=e.amount;
-    totalHTSum+= (e.totalHT || 0);
-
-    let justifBadge = '';
-    if (e.justifFile) {
-      justifBadge = `<span class="badge badge-yes" style="cursor:pointer;" onclick="openJustifPreview(${e.id})" title="Voir le justificatif : ${esc(e.justifName)}">📎 ${esc(e.justifName)}</span>`;
-    } else {
-      justifBadge = `<span class="badge badge-no">❌ Non</span>`;
-    }
 
     html+=`<tr>
       <td style="color:var(--gray-400);font-size:12px;">${i+1}</td>
       <td class="td-date">${fmtDate(e.date)}</td>
       <td class="td-desc"><span title="${esc(e.desc)}">${esc(e.desc)}</span></td>
       <td><span class="badge badge-cat">${esc(e.cat||'Autre')}</span></td>
-      <td class="td-amount" style="color:var(--gray-500);font-weight:normal;">${fmtDH(e.totalHT || 0)}</td>
       <td class="td-amount">${fmtDH(e.amount)}</td>
       <td class="td-desc"><span title="${esc(e.comment || '')}">${esc(e.comment || '—')}</span></td>
-      <td>${justifBadge}</td>
       <td><div class="action-btns"><button class="btn-icon edit" onclick="editRow(${e.id})" title="Modifier">✏️</button><button class="btn-icon" onclick="deleteRow(${e.id})" title="Supprimer">✕</button></div></td>
     </tr>`;
   });
   tbody.innerHTML=html;
-  document.getElementById('grandTotal').innerHTML=`Total HT : <strong style="color:var(--gray-700); margin-right:15px;">${fmtDH(totalHTSum)}</strong>  💰 Total TTC : <strong>${fmtDH(total)}</strong>`;
+  document.getElementById('grandTotal').innerHTML=`💰 Total TTC : <strong>${fmtDH(total)}</strong>`;
   document.getElementById('rowCount').textContent=rows.length+' ligne(s) — Total TTC : '+fmtDH(total);
 }
 
 function resetFilters(){
-  ['filterYear','filterMonth','filterCat','filterJustif'].forEach(id=>document.getElementById(id).value='all');
+  ['filterYear','filterMonth','filterCat'].forEach(id=>document.getElementById(id).value='all');
   document.getElementById('filterSearch').value='';
   renderAll();
 }
@@ -1430,24 +1262,15 @@ function renderMonthly() {
     const label=`${MONTHS_FR[parseInt(m,10)-1]} ${y}`;
     const items=groups[key].sort((a,b)=>b.date.localeCompare(a.date));
     const total=items.reduce((s,e)=>s+e.amount,0);
-    const totalHT = items.reduce((s,e)=>s+(e.totalHT||0),0);
     
     const rows=items.map((e,i)=>{
-      let justifBadge = '';
-      if (e.justifFile) {
-        justifBadge = `<span class="badge badge-yes" style="cursor:pointer;" onclick="openJustifPreview(${e.id})" title="Voir le justificatif : ${esc(e.justifName)}">📎 ${esc(e.justifName)}</span>`;
-      } else {
-        justifBadge = `<span class="badge badge-no">❌ Non</span>`;
-      }
       return `<tr>
         <td style="color:var(--gray-400);font-size:12px;padding:10px 16px;">${i+1}</td>
         <td class="td-date" style="padding:10px 16px;">${fmtDate(e.date)}</td>
         <td class="td-desc" style="padding:10px 16px;"><span title="${esc(e.desc)}">${esc(e.desc)}</span></td>
         <td style="padding:10px 16px;"><span class="badge badge-cat">${esc(e.cat||'Autre')}</span></td>
-        <td class="td-amount" style="padding:10px 16px;color:var(--gray-500);font-weight:normal;">${fmtDH(e.totalHT || 0)}</td>
         <td class="td-amount" style="padding:10px 16px;">${fmtDH(e.amount)}</td>
         <td class="td-desc" style="padding:10px 16px;"><span title="${esc(e.comment || '')}">${esc(e.comment || '—')}</span></td>
-        <td style="padding:10px 16px;">${justifBadge}</td>
         <td style="padding:10px 16px;"><div class="action-btns"><button class="btn-icon edit" onclick="editRow(${e.id})" title="Modifier">✏️</button><button class="btn-icon" onclick="deleteRow(${e.id})" title="Supprimer">✕</button></div></td>
       </tr>`;
     }).join('');
@@ -1469,13 +1292,12 @@ function renderMonthly() {
           <table>
             <thead><tr>
               <th>#</th><th>Date</th><th>Description</th><th>Type de dépenses</th>
-              <th>Total HT</th><th>Total TTC</th><th>Commentaires</th><th>Justificatif</th><th></th>
+              <th>Total TTC</th><th>Commentaires</th><th></th>
             </tr></thead>
             <tbody>${rows}</tbody>
           </table>
         </div>
         <div style="display:flex;justify-content:flex-end;padding:12px 22px;background:var(--gray-50);border-top:1px solid var(--gray-100);gap:15px;">
-          <div class="total-amount" style="background:var(--gray-100); border-color:var(--gray-200); color:var(--gray-700);">Total HT : <strong>${fmtDH(totalHT)}</strong></div>
           <div class="total-amount">💰 Total TTC : <strong>${fmtDH(total)}</strong></div>
         </div>
       </div>
@@ -1574,7 +1396,7 @@ function renderYearly() {
 }
 
 // ════════════════════════════════════════════
-// OCR — VERSION SIMPLIFIÉE AVEC UPLOAD DIRECT
+// OCR
 // ════════════════════════════════════════════
 function onFileChosen(e) {
   const f = e.target.files[0];
@@ -1605,7 +1427,6 @@ function handleDrop(e) {
   }
 }
 
-// Version simplifiée de l'OCR qui fonctionne mieux avec les CSP
 async function runOCR() {
   const fileInput = document.getElementById('fileInput');
   const out = document.getElementById('ocrOutput');
@@ -1630,10 +1451,8 @@ async function runOCR() {
       throw new Error('Tesseract.js n\'est pas chargé. Vérifiez votre connexion internet.');
     }
 
-    // Créer une URL pour l'image
     const imageUrl = URL.createObjectURL(file);
     
-    // Lire l'image avec Tesseract
     const result = await Tesseract.recognize(imageUrl, 'fra', {
       logger: m => {
         if (m.status === 'recognizing text') {
@@ -1668,7 +1487,7 @@ async function runOCR() {
   } catch (error) {
     console.error('OCR Error:', error);
     out.textContent = '❌ Erreur OCR: ' + (error.message || 'Erreur inconnue');
-    toast('Erreur lors de la lecture OCR. Vérifiez la console.', 'err');
+    toast('Erreur lors de la lecture OCR.', 'err');
   } finally {
     btn.disabled = false;
     btn.textContent = '🔍 Lire et extraire';
@@ -1679,7 +1498,6 @@ async function runOCR() {
   }
 }
 
-// Fonction pour remplir le formulaire à partir du texte OCR
 function fillFormFromOCR() {
   if (!ocrText || ocrText.trim().length === 0) {
     return toast('Lancez d\'abord l\'OCR.', 'err');
@@ -1687,14 +1505,12 @@ function fillFormFromOCR() {
 
   const lines = ocrText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   
-  // Patterns pour la date
   const datePatterns = [
     /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/,
     /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2})/,
     /(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/
   ];
   
-  // Patterns pour le montant
   const amountPatterns = [
     /(\d[\d\s,.]*[,.]\d{2})\s*(?:DH|Dhs|MAD)?/i,
     /(?:total|ttc|montant|prix)[\s:]*(\d[\d\s,.]*[,.]\d{2})/i,
@@ -1705,7 +1521,6 @@ function fillFormFromOCR() {
   let foundAmount = '';
   let foundDesc = '';
 
-  // Chercher la date
   for (const line of lines) {
     for (const pattern of datePatterns) {
       const match = line.match(pattern);
@@ -1727,7 +1542,6 @@ function fillFormFromOCR() {
     if (foundDate) break;
   }
 
-  // Chercher le montant
   for (const line of lines) {
     for (const pattern of amountPatterns) {
       const match = line.match(pattern);
@@ -1743,7 +1557,6 @@ function fillFormFromOCR() {
     if (foundAmount) break;
   }
 
-  // Chercher la description
   let bestDesc = '';
   let bestDescLength = 0;
   for (const line of lines) {
@@ -1761,7 +1574,6 @@ function fillFormFromOCR() {
 
   if (bestDesc) foundDesc = bestDesc;
 
-  // Remplir le formulaire
   let filled = 0;
   if (foundDate) {
     document.getElementById('dateInput').value = foundDate;
@@ -1793,11 +1605,10 @@ function exportCSV(){
   csv += `Employé;${employeeInfo.prenom} ${employeeInfo.nom}\n`;
   csv += `Département;${employeeInfo.dept}\n`;
   csv += `Date d'export;${new Date().toLocaleDateString('fr-FR')}\n\n`;
-  csv += 'N°;Date;Description;Type de dépenses;Total HT (DH);Total TTC (DH);Commentaires;Justificatif\n';
+  csv += 'N°;Date;Description;Type de dépenses;Total TTC (DH);Commentaires\n';
   [...data].sort((a,b)=>b.date.localeCompare(a.date)).forEach((e,i)=>{
     const amtTTC = e.amount.toFixed(2).replace('.',',');
-    const amtHT = (e.totalHT || 0).toFixed(2).replace('.',',');
-    csv+=`"${i+1}";"${e.date}";"${String(e.desc).replace(/"/g,'""')}";"${e.cat||'Autre'}";"${amtHT}";"${amtTTC}";"${String(e.comment||'').replace(/"/g,'""')}";"${e.justifFile ? 'Oui ('+e.justifName+')' : 'Non'}"\n`;
+    csv+=`"${i+1}";"${e.date}";"${String(e.desc).replace(/"/g,'""')}";"${e.cat||'Autre'}";"${amtTTC}";"${String(e.comment||'').replace(/"/g,'""')}"\n`;
   });
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
@@ -1817,18 +1628,16 @@ function exportExcel(){
     ['Date d\'export', new Date().toLocaleDateString('fr-FR')],
     [],
   ];
-  const headers = ['N°', 'Date', 'Description', 'Type de dépenses', 'Total HT (DH)', 'Total TTC (DH)', 'Commentaires', 'Justificatif'];
+  const headers = ['N°', 'Date', 'Description', 'Type de dépenses', 'Total TTC (DH)', 'Commentaires'];
   const sorted = [...data].sort((a,b)=>b.date.localeCompare(a.date));
   const dataRows = sorted.map((e,i)=>[
-    i+1, e.date, e.desc, e.cat || 'Autre', e.totalHT || 0, e.amount, e.comment || '',
-    e.justifFile ? `Oui (${e.justifName})` : 'Non'
+    i+1, e.date, e.desc, e.cat || 'Autre', e.amount, e.comment || ''
   ]);
-  const totalHT = sorted.reduce((s,e)=>s+(e.totalHT||0),0);
   const totalTTC = sorted.reduce((s,e)=>s+e.amount,0);
-  const footerRows = [[], ['', '', 'TOTAL', '', totalHT, totalTTC, '', '']];
+  const footerRows = [[], ['', '', 'TOTAL', '', totalTTC, '']];
   const allRows = [...employeeRows, headers, ...dataRows, ...footerRows];
   const ws = XLSX.utils.aoa_to_sheet(allRows);
-  ws['!cols'] = [{wch:5},{wch:14},{wch:35},{wch:18},{wch:15},{wch:15},{wch:30},{wch:20}];
+  ws['!cols'] = [{wch:5},{wch:14},{wch:35},{wch:18},{wch:15},{wch:30}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Notes de Frais');
   XLSX.writeFile(wb, `note-de-frais_${employeeInfo.nom || 'export'}_${today()}.xlsx`);
@@ -1859,11 +1668,9 @@ function exportPDF(){
   
   const sorted=[...data].sort((a,b)=>b.date.localeCompare(a.date));
   const total=sorted.reduce((s,e)=>s+e.amount,0);
-  const totalHT = sorted.reduce((s,e)=>s+(e.totalHT||0),0);
-  const head=[['#','Date','Description','Type de dépenses','Total HT','Total TTC','Commentaires','Justificatif']];
+  const head=[['#','Date','Description','Type de dépenses','Total TTC','Commentaires']];
   const body=sorted.map((e,i)=>[
-    i+1, fmtDate(e.date), e.desc, e.cat||'Autre', fmtDH(e.totalHT || 0), fmtDH(e.amount),
-    e.comment || '—', e.justifFile ? 'Oui' : 'Non'
+    i+1, fmtDate(e.date), e.desc, e.cat||'Autre', fmtDH(e.amount), e.comment || '—'
   ]);
   doc.autoTable({
     head,body,startY:40,
@@ -1873,29 +1680,19 @@ function exportPDF(){
     columnStyles:{
       0:{cellWidth:8,halign:'center',textColor:[100,110,130]},
       1:{cellWidth:24,textColor:[100,110,130]},
-      2:{cellWidth:50},
-      3:{cellWidth:26},
-      4:{cellWidth:26,halign:'right',textColor:[100,110,130]},
-      5:{cellWidth:26,halign:'right',fontStyle:'bold',textColor:[11,79,158]},
-      6:{cellWidth:45},
-      7:{cellWidth:20,halign:'center'}
+      2:{cellWidth:60},
+      3:{cellWidth:30},
+      4:{cellWidth:30,halign:'right',fontStyle:'bold',textColor:[11,79,158]},
+      5:{cellWidth:50}
     },
-    didParseCell:d=>{
-      if(d.column.index===7&&d.section==='body')
-        d.cell.styles.textColor=d.cell.raw==='Oui'?[24,167,106]:[224,59,59];
-    },
-    foot:[['','','','TOTAL',
-      {content:fmtDH(totalHT),styles:{fontStyle:'bold',halign:'right',textColor:[100,110,130],fontSize:9}},
-      {content:fmtDH(total),styles:{fontStyle:'bold',halign:'right',textColor:[11,79,158],fontSize:9}},
-      '',''
-    ]],
+    foot:[['','','','TOTAL', fmtDH(total), '']],
     footStyles:{fillColor:[235,243,251],fontStyle:'bold'},
     margin:{left:14,right:14}
   });
   const fy=doc.lastAutoTable.finalY+8;
   doc.setFillColor(247,147,30);doc.rect(14,fy,6,6,'F');
   doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100,110,130);
-  doc.text(`Eqnovia · ${sorted.length} dépense(s) · Total HT : ${fmtDH(totalHT)} · Total TTC : ${fmtDH(total)}`,24,fy+4);
+  doc.text(`Eqnovia · ${sorted.length} dépense(s) · Total TTC : ${fmtDH(total)}`,24,fy+4);
   doc.save(`note-de-frais_${employeeInfo.nom || 'export'}_${today()}.pdf`);
   toast('Export PDF téléchargé !');
 }
@@ -1908,7 +1705,6 @@ async function init() {
     document.getElementById('dateInput').value = today();
     loadEmployeeInfo();
 
-    // Attendre le chargement des modules
     await new Promise(r => setTimeout(r, 2000));
 
     if (window.__fbReady) {
@@ -1928,11 +1724,10 @@ async function init() {
     renderAll();
   } catch (error) {
     console.error('Init error:', error);
-    toast('Erreur lors de l\'initialisation. Vérifiez la console.', 'err');
+    toast('Erreur lors de l\'initialisation.', 'err');
   }
 }
 
-// Démarrer l'application
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
