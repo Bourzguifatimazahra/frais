@@ -88,6 +88,28 @@
     html{scroll-behavior:smooth;}
     body{font-family:'Inter',sans-serif;background:var(--gray-50);color:var(--gray-900);font-size:14px;line-height:1.5;min-height:100vh;}
 
+    /* ══ LOGIN ══ */
+    #loginOverlay {
+      position:fixed;inset:0;background:rgba(11,79,158,.92);backdrop-filter:blur(8px);
+      z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;
+    }
+    #loginOverlay.hidden{display:none;}
+    .login-card{
+      background:var(--white);border-radius:var(--radius-xl);padding:40px 36px;max-width:400px;width:100%;
+      box-shadow:var(--shadow-lg);text-align:center;
+    }
+    .login-card .logo-eq{font-size:32px;font-weight:800;color:var(--eq-blue);}
+    .login-card .logo-novia{font-size:32px;font-weight:800;color:var(--eq-blue);}
+    .login-card .logo-dot{display:inline-block;width:10px;height:10px;background:var(--eq-orange);border-radius:50%;position:relative;top:-16px;margin-left:2px;}
+    .login-card h2{font-size:18px;font-weight:700;color:var(--gray-900);margin:20px 0 8px;}
+    .login-card p{font-size:13px;color:var(--gray-400);margin-bottom:24px;}
+    .login-card .form-group{margin-bottom:16px;text-align:left;}
+    .login-card .form-label{font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.04em;}
+    .login-card .form-input{width:100%;height:44px;padding:0 14px;border:1.5px solid var(--gray-200);border-radius:var(--radius-md);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;}
+    .login-card .form-input:focus{border-color:var(--eq-blue);box-shadow:0 0 0 3px rgba(11,79,158,.12);}
+    .login-card .btn{width:100%;height:44px;font-size:14px;}
+    .login-error{color:var(--red);font-size:12px;margin-top:8px;display:none;}
+
     /* ══ TOPBAR ══ */
     .topbar{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--white);border-bottom:2px solid var(--eq-blue);display:flex;align-items:center;padding:0 28px;gap:16px;z-index:100;box-shadow:var(--shadow-md);}
     .logo-wrap{display:flex;align-items:center;gap:2px;text-decoration:none;}
@@ -119,7 +141,7 @@
     .content{margin-left:var(--sidebar-w);flex:1;padding:28px 32px 80px;max-width:calc(100vw - var(--sidebar-w));}
 
     /* ══ PAGE TABS ══ */
-    .page-tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-200);margin-bottom:24px;flex-wrap:wrap;}
+    .page-tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-200);margin-bottom:24px;}
     .tab-btn{padding:12px 22px;font-size:13px;font-weight:600;color:var(--gray-400);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;font-family:'Inter',sans-serif;}
     .tab-btn:hover{color:var(--eq-blue);}
     .tab-btn.active{color:var(--eq-blue);border-bottom-color:var(--eq-blue);}
@@ -131,9 +153,11 @@
     .stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
     .stat-card.blue::after{background:var(--eq-blue);}
     .stat-card.orange::after{background:var(--eq-orange);}
+    .stat-card.green::after{background:var(--green);}
     .stat-icon{width:36px;height:36px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:12px;}
     .stat-icon.blue{background:var(--eq-blue-pale);}
     .stat-icon.orange{background:var(--eq-orange-pale);}
+    .stat-icon.green{background:var(--green-pale);}
     .stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-400);margin-bottom:4px;}
     .stat-value{font-size:22px;font-weight:800;color:var(--gray-900);line-height:1;margin-bottom:4px;font-variant-numeric:tabular-nums;}
     .stat-sub{font-size:12px;color:var(--gray-400);}
@@ -179,6 +203,8 @@
     .btn-pdf:hover{background:#C62828;}
     .btn-excel{background:#1D6F42;color:white;}
     .btn-excel:hover{background:#155332;}
+    .btn-csv{background:#5C6BC0;color:white;}
+    .btn-csv:hover{background:#3949AB;}
 
     /* ══ EXPORT GROUP ══ */
     .export-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
@@ -218,6 +244,8 @@
     .badge-yes{background:var(--green-pale);color:var(--green);}
     .badge-no{background:var(--red-pale);color:var(--red);}
     .badge-cat{background:var(--eq-blue-pale);color:var(--eq-blue);}
+    .badge-justif{background:var(--eq-blue-pale);color:var(--eq-blue);cursor:pointer;}
+    .badge-justif:hover{background:var(--eq-blue-mid);}
 
     /* ══ TABLE FOOTER ══ */
     .table-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:var(--gray-50);border-top:2px solid var(--gray-200);flex-wrap:wrap;gap:12px;}
@@ -302,17 +330,11 @@
     .policy-section a{color:var(--eq-blue);text-decoration:none;}
     .policy-section a:hover{text-decoration:underline;}
 
-    /* ══ JUSTIFICATIFS SECTION ══ */
-    .justificatifs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:12px;}
-    .justificatif-item{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);overflow:hidden;transition:box-shadow .2s;}
-    .justificatif-item:hover{box-shadow:var(--shadow-md);}
-    .justificatif-item img{width:100%;height:160px;object-fit:cover;display:block;background:var(--gray-100);}
-    .justificatif-item .info{padding:10px 14px;border-top:1px solid var(--gray-100);}
-    .justificatif-item .info .desc{font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:2px;}
-    .justificatif-item .info .date{font-size:11px;color:var(--gray-400);}
-    .justificatif-item .info .amount{font-size:12px;font-weight:700;color:var(--eq-blue);}
-    .justificatif-empty{text-align:center;padding:30px 20px;color:var(--gray-400);}
-    .justificatif-empty .icon{font-size:40px;margin-bottom:10px;display:block;}
+    /* ══ JUSTIFICATIF MODAL ══ */
+    #justifModal .modal{max-width:600px;}
+    #justifModal .modal-body img{max-width:100%;border-radius:var(--radius-md);border:1px solid var(--gray-200);}
+    .justif-thumb{max-width:60px;max-height:60px;border-radius:4px;object-fit:cover;border:1px solid var(--gray-200);cursor:pointer;transition:transform .2s;}
+    .justif-thumb:hover{transform:scale(1.05);}
 
     /* ══ SCROLLBAR ══ */
     ::-webkit-scrollbar{width:6px;height:6px;}
@@ -331,11 +353,27 @@
     @media(max-width:600px){
       .topbar-title{display:none;}
       .export-group .btn span{display:none;}
-      .justificatifs-grid{grid-template-columns:1fr 1fr;}
     }
   </style>
 </head>
 <body>
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <div>
+      <span class="logo-eq">eq</span><span class="logo-novia">novia</span><span class="logo-dot"></span>
+    </div>
+    <h2>🔐 Accès sécurisé</h2>
+    <p>Veuillez vous authentifier pour accéder à l'application</p>
+    <div class="form-group">
+      <label class="form-label" for="loginPassword">Mot de passe</label>
+      <input type="password" class="form-input" id="loginPassword" placeholder="Entrez le mot de passe" onkeydown="if(event.key==='Enter') login()"/>
+    </div>
+    <button class="btn btn-primary btn-lg" onclick="login()">Se connecter</button>
+    <div class="login-error" id="loginError">❌ Mot de passe incorrect</div>
+  </div>
+</div>
 
 <!-- TOAST -->
 <div id="toast" role="alert" aria-live="polite">
@@ -405,8 +443,24 @@
   </div>
 </div>
 
+<!-- MODAL (justificatif) -->
+<div class="modal-overlay" id="justifModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📎 Justificatif de la dépense</h3>
+      <button class="modal-close" onclick="closeJustifModal()">✕</button>
+    </div>
+    <div class="modal-body" id="justifBody" style="text-align:center;">
+      <p style="color:var(--gray-400);">Aucun justificatif pour cette dépense.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeJustifModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOP BAR -->
-<header class="topbar">
+<header class="topbar" id="appContent" style="display:none;">
   <a href="#" class="logo-wrap" aria-label="Eqnovia">
     <img src="image.png" alt="Eqnovia Logo" style="height:38px;width:auto;border-radius:6px;"/>
   </a>
@@ -422,7 +476,7 @@
 </header>
 
 <!-- SIDEBAR -->
-<aside class="sidebar">
+<aside class="sidebar" id="appContent" style="display:none;">
   <span class="nav-label">Tableau de bord</span>
   <a class="nav-item active" onclick="switchTab('saisie')" id="nav-saisie">
     <span class="nav-icon">✏️</span> Saisie & OCR
@@ -437,11 +491,6 @@
   </a>
   <a class="nav-item" onclick="switchTab('yearly')" id="nav-yearly">
     <span class="nav-icon">📆</span> Par année
-  </a>
-
-  <span class="nav-label">Justificatifs</span>
-  <a class="nav-item" onclick="switchTab('justificatifs')" id="nav-justificatifs">
-    <span class="nav-icon">📎</span> Toutes les factures
   </a>
 
   <span class="nav-label">Exports</span>
@@ -470,7 +519,7 @@
 
 <!-- CONTENT -->
 <main class="layout">
-<div class="content">
+<div class="content" id="appContent" style="display:none;">
 
   <!-- Informations Employé -->
   <div class="employee-panel">
@@ -517,12 +566,11 @@
 
   <!-- PAGE TABS -->
   <div class="page-tabs">
-    <button class="tab-btn active" id="tab-saisie"       onclick="switchTab('saisie')">✏️ Saisie & OCR</button>
-    <button class="tab-btn"        id="tab-all"          onclick="switchTab('all')">📋 Toutes</button>
-    <button class="tab-btn"        id="tab-monthly"      onclick="switchTab('monthly')">📅 Par mois</button>
-    <button class="tab-btn"        id="tab-yearly"       onclick="switchTab('yearly')">📆 Par année</button>
-    <button class="tab-btn"        id="tab-justificatifs" onclick="switchTab('justificatifs')">📎 Factures</button>
-    <button class="tab-btn"        id="tab-policy"       onclick="switchTab('policy')">📜 Conditions</button>
+    <button class="tab-btn active" id="tab-saisie"   onclick="switchTab('saisie')">✏️ Saisie & OCR</button>
+    <button class="tab-btn"        id="tab-all"      onclick="switchTab('all')">📋 Toutes</button>
+    <button class="tab-btn"        id="tab-monthly"  onclick="switchTab('monthly')">📅 Par mois</button>
+    <button class="tab-btn"        id="tab-yearly"   onclick="switchTab('yearly')">📆 Par année</button>
+    <button class="tab-btn"        id="tab-policy"   onclick="switchTab('policy')">📜 Conditions & Politique</button>
   </div>
 
   <!-- ══ TAB: SAISIE & OCR ══ -->
@@ -565,8 +613,8 @@
               <input type="text" class="form-input" id="commentInput" placeholder="Remarques éventuelles..." autocomplete="off"/>
             </div>
             <div class="form-group span-2">
-              <label class="form-label" for="justifInput">Facture / Justificatif</label>
-              <input type="file" class="form-input" id="justifInput" accept="image/*" style="padding:6px 12px;height:auto;"/>
+              <label class="form-label" for="justifInput">📎 Justificatif (photo/facture)</label>
+              <input type="file" class="form-input" id="justifInput" accept="image/*" style="padding:6px 12px;"/>
             </div>
           </div>
           <button class="btn btn-primary btn-lg btn-full" style="margin-top:18px;" onclick="addExpense()" id="addBtn">
@@ -648,7 +696,7 @@
               <th>Type de dépenses</th>
               <th class="sortable" onclick="sortBy('amount')">Total TTC ⇅</th>
               <th>Commentaires</th>
-              <th>Facture</th>
+              <th>Justificatif</th>
               <th></th>
             </tr>
           </thead>
@@ -687,24 +735,6 @@
     <div id="yearlyGroups"></div>
   </div>
 
-  <!-- ══ TAB: JUSTIFICATIFS (FACTURES) ══ -->
-  <div id="tab-content-justificatifs" style="display:none;">
-    <div class="panel">
-      <div class="panel-header">
-        <div class="panel-title"><div class="panel-icon orange">📎</div> Toutes les factures / justificatifs</div>
-        <span style="font-size:12px;color:var(--gray-400);" id="justifCount">0 facture(s)</span>
-      </div>
-      <div class="panel-body">
-        <div class="justificatifs-grid" id="justificatifsGrid">
-          <div class="justificatif-empty">
-            <span class="icon">📭</span>
-            <p>Aucune facture n'a été jointe pour le moment.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- ══ TAB: CONDITIONS & POLITIQUE ══ -->
   <div id="tab-content-policy" style="display:none;">
     <div class="panel">
@@ -714,7 +744,6 @@
       <div class="panel-body" style="max-width:900px;">
         <div style="display:grid;gap:24px;">
 
-          <!-- Conditions d'utilisation -->
           <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--white);">
             <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
               <span style="font-size:20px;">📋</span> Conditions d'utilisation
@@ -733,7 +762,6 @@
             </div>
           </div>
 
-          <!-- Politique de confidentialité -->
           <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--white);">
             <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
               <span style="font-size:20px;">🔒</span> Politique de confidentialité
@@ -752,7 +780,6 @@
             </div>
           </div>
 
-          <!-- Contact -->
           <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;background:var(--eq-blue-pale);">
             <h3 style="font-size:15px;font-weight:700;color:var(--eq-blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
               <span style="font-size:20px;">📞</span> Contact & Support
@@ -789,6 +816,30 @@ let cache = [];
 let useFirebase = false;
 let employeeInfo = { nom: '', prenom: '', dept: '' };
 let ocrText = '';
+let isAuthenticated = false;
+
+// ════════════════════════════════════════════
+// LOGIN
+// ════════════════════════════════════════════
+function login() {
+  const pwd = document.getElementById('loginPassword').value.trim();
+  if (pwd === 'eqnovia-2026') {
+    isAuthenticated = true;
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.querySelectorAll('#appContent').forEach(el => el.style.display = '');
+    toast('✅ Connexion réussie ! Bienvenue sur Eqnovia Notes de Frais.', 'ok');
+    init();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginPassword').focus();
+    toast('❌ Mot de passe incorrect', 'err');
+  }
+}
+
+document.getElementById('loginPassword').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') login();
+});
 
 // ════════════════════════════════════════════
 // FIREBASE BRIDGE
@@ -828,7 +879,7 @@ async function fbLoad() {
 }
 
 // ════════════════════════════════════════════
-// LOCAL STORAGE (avec gestion d'erreur)
+// LOCAL STORAGE
 // ════════════════════════════════════════════
 function lsLoad() { 
   try { 
@@ -956,6 +1007,17 @@ function validateDate(dateStr) {
   const tenYearsAgo = new Date(now.getFullYear() - 10, now.getMonth(), now.getDate());
   return !isNaN(d.getTime()) && d <= now && d >= tenYearsAgo;
 }
+function dataURLtoBlob(dataURL) {
+  const arr = dataURL.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], {type: mime});
+}
 
 // ════════════════════════════════════════════
 // TOAST
@@ -989,9 +1051,38 @@ document.getElementById('modal').addEventListener('click',e=>{
 });
 
 // ════════════════════════════════════════════
+// JUSTIFICATIF MODAL
+// ════════════════════════════════════════════
+function closeJustifModal() {
+  document.getElementById('justifModal').classList.remove('open');
+}
+
+document.getElementById('justifModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('justifModal')) closeJustifModal();
+});
+
+function viewJustificatif(id) {
+  const exp = cache.find(e => e.id === id);
+  if (!exp) return toast('Dépense introuvable.', 'err');
+  
+  const body = document.getElementById('justifBody');
+  
+  if (exp.justifData) {
+    body.innerHTML = `<img src="${exp.justifData}" alt="Justificatif" style="max-width:100%;border-radius:8px;border:1px solid var(--gray-200);max-height:500px;object-fit:contain;"/>
+    <p style="margin-top:12px;font-size:13px;color:var(--gray-400);">
+      ${exp.justifName ? '📎 ' + esc(exp.justifName) : 'Justificatif'}
+    </p>`;
+  } else {
+    body.innerHTML = `<p style="color:var(--gray-400);font-size:15px;">📭 Aucun justificatif pour cette dépense.</p>`;
+  }
+  
+  document.getElementById('justifModal').classList.add('open');
+}
+
+// ════════════════════════════════════════════
 // TAB SWITCHING
 // ════════════════════════════════════════════
-const TABS = ['saisie','all','monthly','yearly','justificatifs','policy'];
+const TABS = ['saisie','all','monthly','yearly','policy'];
 function switchTab(t) {
   activeTab = t;
   TABS.forEach(id=>{
@@ -1002,7 +1093,6 @@ function switchTab(t) {
   if (t==='all')     renderAll();
   if (t==='monthly') renderMonthly();
   if (t==='yearly')  renderYearly();
-  if (t==='justificatifs') renderJustificatifs();
 }
 
 // ════════════════════════════════════════════
@@ -1014,7 +1104,7 @@ async function addExpense() {
   const amount  = parseFloat(document.getElementById('amountInput').value);
   const cat     = document.getElementById('catInput').value;
   const comment = sanitizeInput(document.getElementById('commentInput').value);
-  const justifFile = document.getElementById('justifInput').files[0];
+  const justifFile = document.getElementById('justifInput');
 
   if (!date)                    return toast('Veuillez saisir une date.','err');
   if (!desc)                    return toast('Veuillez saisir une description.','err');
@@ -1026,14 +1116,27 @@ async function addExpense() {
 
   let justifData = null;
   let justifName = '';
-  
-  if (justifFile) {
-    justifName = justifFile.name;
-    const reader = new FileReader();
-    justifData = await new Promise((resolve) => {
-      reader.onload = (e) => resolve(e.target.result);
-      reader.readAsDataURL(justifFile);
-    });
+
+  if (justifFile.files && justifFile.files.length > 0) {
+    const file = justifFile.files[0];
+    if (file.type.startsWith('image/')) {
+      try {
+        const reader = new FileReader();
+        const data = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        justifData = data;
+        justifName = file.name;
+      } catch (e) {
+        console.warn('Error reading justificatif:', e);
+      }
+    } else {
+      toast('Le justificatif doit être une image.', 'err');
+      btn.disabled=false; btn.innerHTML='➕ Ajouter la dépense';
+      return;
+    }
   }
 
   const exp = { 
@@ -1044,8 +1147,8 @@ async function addExpense() {
     cat, 
     comment, 
     justif: justifData ? 'Oui' : 'Non',
-    justifData: justifData,
-    justifName: justifName
+    justifData: justifData || null,
+    justifName: justifName || null
   };
   await dataAdd(exp);
 
@@ -1160,7 +1263,7 @@ function confirmClear(){
     cache=[];
     try { lsSave([]); } catch(e) {}
     updateKPIs();
-    renderAll(); renderMonthly(); renderYearly(); renderJustificatifs();
+    renderAll(); renderMonthly(); renderYearly();
     toast('Toutes les dépenses ont été supprimées.');
   });
 }
@@ -1244,8 +1347,10 @@ function renderAll() {
   let total=0, html='';
   rows.forEach((e,i)=>{
     total+=e.amount;
-    const hasJustif = e.justifData ? '📎' : '—';
-    const justifTitle = e.justifName || (e.justifData ? 'Facture' : 'Aucune facture');
+
+    const justifBadge = e.justifData 
+      ? `<span class="badge badge-justif" onclick="viewJustificatif(${e.id})" title="Voir le justificatif">📎 Oui</span>`
+      : `<span class="badge badge-no">❌ Non</span>`;
 
     html+=`<tr>
       <td style="color:var(--gray-400);font-size:12px;">${i+1}</td>
@@ -1254,7 +1359,7 @@ function renderAll() {
       <td><span class="badge badge-cat">${esc(e.cat||'Autre')}</span></td>
       <td class="td-amount">${fmtDH(e.amount)}</td>
       <td class="td-desc"><span title="${esc(e.comment || '')}">${esc(e.comment || '—')}</span></td>
-      <td style="text-align:center;font-size:16px;" title="${justifTitle}">${hasJustif}</td>
+      <td>${justifBadge}</td>
       <td><div class="action-btns"><button class="btn-icon edit" onclick="editRow(${e.id})" title="Modifier">✏️</button><button class="btn-icon" onclick="deleteRow(${e.id})" title="Supprimer">✕</button></div></td>
     </tr>`;
   });
@@ -1307,7 +1412,9 @@ function renderMonthly() {
     const total=items.reduce((s,e)=>s+e.amount,0);
     
     const rows=items.map((e,i)=>{
-      const hasJustif = e.justifData ? '📎' : '—';
+      const justifBadge = e.justifData 
+        ? `<span class="badge badge-justif" onclick="viewJustificatif(${e.id})" title="Voir le justificatif">📎 Oui</span>`
+        : `<span class="badge badge-no">❌ Non</span>`;
       return `<tr>
         <td style="color:var(--gray-400);font-size:12px;padding:10px 16px;">${i+1}</td>
         <td class="td-date" style="padding:10px 16px;">${fmtDate(e.date)}</td>
@@ -1315,7 +1422,7 @@ function renderMonthly() {
         <td style="padding:10px 16px;"><span class="badge badge-cat">${esc(e.cat||'Autre')}</span></td>
         <td class="td-amount" style="padding:10px 16px;">${fmtDH(e.amount)}</td>
         <td class="td-desc" style="padding:10px 16px;"><span title="${esc(e.comment || '')}">${esc(e.comment || '—')}</span></td>
-        <td style="padding:10px 16px;text-align:center;font-size:16px;" title="${esc(e.justifName || 'Facture')}">${hasJustif}</td>
+        <td style="padding:10px 16px;">${justifBadge}</td>
         <td style="padding:10px 16px;"><div class="action-btns"><button class="btn-icon edit" onclick="editRow(${e.id})" title="Modifier">✏️</button><button class="btn-icon" onclick="deleteRow(${e.id})" title="Supprimer">✕</button></div></td>
       </tr>`;
     }).join('');
@@ -1337,7 +1444,7 @@ function renderMonthly() {
           <table>
             <thead><tr>
               <th>#</th><th>Date</th><th>Description</th><th>Type de dépenses</th>
-              <th>Total TTC</th><th>Commentaires</th><th>Facture</th><th></th>
+              <th>Total TTC</th><th>Commentaires</th><th>Justificatif</th><th></th>
             </tr></thead>
             <tbody>${rows}</tbody>
           </table>
@@ -1438,40 +1545,6 @@ function renderYearly() {
       </div>
     </div>`;
   }).join('');
-}
-
-// ════════════════════════════════════════════
-// RENDER JUSTIFICATIFS
-// ════════════════════════════════════════════
-function renderJustificatifs() {
-  const data = dataAll();
-  const withJustif = data.filter(e => e.justifData);
-  const grid = document.getElementById('justificatifsGrid');
-  const count = document.getElementById('justifCount');
-
-  count.textContent = withJustif.length + ' facture(s)';
-
-  if (!withJustif.length) {
-    grid.innerHTML = `
-      <div class="justificatif-empty">
-        <span class="icon">📭</span>
-        <p>Aucune facture n'a été jointe pour le moment.</p>
-      </div>
-    `;
-    return;
-  }
-
-  grid.innerHTML = withJustif.map(e => `
-    <div class="justificatif-item">
-      <img src="${e.justifData}" alt="Facture ${esc(e.desc)}" onclick="window.open('${e.justifData}','_blank')" style="cursor:pointer;"/>
-      <div class="info">
-        <div class="desc">${esc(e.desc)}</div>
-        <div class="date">${fmtDate(e.date)} · ${esc(e.cat||'Autre')}</div>
-        <div class="amount">${fmtDH(e.amount)}</div>
-        <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">${esc(e.justifName||'Facture')}</div>
-      </div>
-    </div>
-  `).join('');
 }
 
 // ════════════════════════════════════════════
@@ -1688,16 +1761,17 @@ function exportExcel(){
     ['Date d\'export', new Date().toLocaleDateString('fr-FR')],
     [],
   ];
-  const headers = ['N°', 'Date', 'Description', 'Type de dépenses', 'Total TTC (DH)', 'Commentaires', 'Facture'];
+  const headers = ['N°', 'Date', 'Description', 'Type de dépenses', 'Total TTC (DH)', 'Commentaires', 'Justificatif'];
   const sorted = [...data].sort((a,b)=>b.date.localeCompare(a.date));
   const dataRows = sorted.map((e,i)=>[
-    i+1, e.date, e.desc, e.cat || 'Autre', e.amount, e.comment || '', e.justifData ? 'Oui' : 'Non'
+    i+1, e.date, e.desc, e.cat || 'Autre', e.amount, e.comment || '',
+    e.justifData ? 'Oui' : 'Non'
   ]);
   const totalTTC = sorted.reduce((s,e)=>s+e.amount,0);
-  const footerRows = [[], ['', '', 'TOTAL', '', totalTTC, '']];
+  const footerRows = [[], ['', '', 'TOTAL', '', totalTTC, '', '']];
   const allRows = [...employeeRows, headers, ...dataRows, ...footerRows];
   const ws = XLSX.utils.aoa_to_sheet(allRows);
-  ws['!cols'] = [{wch:5},{wch:14},{wch:35},{wch:18},{wch:15},{wch:30},{wch:10}];
+  ws['!cols'] = [{wch:5},{wch:14},{wch:35},{wch:18},{wch:15},{wch:30},{wch:12}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Notes de Frais');
   XLSX.writeFile(wb, `note-de-frais_${employeeInfo.nom || 'export'}_${today()}.xlsx`);
@@ -1712,8 +1786,10 @@ function exportPDF(){
   const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
   const W=297;
   
+  // Logo dans le PDF
+  const logoUrl = 'image.png';
   try {
-    doc.addImage('image.png', 'PNG', 14, 4, 20, 18);
+    doc.addImage(logoUrl, 'PNG', 14, 4, 20, 18);
   } catch(e) {
     console.warn('Logo not found in PDF export', e);
   }
@@ -1735,7 +1811,7 @@ function exportPDF(){
   
   const sorted=[...data].sort((a,b)=>b.date.localeCompare(a.date));
   const total=sorted.reduce((s,e)=>s+e.amount,0);
-  const head=[['#','Date','Description','Type de dépenses','Total TTC','Commentaires','Facture']];
+  const head=[['#','Date','Description','Type de dépenses','Total TTC','Commentaires','Justificatif']];
   const body=sorted.map((e,i)=>[
     i+1, fmtDate(e.date), e.desc, e.cat||'Autre', fmtDH(e.amount), e.comment || '—',
     e.justifData ? 'Oui' : 'Non'
@@ -1748,13 +1824,13 @@ function exportPDF(){
     columnStyles:{
       0:{cellWidth:8,halign:'center',textColor:[100,110,130]},
       1:{cellWidth:24,textColor:[100,110,130]},
-      2:{cellWidth:55},
+      2:{cellWidth:58},
       3:{cellWidth:28},
-      4:{cellWidth:30,halign:'right',fontStyle:'bold',textColor:[11,79,158]},
-      5:{cellWidth:40},
+      4:{cellWidth:28,halign:'right',fontStyle:'bold',textColor:[11,79,158]},
+      5:{cellWidth:35},
       6:{cellWidth:20,halign:'center'}
     },
-    foot:[['','','','TOTAL', fmtDH(total), '','']],
+    foot:[['','','','TOTAL', fmtDH(total), '', '']],
     footStyles:{fillColor:[235,243,251],fontStyle:'bold'},
     margin:{left:14,right:14}
   });
@@ -1791,14 +1867,11 @@ async function init() {
     await dataLoad();
     updateKPIs();
     renderAll();
-    renderJustificatifs();
   } catch (error) {
     console.error('Init error:', error);
     toast('Erreur lors de l\'initialisation.', 'err');
   }
 }
-
-document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
