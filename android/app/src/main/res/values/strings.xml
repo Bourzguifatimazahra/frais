@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Notes de Frais</string>
+    <string name="title_activity_main">Notes de Frais</string>
+    <string name="package_name">com.eqnovia.frais</string>
+    <string name="custom_url_scheme">com.eqnovia.frais</string>
+</resources>

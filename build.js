@@ -71,4 +71,14 @@ if (!fs.existsSync(distPath)) {
 }
 
 fs.writeFileSync(path.join(distPath, 'index.html'), html);
+
+// Copy PWA files
+const pwaFiles = ['manifest.json', 'sw.js'];
+pwaFiles.forEach((file) => {
+  const src = path.join(__dirname, file);
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, path.join(distPath, file));
+  }
+});
+
 console.log('✅ Build complete: dist/index.html generated with Firebase config from .env');

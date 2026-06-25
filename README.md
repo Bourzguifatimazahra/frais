@@ -96,6 +96,25 @@ node build.js
 
 📖 Consultez [DEPLOIEMENT.md](DEPLOIEMENT.md) pour les instructions détaillées.
 
+### Option 4 : Déployer sur GitHub Pages
+1. Créez un dépôt GitHub (ex: `notes-de-frais`)
+2. Poussez le code :
+   ```bash
+   git remote add origin https://github.com/VOTRE_USERNAME/notes-de-frais.git
+   git branch -M main
+   git push -u origin main
+   ```
+3. Activez GitHub Pages dans les paramètres du dépôt (source : branche `main`, dossier `/root`)
+4. L'application sera accessible sur `https://VOTRE_USERNAME.github.io/notes-de-frais/`
+
+### 📲 Installer l'application sur mobile (PWA)
+L'application est une **Progressive Web App (PWA)**. Après déploiement :
+
+- **Android** : Ouvrez Chrome → menu → **"Ajouter à l'écran d'accueil"**
+- **iPhone** : Ouvrez Safari → bouton Partager → **"Ajouter à l'écran d'accueil"**
+
+Un bouton **"📲 Installer l'app"** apparaît également dans la barre supérieure lorsque l'installation est disponible.
+
 ---
 
 ## 📜 Conditions d'utilisation

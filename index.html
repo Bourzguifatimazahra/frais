@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0B4F9E"/>
+  <link rel="manifest" href="manifest.json"/>
   <title>Notes de Frais — Eqnovia</title>
   <meta name="description" content="Application de gestion des notes de frais Eqnovia. Saisie, OCR, historique, export PDF/Excel. Base de données Firebase."/>
   
@@ -525,6 +527,9 @@
     <div class="db-status db-local" id="dbStatus">
       <span>⏳</span> <span id="dbStatusText">Connexion…</span>
     </div>
+    <button id="installBtn" class="btn btn-primary" style="display:none;" onclick="installPWA()">
+      📲 Installer l'app
+    </button>
     <div class="avatar" id="avatarDisplay">EQ</div>
   </div>
 </header>
@@ -2095,6 +2100,35 @@ async function init() {
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('loginOverlay').classList.remove('hidden');
 });
+
+// Service Worker PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
+// PWA Install Button
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (installBtn) installBtn.style.display = '';
+});
+
+function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then((choiceResult) => {
+    if (choiceResult.outcome === 'accepted') {
+      toast('Application installée avec succès !', 'ok');
+    }
+    deferredPrompt = null;
+    if (installBtn) installBtn.style.display = 'none';
+  });
+}
 </script>
 </body>
 </html>
