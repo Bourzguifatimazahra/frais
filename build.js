@@ -49,6 +49,21 @@ if (envVars['VITE_FIREBASE_CONFIG']) {
   }
 }
 
+// Replace user password placeholders
+const userPasswordReplacements = {
+  '__ADMIN_PASSWORD__': envVars['VITE_USER_ADMIN_PASSWORD'],
+  '__USER1_PASSWORD__': envVars['VITE_USER_USER1_PASSWORD'],
+  '__USER2_PASSWORD__': envVars['VITE_USER_USER2_PASSWORD'],
+  '__USER3_PASSWORD__': envVars['VITE_USER_USER3_PASSWORD'],
+  '__USER4_PASSWORD__': envVars['VITE_USER_USER4_PASSWORD']
+};
+
+Object.entries(userPasswordReplacements).forEach(([placeholder, password]) => {
+  if (password) {
+    html = html.replace(new RegExp(placeholder, 'g'), password);
+  }
+});
+
 // Write to dist/
 const distPath = path.join(__dirname, 'dist');
 if (!fs.existsSync(distPath)) {

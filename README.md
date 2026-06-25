@@ -21,7 +21,6 @@
 | 📆 **Vue annuelle** | Bilan annuel avec répartition mensuelle et par catégorie |
 | 📄 **Export PDF** | Générez un document PDF officiel de vos notes de frais |
 | 📊 **Export Excel** | Exportez vos données au format .xlsx pour Excel |
-| 📑 **Export CSV** | Téléchargez un fichier CSV compatible avec tous les tableurs |
 | 🔒 **Stockage sécurisé** | Données sauvegardées sur Firebase Firestore (ou localStorage en mode hors-ligne) |
 | 👤 **Profil employé** | Informations personnalisées (nom, prénom, département) |
 
