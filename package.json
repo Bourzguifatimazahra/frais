@@ -4,18 +4,12 @@
   "description": "Application de gestion des notes de frais Eqnovia",
   "main": "index.html",
   "scripts": {
-    "start": "npx cap serve",
     "build": "node build.js",
-    "sync": "npx cap sync",
-    "open:android": "npx cap open android",
-    "open:ios": "npx cap open ios"
+    "serve": "npx serve dist -l 3000",
+    "deploy": "firebase deploy"
   },
-  "dependencies": {
-    "@capacitor/android": "^8.4.1",
-    "@capacitor/core": "^8.4.1",
-    "@capacitor/ios": "^8.4.1"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@capacitor/cli": "^6.2.1"
+    "serve": "^14.2.0"
   }
 }

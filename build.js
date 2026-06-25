@@ -72,8 +72,11 @@ if (!fs.existsSync(distPath)) {
 
 fs.writeFileSync(path.join(distPath, 'index.html'), html);
 
+// Also copy to root for direct browser access
+fs.writeFileSync(path.join(__dirname, 'index.html'), html);
+
 // Copy PWA files
-const pwaFiles = ['manifest.json', 'sw.js'];
+const pwaFiles = ['manifest.json', 'sw.js', 'icon-192.png', 'icon-512.png'];
 pwaFiles.forEach((file) => {
   const src = path.join(__dirname, file);
   if (fs.existsSync(src)) {
