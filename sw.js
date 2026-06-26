@@ -1,6 +1,6 @@
 const CACHE_NAME = 'eqnovia-frais-v1';
 const ASSETS = [
-  '/',
+  './',
   'index.html',
   'manifest.json',
   'icon-192.png',

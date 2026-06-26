@@ -37,6 +37,8 @@ jobs:
           node-version: '18'
       - name: Build
         run: node build.js
+        env:
+          VITE_BASE_URL: "/${{ github.event.repository.name }}/"
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

@@ -1,7 +1,7 @@
 {
   "name": "Notes de Frais — Eqnovia",
   "short_name": "Eqnovia Frais",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0B4F9E",
