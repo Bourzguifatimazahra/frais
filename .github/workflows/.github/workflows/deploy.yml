@@ -96,7 +96,7 @@ jobs:
       - name: 📤 Upload vers Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: './dist'
       
       - name: 🚀 Déploiement final
         id: deployment
