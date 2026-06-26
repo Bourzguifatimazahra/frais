@@ -442,6 +442,40 @@
       }
     }
 
+    /* ══ MOBILE MENU TOGGLE ══ */
+    .menu-toggle {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: var(--eq-blue-pale);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--eq-blue);
+      flex-shrink: 0;
+      transition: all .15s;
+    }
+    .menu-toggle:hover {
+      background: var(--eq-blue);
+      color: white;
+    }
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 199;
+      display: none;
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .sidebar-overlay.open {
+      display: block;
+      opacity: 1;
+    }
+
     /* ══ BOTTOM NAVIGATION (MOBILE) ══ */
     .bottom-nav {
       position: fixed;
@@ -524,25 +558,34 @@
       .content{margin-left:60px;max-width:calc(100vw - 60px);padding:16px;}
     }
     @media(max-width:768px){
-      .sidebar{display:none;}
-      .content{margin-left:0;max-width:100vw;padding:12px;padding-bottom:80px;}
+      .sidebar{position:fixed;top:0;left:-280px;width:280px;height:100vh;z-index:200;transition:left .3s ease;box-shadow:4px 0 20px rgba(0,0,0,.15);}
+      .sidebar.open{left:0;}
+      .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:199;display:none;opacity:0;transition:opacity .3s;}
+      .sidebar-overlay.open{display:block;opacity:1;}
+      .content{margin-left:0;max-width:100vw;padding:10px;padding-bottom:80px;}
       .form-grid{grid-template-columns:1fr;}
       .form-group.span-2{grid-column:span 1;}
       .input-form-grid{grid-template-columns:1fr;}
-      .stats-grid{grid-template-columns:1fr 1fr;}
+      .stats-grid{grid-template-columns:1fr;}
       .topbar-title{display:none;}
-      .topbar-right .form-input{width:100px;}
-      .filters-bar .form-input,.filters-bar .form-select{min-width:80px;font-size:11px;}
+      .topbar{height:52px;padding:0 8px;gap:6px;}
+      .topbar .logo-wrap img{height:26px;}
+      .topbar-right .form-input{width:90px;height:28px;font-size:10px;}
+      .db-status{font-size:8px;padding:2px 6px;}
+      .avatar{width:26px;height:26px;font-size:10px;}
+      .filters-bar{padding:8px 10px;}
+      .filters-bar .form-input,.filters-bar .form-select{min-width:70px;font-size:10px;height:28px;}
       .filters-bar .form-select{padding-right:24px;}
       .export-group .btn span{display:none;}
-      .total-amount{font-size:12px;padding:6px 12px;}
+      .total-amount{font-size:11px;padding:4px 10px;}
       .panel-header{flex-direction:column;align-items:stretch;}
       .panel-header .export-group{justify-content:flex-start;}
       .user-selector{flex-wrap:wrap;}
-      .user-selector select{max-width:80px;font-size:11px;}
+      .user-selector select{max-width:70px;font-size:10px;}
       .user-selector .btn-logout{font-size:0;padding:4px 8px;}
       .user-selector .btn-logout::after{content:'🚪';font-size:14px;}
       .bottom-nav{display:flex;}
+      .menu-toggle{display:flex !important;}
     }
     @media(max-width:480px){
       .content{padding:8px;}
@@ -693,6 +736,9 @@
 
 <!-- TOP BAR -->
 <header class="topbar" id="appContent" style="display:none;">
+  <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" aria-label="Menu">
+    ☰
+  </button>
   <a href="#" class="logo-wrap" aria-label="Eqnovia">
     <img src="image.png" alt="Eqnovia Logo" style="height:32px;width:auto;border-radius:4px;"/>
   </a>
@@ -713,6 +759,9 @@
     <div class="avatar" id="avatarDisplay">EQ</div>
   </div>
 </header>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="appContent" style="display:none;">
@@ -1108,6 +1157,18 @@ const DEMO_EXPENSES = [
 ];
 
 // ════════════════════════════════════════════
+// SIDEBAR TOGGLE (MOBILE)
+// ════════════════════════════════════════════
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar && overlay) {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+  }
+}
+
+// ════════════════════════════════════════════
 // LOGIN / LOGOUT
 // ════════════════════════════════════════════
 function login() {
@@ -1147,6 +1208,9 @@ function logout() {
     document.getElementById('loginOverlay').classList.remove('hidden');
     document.getElementById('loginPassword').value = '';
     document.getElementById('loginError').style.display = 'none';
+    // Close sidebar on mobile
+    document.querySelector('.sidebar')?.classList.remove('open');
+    document.getElementById('sidebarOverlay')?.classList.remove('open');
     // Reset bottom nav active state
     TABS.forEach(id => {
       document.getElementById(`bnav-${id}`)?.classList.remove('active');
