@@ -749,12 +749,13 @@
     <div class="db-status db-local" id="dbStatus">
       <span>⏳</span> <span id="dbStatusText">Connexion…</span>
     </div>
-    <button id="installBtn" class="Btn" style="display:none;" onclick="installPWA()" title="Installer l'application">
+    <!-- From Uiverse.io by ZAKARIAE48CHELLE -->
+    <button id="installBtn" class="Btn" style="display:none;" onclick="installPWA()">
       <svg class="svgIcon" viewBox="0 0 384 512" height="1em" xmlns="http://www.w3.org/2000/svg">
         <path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"></path>
       </svg>
       <span class="icon2"></span>
-      <span class="tooltip">Installer l'app</span>
+      <span class="tooltip">100MB</span>
     </button>
     <div class="avatar" id="avatarDisplay">EQ</div>
   </div>
@@ -765,19 +766,6 @@
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="appContent" style="display:none;">
-  <div class="user-selector">
-    <label>👤 :</label>
-    <select id="userSelector" onchange="switchUser(this.value)">
-      <option value="admin">Admin</option>
-      <option value="user1">Rachid</option>
-      <option value="user2">Soufiane</option>
-      <option value="user3">Fatima</option>
-      <option value="user4">Larbi</option>
-    </select>
-    <span class="user-badge admin" id="userBadge">Admin</span>
-    <button class="btn-logout" onclick="logout()">🚪 Déconnexion</button>
-  </div>
-
   <span class="nav-label">Tableau de bord</span>
   <a class="nav-item active" onclick="switchTab('saisie')" id="nav-saisie">
     <span class="nav-icon">✏️</span> <span>Saisie & OCR</span>
@@ -816,6 +804,19 @@
     <p>Eqnovia © 2025</p>
     <p>v3.0</p>
   </div>
+  <div class="user-selector">
+    <label>👤 :</label>
+    <select id="userSelector" onchange="switchUser(this.value)">
+      <option value="admin">Admin</option>
+      <option value="user1">Rachid</option>
+      <option value="user2">Soufiane</option>
+      <option value="user3">Fatima</option>
+      <option value="user4">Larbi</option>
+    </select>
+    <span class="user-badge admin" id="userBadge">Admin</span>
+    <button class="btn-logout" onclick="logout()">🚪 Déconnexion</button>
+  </div>
+  
 </aside>
 
 <!-- CONTENT -->
