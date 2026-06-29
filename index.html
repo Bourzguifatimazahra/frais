@@ -134,13 +134,13 @@
     .login-error{color:var(--red);font-size:12px;margin-top:8px;display:none;}
 
     /* ══ USER SELECTOR ══ */
-    .user-selector{display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid var(--gray-100);background:var(--gray-50);flex-wrap:wrap;}
+    .user-selector{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--gray-50);flex-wrap:wrap;flex:1;min-width:0;}
     .user-selector label{font-size:12px;font-weight:600;color:var(--gray-500);}
-    .user-selector select{height:32px;padding:0 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;font-family:'Inter',sans-serif;outline:none;background:var(--white);}
-    .user-selector .user-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+    .user-selector select{height:32px;padding:0 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;font-family:'Inter',sans-serif;outline:none;background:var(--white);min-width:140px;flex:1;}
+    .user-selector .user-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;}
     .user-badge.admin{background:var(--eq-blue-pale);color:var(--eq-blue);}
     .user-badge.user{background:var(--gray-100);color:var(--gray-700);}
-    .btn-logout{background:var(--red-pale);color:var(--red);border:1px solid #F5C6C6;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;margin-left:auto;}
+    .btn-logout{background:var(--red-pale);color:var(--red);border:1px solid #F5C6C6;padding:6px 16px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;white-space:nowrap;}
     .btn-logout:hover{background:#FADADAAA;}
 
     /* ══ TOPBAR ══ */
@@ -163,13 +163,20 @@
 
     /* ══ SIDEBAR ══ */
     .sidebar{width:var(--sidebar-w);background:var(--white);border-right:1px solid var(--gray-200);position:fixed;top:var(--header-h);bottom:0;left:0;display:flex;flex-direction:column;padding:16px 0;overflow-y:auto;z-index:50;}
-    .nav-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);padding:12px 20px 5px;}
+    .nav-label{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);padding:14px 20px 8px;}
+    .nav-label-icon{font-size:16px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);background:var(--eq-blue-pale);color:var(--eq-blue);}
     .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--gray-500);font-size:13px;font-weight:500;cursor:pointer;border-left:3px solid transparent;transition:all .15s;text-decoration:none;}
     .nav-item:hover{background:var(--gray-50);color:var(--eq-blue);}
     .nav-item.active{background:var(--eq-blue-pale);color:var(--eq-blue);border-left-color:var(--eq-blue);font-weight:600;}
     .nav-icon{width:18px;text-align:center;font-size:15px;}
-    .sidebar-footer{margin-top:auto;padding:14px 20px;border-top:1px solid var(--gray-100);}
+    .sidebar-footer{margin-top:auto;padding:14px 20px;border-top:1px solid var(--gray-100);display:flex;flex-direction:column;gap:10px;}
     .sidebar-footer p{font-size:11px;color:var(--gray-400);margin-bottom:2px;}
+    .sidebar-footer .logout-btn{width:auto;min-width:180px;height:36px;margin-top:auto;border-radius:var(--radius-sm);padding:0 16px;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .15s;background:var(--red-pale);color:var(--red);border:1px solid #F5C6C6;display:inline-flex;align-items:center;justify-content:center;gap:6px;position:relative;overflow:hidden;box-shadow:none;}
+    .sidebar-footer .logout-btn:hover{background:#FADADAAA;width:auto;min-width:180px;border-radius:var(--radius-sm);}
+    .sidebar-footer .logout-btn .sign{width:auto;padding:0;transition:none;}
+    .sidebar-footer .logout-btn .sign svg{width:14px;height:14px;}
+    .sidebar-footer .logout-btn .text{position:static;width:auto;opacity:1;color:var(--red);font-size:12px;font-weight:600;transition:none;padding:0;}
+    .sidebar-bottom-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 
     /* ══ CONTENT ══ */
     .content{margin-left:var(--sidebar-w);flex:1;padding:20px 24px 80px;max-width:calc(100vw - var(--sidebar-w));}
@@ -442,6 +449,77 @@
       }
     }
 
+    /* ══ LOGOUT BUTTON (Uiverse.io) ══ */
+    .Btn {
+      --black: #000000;
+      --ch-black: #141414;
+      --eer-black: #1b1b1b;
+      --night-rider: #2e2e2e;
+      --white: #ffffff;
+      --af-white: #f3f3f3;
+      --ch-white: #e1e1e1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 45px;
+      height: 45px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition-duration: .3s;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+      background-color: var(--night-rider);
+    }
+    /* plus sign */
+    .sign {
+      width: 100%;
+      transition-duration: .3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sign svg {
+      width: 17px;
+    }
+    .sign svg path {
+      fill: var(--af-white);
+    }
+    /* text */
+    .text {
+      position: absolute;
+      right: 0%;
+      width: 0%;
+      opacity: 0;
+      color: var(--af-white);
+      font-size: 1.2em;
+      font-weight: 600;
+      transition-duration: .3s;
+    }
+    /* hover effect on button width */
+    .Btn:hover {
+      width: 125px;
+      border-radius: 5px;
+      transition-duration: .3s;
+    }
+    .Btn:hover .sign {
+      width: 30%;
+      transition-duration: .3s;
+      padding-left: 20px;
+    }
+    /* hover effect button's text */
+    .Btn:hover .text {
+      opacity: 1;
+      width: 70%;
+      transition-duration: .3s;
+      padding-right: 10px;
+    }
+    /* button click effect*/
+    .Btn:active {
+      transform: translate(2px ,2px);
+    }
+
     /* ══ MOBILE MENU TOGGLE ══ */
     .menu-toggle {
       display: none;
@@ -543,18 +621,56 @@
       margin-left: 1px;
     }
 
+    /* ══ MOBILE SECTION HEADER ══ */
+    .mobile-section-header {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      background: var(--white);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-200);
+    }
+    .mobile-section-header .logo-eq,
+    .mobile-section-header .logo-novia {
+      font-size: 18px;
+    }
+    .mobile-section-header .logo-dot {
+      width: 6px;
+      height: 6px;
+      top: -8px;
+    }
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .section-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
     /* ══ RESPONSIVE ══ */
     @media(max-width:992px){
       .sidebar{width:60px;}
       .sidebar .nav-label{display:none;}
       .sidebar .nav-item{padding:12px 18px;justify-content:center;}
       .sidebar .nav-item span:not(.nav-icon){display:none;}
+      .sidebar .nav-item{position:relative;}
+      .sidebar .nav-item:hover::after{content:attr(data-tooltip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);background:var(--gray-900);color:white;padding:6px 12px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;white-space:nowrap;z-index:1000;pointer-events:none;box-shadow:var(--shadow-md);}
       .sidebar .sidebar-footer p{font-size:8px;text-align:center;}
-      .sidebar .user-selector select{max-width:50px;font-size:10px;}
+      .sidebar .user-selector{flex-direction:column;align-items:center;gap:4px;padding:8px 10px;}
       .sidebar .user-selector label{display:none;}
-      .sidebar .user-selector .user-badge{display:none;}
-      .sidebar .btn-logout{font-size:0;padding:6px 10px;margin-left:0;}
-      .sidebar .btn-logout::after{content:'🚪';font-size:16px;}
+      .sidebar .user-selector select{max-width:50px;font-size:10px;height:28px;}
+      .sidebar .user-selector .user-badge{font-size:10px;padding:2px 8px;}
+      .sidebar .sidebar-bottom-row{flex-direction:column;align-items:center;gap:6px;}
+      .sidebar .sidebar-footer .logout-btn{width:32px;height:32px;min-width:32px;padding:0;font-size:0;border-radius:50%;}
+      .sidebar .sidebar-footer .logout-btn svg{width:14px;height:14px;}
+      .sidebar .sidebar-footer .logout-btn .sign{width:100%;padding:0;}
       .content{margin-left:60px;max-width:calc(100vw - 60px);padding:16px;}
     }
     @media(max-width:768px){
@@ -581,11 +697,19 @@
       .panel-header{flex-direction:column;align-items:stretch;}
       .panel-header .export-group{justify-content:flex-start;}
       .user-selector{flex-wrap:wrap;}
-      .user-selector select{max-width:70px;font-size:10px;}
-      .user-selector .btn-logout{font-size:0;padding:4px 8px;}
-      .user-selector .btn-logout::after{content:'🚪';font-size:14px;}
+      .user-selector select{max-width:100px;font-size:10px;height:28px;}
+      .user-selector .user-badge{font-size:10px;padding:2px 8px;}
+      .sidebar-bottom-row{flex-direction:column;align-items:stretch;gap:8px;}
+      .sidebar .sidebar-footer .logout-btn{width:100%;min-width:unset;height:40px;padding:0 16px;font-size:12px;border-radius:var(--radius-sm);justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:all .2s;}
+      .sidebar .sidebar-footer .logout-btn:hover{background:#FADADAAA;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+      .sidebar .nav-item span:not(.nav-icon){display:inline !important;}
+      .sidebar .nav-item{justify-content:flex-start;padding:10px 20px;}
+      .sidebar .nav-label{display:flex !important;}
+      .sidebar-footer .logout-btn svg{width:14px;height:14px;}
       .bottom-nav{display:flex;}
       .menu-toggle{display:flex !important;}
+      /* Mobile section header for tablet */
+      .mobile-section-header{display:flex !important;}
     }
     @media(max-width:480px){
       .content{padding:8px;}
@@ -614,6 +738,17 @@
       .bottom-nav-item .nav-icon{font-size:18px;}
       .bottom-nav-logo{font-size:12px;}
       .content{padding-bottom:70px;}
+      .mobile-section-header{display:flex !important;}
+      /* Mobile section header styles */
+      .mobile-section-header{background:var(--white);border-radius:var(--radius-md);border:1px solid var(--gray-200);margin-bottom:12px;}
+      .mobile-section-header .logo-eq,.mobile-section-header .logo-novia{font-size:16px;}
+      .mobile-section-header .logo-dot{width:5px;height:5px;top:-6px;}
+      .mobile-section-header .section-label{font-size:9px;}
+      .mobile-section-header .section-name{font-size:12px;}
+      /* Logout button mobile */
+      .sidebar .sidebar-footer .logout-btn{width:100%;min-width:unset;height:40px;padding:0 16px;font-size:12px;border-radius:var(--radius-sm);justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:all .2s;}
+      .sidebar .sidebar-footer .logout-btn:hover{background:#FADADAAA;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+      .sidebar .logout-btn svg{width:12px;height:12px;}
     }
   </style>
 </head>
@@ -763,54 +898,60 @@
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="appContent" style="display:none;">
-  <span class="nav-label">Tableau de bord</span>
-  <a class="nav-item active" onclick="switchTab('saisie')" id="nav-saisie">
+  <span class="nav-label"><span class="nav-label-icon">📊</span> Tableau de bord</span>
+  <a class="nav-item active" data-tooltip="Saisie & OCR" onclick="switchTab('saisie')" id="nav-saisie">
     <span class="nav-icon">✏️</span> <span>Saisie & OCR</span>
   </a>
 
-  <span class="nav-label">Historique</span>
-  <a class="nav-item" onclick="switchTab('all')" id="nav-all">
+  <span class="nav-label"><span class="nav-label-icon">📁</span> Historique</span>
+  <a class="nav-item" data-tooltip="Toutes" onclick="switchTab('all')" id="nav-all">
     <span class="nav-icon">📋</span> <span>Toutes</span>
   </a>
-  <a class="nav-item" onclick="switchTab('monthly')" id="nav-monthly">
+  <a class="nav-item" data-tooltip="Par mois" onclick="switchTab('monthly')" id="nav-monthly">
     <span class="nav-icon">📅</span> <span>Par mois</span>
   </a>
-  <a class="nav-item" onclick="switchTab('yearly')" id="nav-yearly">
+  <a class="nav-item" data-tooltip="Par année" onclick="switchTab('yearly')" id="nav-yearly">
     <span class="nav-icon">📆</span> <span>Par année</span>
   </a>
 
-  <span class="nav-label">Exports</span>
-  <a class="nav-item" onclick="exportPDF()">
+  <span class="nav-label"><span class="nav-label-icon">📤</span> Exports</span>
+  <a class="nav-item" data-tooltip="PDF" onclick="exportPDF()">
     <span class="nav-icon">📄</span> <span>PDF</span>
   </a>
-  <a class="nav-item" onclick="exportExcel()">
+  <a class="nav-item" data-tooltip="Excel" onclick="exportExcel()">
     <span class="nav-icon">📊</span> <span>Excel</span>
   </a>
 
-  <span class="nav-label" id="adminOnlyLabel">Gestion</span>
-  <a class="nav-item" id="adminClearBtn" onclick="confirmClear()" style="color:var(--red);">
+  <span class="nav-label" id="adminOnlyLabel"><span class="nav-label-icon">⚙️</span> Gestion</span>
+  <a class="nav-item" id="adminClearBtn" data-tooltip="Tout effacer" onclick="confirmClear()" style="color:var(--red);">
     <span class="nav-icon">🗑️</span> <span>Tout effacer</span>
   </a>
 
-  <span class="nav-label">Informations</span>
-  <a class="nav-item" onclick="switchTab('policy')" id="nav-policy">
+  <span class="nav-label"><span class="nav-label-icon">ℹ️</span> Informations</span>
+  <a class="nav-item" data-tooltip="Conditions" onclick="switchTab('policy')" id="nav-policy">
     <span class="nav-icon">📜</span> <span>Conditions</span>
   </a>
 
   <div class="sidebar-footer">
-    <p>Eqnovia©2025</p>
-  </div>
-  <div class="user-selector">
-    <label>👤 :</label>
-    <select id="userSelector" onchange="switchUser(this.value)">
-      <option value="admin">Admin</option>
-      <option value="user1">Rachid</option>
-      <option value="user2">Soufiane</option>
-      <option value="user3">Fatima</option>
-      <option value="user4">Larbi</option>
-    </select>
-    <span class="user-badge admin" id="userBadge">Admin</span>
-    <button class="btn-logout" onclick="logout()">🚪 Déconnexion</button>
+    <p>Eqnovia © 2025</p>
+    <div class="sidebar-bottom-row">
+      <div class="user-selector">
+        <label>👤 :</label>
+        <select id="userSelector" onchange="switchUser(this.value)">
+          <option value="admin">👑 Admin</option>
+          <option value="user1">👤 Rachid Bayed</option>
+          <option value="user2">👤 Soufiane Laraichi</option>
+          <option value="user3">👤 Fatima zahra Bourzgui</option>
+          <option value="user4">👤 Larbi</option>
+        </select>
+        <span class="user-badge admin" id="userBadge">Admin</span>
+      </div>
+      <!-- From Uiverse.io by kennyotsu-monochromia -->
+      <button class="Btn logout-btn" onclick="logout()">
+        <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
+        <div class="text">Déconnexion</div>
+      </button>
+    </div>
   </div>
   
 </aside>
@@ -846,6 +987,14 @@
 
   <!-- ══ TAB: SAISIE & OCR ══ -->
   <div id="tab-content-saisie">
+    <!-- Mobile Section Header -->
+    <div class="mobile-section-header" style="display:none;">
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span class="logo-eq" style="font-size:18px;">eq</span><span class="logo-novia" style="font-size:18px;">novia</span><span class="logo-dot" style="width:6px;height:6px;top:-8px;"></span>
+      </div>
+      <span class="section-label">Section :</span>
+      <span class="section-name">Saisie & OCR</span>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" class="input-form-grid">
 
       <!-- Saisie -->
@@ -926,6 +1075,14 @@
 
   <!-- ══ TAB: TOUTES ══ -->
   <div id="tab-content-all" style="display:none;">
+    <!-- Mobile Section Header -->
+    <div class="mobile-section-header" style="display:none;">
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span class="logo-eq" style="font-size:18px;">eq</span><span class="logo-novia" style="font-size:18px;">novia</span><span class="logo-dot" style="width:6px;height:6px;top:-8px;"></span>
+      </div>
+      <span class="section-label">Section :</span>
+      <span class="section-name">Toutes les dépenses</span>
+    </div>
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title"><div class="panel-icon blue">📋</div> Toutes les dépenses</div>
@@ -997,6 +1154,14 @@
 
   <!-- ══ TAB: PAR MOIS ══ -->
   <div id="tab-content-monthly" style="display:none;">
+    <!-- Mobile Section Header -->
+    <div class="mobile-section-header" style="display:none;">
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span class="logo-eq" style="font-size:18px;">eq</span><span class="logo-novia" style="font-size:18px;">novia</span><span class="logo-dot" style="width:6px;height:6px;top:-8px;"></span>
+      </div>
+      <span class="section-label">Section :</span>
+      <span class="section-name">Par mois</span>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
         <select class="form-select" id="filterYearMonth" onchange="renderMonthly()" style="height:32px;width:auto;font-size:12px;">
@@ -1021,6 +1186,14 @@
 
   <!-- ══ TAB: PAR ANNÉE ══ -->
   <div id="tab-content-yearly" style="display:none;">
+    <!-- Mobile Section Header -->
+    <div class="mobile-section-header" style="display:none;">
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span class="logo-eq" style="font-size:18px;">eq</span><span class="logo-novia" style="font-size:18px;">novia</span><span class="logo-dot" style="width:6px;height:6px;top:-8px;"></span>
+      </div>
+      <span class="section-label">Section :</span>
+      <span class="section-name">Par année</span>
+    </div>
     <div style="margin-bottom:12px;display:flex;justify-content:flex-end;gap:6px;">
       <button class="btn btn-pdf" onclick="exportPDF()">📄 PDF</button>
       <button class="btn btn-excel" onclick="exportExcel()">📊 Excel</button>
@@ -1030,6 +1203,14 @@
 
   <!-- ══ TAB: CONDITIONS & POLITIQUE ══ -->
   <div id="tab-content-policy" style="display:none;">
+    <!-- Mobile Section Header -->
+    <div class="mobile-section-header" style="display:none;">
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span class="logo-eq" style="font-size:18px;">eq</span><span class="logo-novia" style="font-size:18px;">novia</span><span class="logo-dot" style="width:6px;height:6px;top:-8px;"></span>
+      </div>
+      <span class="section-label">Section :</span>
+      <span class="section-name">Conditions</span>
+    </div>
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title"><div class="panel-icon blue">📜</div> Conditions Générales & Politique de Confidentialité</div>
@@ -1471,6 +1652,10 @@ function switchTab(t) {
     document.getElementById(`tab-${id}`)?.classList.toggle('active', id===t);
     document.getElementById(`nav-${id}`)?.classList.toggle('active', id===t);
     document.getElementById(`bnav-${id}`)?.classList.toggle('active', id===t);
+    // Show/hide mobile section headers
+    document.querySelectorAll(`.mobile-section-header`).forEach(el => el.style.display = 'none');
+    const header = document.querySelector(`#tab-content-${t} .mobile-section-header`);
+    if (header) header.style.display = 'flex';
   });
   if (t==='all')     renderAll();
   if (t==='monthly') renderMonthly();
